@@ -1,0 +1,58 @@
+name: EPSM release checks
+
+on: [push, pull_request, workflow_dispatch]
+
+permissions:
+  contents: read
+
+jobs:
+  platform:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        python: ['3.11', '3.13']
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/checkout@v4
+        with:
+          repository: SB-Chalmers/epsm_data
+          ssh-key: ${{ secrets.EPSM_DATA_DEPLOY_KEY }}
+          persist-credentials: false
+          ref: ae102d33eda79fd429fb445ec99b32dabcab8024
+          path: .ci/epsm_data
+      - uses: actions/checkout@v4
+        with:
+          repository: SB-Chalmers/epsm_core
+          ssh-key: ${{ secrets.EPSM_CORE_DEPLOY_KEY }}
+          persist-credentials: false
+          ref: 8a7c5abf9228e7e6c3792f1f34490aaffd1f608f
+          path: .ci/epsm_core
+      - uses: actions/checkout@v4
+        with:
+          repository: SB-Chalmers/epsm_lca
+          ssh-key: ${{ secrets.EPSM_LCA_DEPLOY_KEY }}
+          persist-credentials: false
+          ref: f2e646713d20f0480bb245e344f86d45292efcdd
+          path: .ci/epsm_lca
+      - uses: actions/checkout@v4
+        with:
+          repository: SB-Chalmers/epsm_rc
+          ssh-key: ${{ secrets.EPSM_RC_DEPLOY_KEY }}
+          persist-credentials: false
+          ref: bc65cb2b5ab866ad9909a39b4b7a412beadf84e5
+          path: .ci/epsm_rc
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python }}
+      - name: Install coordinated candidates
+        run: python -m pip install build -e .ci/epsm_data -e .ci/epsm_core -e .ci/epsm_lca -e .ci/epsm_rc -e '.[dev,rc]'
+      - name: Run platform suite
+        run: python -m pytest -q
+      - name: Build and check installed package
+        run: |
+          python -m build --wheel
+          python -m pip install --no-deps --force-reinstall dist/epsm-*.whl
+          python -m pip check
+          cd /tmp
+          python "$GITHUB_WORKSPACE/examples/platform_walkthrough.py"
