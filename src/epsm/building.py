@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import json
 import logging
 import shutil
 import uuid
@@ -76,7 +77,7 @@ class Building(CoreBuilding):
             building=self.snapshot().to_dict(),
             assessment=self.assessment.to_dict() if self.assessment else None,
             baseline_inventory=deepcopy(self._baseline_inventory),
-            source_record=deepcopy(self._source_record),
+            source_record=json.loads(encode(self._source_record)),
             lineage=self.lineage_to_dict(),
         )
 
@@ -132,7 +133,9 @@ class Building(CoreBuilding):
         if Path(weather.path).resolve() != weather_path:
             shutil.copyfile(weather.path, weather_path)
         frozen_weather = Weather.from_epw(
-            weather_path, calendar_year=weather.climate.calendar_year
+            weather_path,
+            calendar_year=weather.climate.calendar_year,
+            provenance=weather.provenance,
         )
         spec = frozen.to_spec(frozen_weather)
         quantities = frozen.quantities()
@@ -235,6 +238,7 @@ class Building(CoreBuilding):
             energy_id=key,
             lca_id=lca_key,
             snapshot=snapshot.to_dict(),
+            source_record=deepcopy(self._source_record),
             weather=frozen_weather.to_dict(),
             assessment=settings,
             energy=energy_data,

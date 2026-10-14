@@ -65,3 +65,7 @@ data before drawing research conclusions. Solver limitations are reported by
 the selected engine. The previous DB and Data adapters remain accessible through
 compatibility modules while existing studies migrate. Studio is outside this
 refactor. EPSM-owned code uses MIT; see LICENSE.
+
+### Generated weather and evidence
+
+For SMHI actual-year weather, `Weather.from_epw(epw_path, provenance_path=receipt_path)` infers the explicit AMY year and retains the fingerprinted quality receipt. Undated typical-year files use the documented 2023 calendar unless you supply `calendar_year`. Each evaluation copies its EPW and retains that receipt alongside its fixed Building state.

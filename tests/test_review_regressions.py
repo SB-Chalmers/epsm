@@ -108,3 +108,34 @@ def test_memory_cache_does_not_expose_missing_artifact_paths(tmp_path):
     )
     assert result["artifacts"] == {}
     assert result["diagnostics"]["unavailable_cached_artifacts"] == ["hourly"]
+
+
+def test_evaluation_preserves_weather_quality_and_material_history(
+    tmp_path, weather, engine
+):
+    from dataclasses import replace
+
+    from epsm_core import Equipment
+    from test_platform import assessment, replacement
+
+    from epsm import Weather
+
+    receipt = {
+        "epw_sha256": weather.sha256,
+        "quality": {"warnings": ["illustrative warning"]},
+    }
+    supplied = Weather.from_epw(weather.path, provenance=receipt)
+    parent = reference()
+    parent.assessment = assessment(parent)
+    child = parent.renovate(replacement(parent))
+    child.hvac = replace(
+        child.hvac, equipment=(Equipment("authored", "unknown.product"),)
+    )
+    assert child.material_history_requirements
+    result = child.simulate(engine="epsm_rc", weather=supplied, directory=tmp_path)
+    receipt["quality"]["warnings"].clear()
+    assert result.weather["provenance"]["quality"]["warnings"] == [
+        "illustrative warning"
+    ]
+    assert result.energy.complete and result.lca.status == "incomplete"
+    assert any("material history" in r for r in result.lca.requirements)
