@@ -9,7 +9,7 @@ from epsm_data.layered import load_calibrated_archetype
 from epsm_data.parametric import load_parametric_catalogue
 
 
-def core_inputs(archetype_id, state='existing', *, detailed=None, catalogue=None, basement_wall=None):
+def core_inputs(archetype_id, state=None, *, detailed=None, catalogue=None, basement_wall=None):
     """Return native core envelope/glazing plus topology and boundary requirements.
 
     Callers supply geometry, weather, use, HVAC and ground temperatures. An explicit
@@ -21,8 +21,13 @@ def core_inputs(archetype_id, state='existing', *, detailed=None, catalogue=None
 
     detailed = detailed or load_detailed_catalogue()
     catalogue = catalogue or load_parametric_catalogue()
+    if detailed.archetypes[archetype_id]['era'] == 'SE.07':
+        if state is not None:
+            raise ValueError('SE.07 has no renovation states; use state=None')
+    elif state is None:
+        state = 'existing'
     definition = detailed.archetypes[archetype_id]['states'][state]
-    if definition.get('release_profile') != 'lod2-v1':
+    if definition.get('release_profile') not in {'lod2-v1', 'complete_recipe'}:
         raise ValueError('This adapter requires a reviewed v1 state')
     model = load_calibrated_archetype(detailed=detailed, catalogue=catalogue,
                                      archetype_id=archetype_id, renovation_state=state)

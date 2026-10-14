@@ -181,7 +181,11 @@ class Building(CoreBuilding):
         )
         logger.info(
             "Energy calculation started",
-            extra={"engine": engine, "evaluation_id": evaluation_id, "energy_id": key},
+            extra={
+                "epsm_event": "evaluation.energy.started",
+                "epsm_context": {"evaluation_id": evaluation_id, "energy_id": key},
+                "epsm_details": {"engine": engine},
+            },
         )
         energy_data = cache.get("energy", key)
         reused_energy = energy_data is not None
@@ -245,7 +249,14 @@ class Building(CoreBuilding):
             except Exception as error:
                 logger.exception(
                     "LCA calculation failed; energy result retained",
-                    extra={"evaluation_id": evaluation_id, "lca_id": lca_key},
+                    extra={
+                        "epsm_event": "evaluation.lca.failed",
+                        "epsm_context": {
+                            "evaluation_id": evaluation_id,
+                            "lca_id": lca_key,
+                        },
+                        "epsm_details": {"energy_retained": True},
+                    },
                 )
                 lca = LCAResult(
                     "failed", None, None, None, (f"{type(error).__name__}: {error}",)
@@ -281,9 +292,12 @@ class Building(CoreBuilding):
         logger.info(
             "Evaluation completed",
             extra={
-                "evaluation_id": evaluation_id,
-                "energy_reused": reused_energy,
-                "lca_status": lca_data["status"],
+                "epsm_event": "evaluation.completed",
+                "epsm_context": {"evaluation_id": evaluation_id},
+                "epsm_details": {
+                    "energy_reused": reused_energy,
+                    "lca_status": lca_data["status"],
+                },
             },
         )
         return result

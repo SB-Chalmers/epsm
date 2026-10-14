@@ -13,6 +13,7 @@ from copy import deepcopy
 
 from epsm_data.detailed import load_detailed_catalogue
 from epsm_data.parametric import ArchetypeKey, era_for_year, load_parametric_catalogue
+
 from .catalogue_release import core_inputs
 
 COMPONENT_FIELDS = {
@@ -30,7 +31,7 @@ def resolve_building_archetype(
     construction_year,
     climate_zone,
     ventilation,
-    default_state="existing",
+    default_state=None,
     component_states=None,
     component_sources=None,
     detailed=None,
@@ -45,7 +46,7 @@ def resolve_building_archetype(
     category : str
         single_family, multi_family, office, school or generic.
     construction_year : int
-        Known construction year mapped through the catalogue's declared six eras.
+        Known construction year mapped through the catalogue's declared seven eras.
     climate_zone, ventilation : str
         Explicit catalogue classifications; no location or HVAC inference occurs.
     default_state : str
@@ -79,9 +80,10 @@ def resolve_building_archetype(
     data = detailed or load_detailed_catalogue(catalogue=cat)
     era = era_for_year(construction_year)
     if era == "SE.07":
-        if default_state not in (None, "existing"):
-            raise ValueError("SE.07 has no renovation states")
-        default_state = None
+        if default_state is not None:
+            raise ValueError("SE.07 has no renovation states; use default_state=None")
+    elif default_state is None:
+        default_state = "existing"
     key = ArchetypeKey(category, era, climate_zone, default_state, ventilation)
     parent_slot = cat.get_slot(key)  # validates every classification and state
     candidates = [
