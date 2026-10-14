@@ -16,10 +16,16 @@ def normalize_energy(spec, result, *, engine):
     requirements, carriers = [], {}
     delivery = spec.delivery.heating
     if delivery is None:
-        requirements.append("Explicit space-heating delivery and fan accounting are required")
+        requirements.append(
+            "Explicit space-heating delivery and fan accounting are required"
+        )
     else:
-        carrier = {"electric_direct": "electricity", "heat_pump": "electricity",
-                   "district_heat": "district_heat", "fuel": "fuel"}[delivery.carrier]
+        carrier = {
+            "electric_direct": "electricity",
+            "heat_pump": "electricity",
+            "district_heat": "district_heat",
+            "fuel": "fuel",
+        }[delivery.carrier]
         amount = scalars.get("space_heating_carrier_input_kwh")
         if amount is None or not math.isfinite(amount) or amount < 0:
             requirements.append("Space-heating carrier input is missing or invalid")
@@ -32,8 +38,15 @@ def normalize_energy(spec, result, *, engine):
             else:
                 carriers["electricity"] = carriers.get("electricity", 0) + fan
     time_axis = [] if result.time_axis is None else [str(x) for x in result.time_axis]
-    return EnergyResult(engine=engine, scalars=scalars, hourly=result.hourly,
-                        units=result.units, diagnostics=result.diagnostics,
-                        artifacts=result.artifacts, delivered_by_carrier=carriers,
-                        requirements=requirements, time_axis=time_axis,
-                        annual=len(time_axis) == spec.climate.hours_in_year)
+    return EnergyResult(
+        engine=engine,
+        scalars=scalars,
+        hourly=result.hourly,
+        units=result.units,
+        diagnostics=result.diagnostics,
+        artifacts=result.artifacts,
+        delivered_by_carrier=carriers,
+        requirements=requirements,
+        time_axis=time_axis,
+        annual=len(time_axis) == spec.climate.hours_in_year,
+    )

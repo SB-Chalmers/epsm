@@ -4,33 +4,62 @@ from copy import deepcopy
 
 
 def _value(record, name, default=None):
-    return record.get(name, default) if isinstance(record, dict) else getattr(record, name, default)
+    return (
+        record.get(name, default)
+        if isinstance(record, dict)
+        else getattr(record, name, default)
+    )
+
+
+def _record_view(record):
+    if isinstance(record, dict) and "format" in record:
+        if record["format"] != "epsm-record-1" or record.get("crs") != "EPSG:3006":
+            raise ValueError("Expected EPSM record format 1 in EPSG:3006")
+        return record["record"]
+    return record
 
 
 def building_from_record(building_type, record, **options):
+    record = _record_view(record)
     geometry = _value(record, "geometry")
     facts = _value(record, "facts", {})
     options.setdefault("identifier", str(_value(record, "building_id", "building")))
-    storeys = options.pop("storeys", _value(record, "storeys", facts.get("storeys")))
+    observed_storeys = _value(record, "storeys", facts.get("storeys"))
+    storeys = options.pop("storeys", observed_storeys)
     storey_height = options.pop("storey_height_m", facts.get("storey_height_m"))
     if geometry is not None and isinstance(geometry, dict):
         from shapely.geometry import shape
+
         geometry = shape(geometry)
     if geometry is not None and storeys is not None and storey_height is not None:
-        building = building_type.from_footprint(geometry, storeys=storeys,
-                                                storey_height_m=storey_height, **options)
+        building = building_type.from_footprint(
+            geometry, storeys=storeys, storey_height_m=storey_height, **options
+        )
     else:
         building = building_type.empty(**options)
     # Retain a bounded portable evidence view; no connection strings or live handles.
     building._source_record = dict(
-        building_id=_value(record, "building_id"), dataset_id=_value(record, "dataset_id"),
-        facts=deepcopy(facts), atemp_m2=_value(record, "atemp_m2"), storeys=storeys,
+        building_id=_value(record, "building_id"),
+        dataset_id=_value(record, "dataset_id"),
+        facts=deepcopy(facts),
+        atemp_m2=_value(record, "atemp_m2"),
+        storeys=observed_storeys,
         observations=deepcopy(_value(record, "observations", ())),
-        receipt=(_value(record, "receipt").to_dict() if hasattr(_value(record, "receipt"), "to_dict")
-                 else deepcopy(_value(record, "receipt"))),
+        receipt=(
+            _value(record, "receipt").to_dict()
+            if hasattr(_value(record, "receipt"), "to_dict")
+            else deepcopy(_value(record, "receipt"))
+        ),
         geometry=geometry.__geo_interface__ if geometry is not None else None,
-        requirements=[name for name, value in (("footprint", geometry), ("storeys", storeys),
-                                                ("storey_height_m", storey_height)) if value is None],
+        requirements=[
+            name
+            for name, value in (
+                ("footprint", geometry),
+                ("storeys", storeys),
+                ("storey_height_m", storey_height),
+            )
+            if value is None
+        ],
     )
     return building
 
@@ -38,18 +67,40 @@ def building_from_record(building_type, record, **options):
 def compare_record(building, record):
     """Report area/storey differences without treating reported EPC values as measurements."""
     if record is None:
-        raise ValueError("Supply a BuildingRecord or create the Building.from_record(record)")
+        raise ValueError(
+            "Supply a BuildingRecord or create the Building.from_record(record)"
+        )
+    record = _record_view(record)
     geometry = building.geometry
     area = geometry.conditioned_floor_area_m2 if geometry is not None else None
     parts = geometry.parts if geometry is not None else ()
-    floors = sum(p.floors for p in parts) if parts else None
+    floors = parts[0].floors if len(parts) == 1 else None
     rows = []
     for field, modeled, observed, unit in (
         ("heated_area", area, _value(record, "atemp_m2"), "m2"),
         ("storeys", floors, _value(record, "storeys"), "count"),
     ):
-        rows.append(dict(property=field, model=modeled, observed=observed, unit=unit,
-                         evidence_kind="reported", dataset_id=_value(record, "dataset_id"),
-                         difference=None if modeled is None or observed is None else modeled - observed,
-                         status="missing" if modeled is None or observed is None else "comparable"))
+        comparable = field == "storeys" and modeled is not None and observed is not None
+        rows.append(
+            dict(
+                property=field,
+                model=modeled,
+                observed=observed,
+                unit=unit,
+                evidence_kind="reported",
+                dataset_id=_value(record, "dataset_id"),
+                model_basis="conditioned_gross_floor_area"
+                if field == "heated_area"
+                else "storeys",
+                observation_basis="reported_Atemp"
+                if field == "heated_area"
+                else "storeys",
+                difference=modeled - observed if comparable else None,
+                status="missing"
+                if modeled is None or observed is None
+                else "comparable"
+                if comparable
+                else "different_area_definitions",
+            )
+        )
     return rows
