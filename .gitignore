@@ -23,3 +23,6 @@ __pycache__/
 /tmp/
 /build/
 /dist/
+
+# Default platform evaluation artifacts
+/outputs/

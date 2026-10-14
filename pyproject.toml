@@ -1,0 +1,25 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "epsm"
+version = "0.1.0"
+description = "Researcher-facing EPSM Building, simulations and assessment"
+requires-python = ">=3.11"
+dependencies = ["epsm_core>=0.2.0", "epsm_data>=0.4.0", "epsm_lca>=0.1.0"]
+license = "MIT"
+
+[project.optional-dependencies]
+rc = ["epsm_rc>=0.2.0"]
+database = ["epsm_db>=0.1.0"]
+dev = ["pytest>=8", "ruff>=0.11"]
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+
+[tool.ruff.lint]
+select = ["E4", "E7", "E9", "F", "I"]
