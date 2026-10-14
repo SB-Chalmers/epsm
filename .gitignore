@@ -1,0 +1,25 @@
+# Local environments, credentials and caches
+.venv/
+venv/
+.env
+.env.*
+!.env.example
+__pycache__/
+*.py[cod]
+*.egg-info/
+.pytest_cache/
+.ruff_cache/
+.ipynb_checkpoints/
+.DS_Store
+
+# Generated data, exploration and simulation artifacts
+/data/raw/
+/data/local/
+/output/
+/results/
+/runs/
+/simulation_results/
+/logs/
+/tmp/
+/build/
+/dist/
