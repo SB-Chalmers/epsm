@@ -42,11 +42,18 @@ jobs:
           persist-credentials: false
           ref: bc65cb2b5ab866ad9909a39b4b7a412beadf84e5
           path: .ci/epsm_rc
+      - uses: actions/checkout@v4
+        with:
+          repository: SB-Chalmers/epsm_workflows
+          ssh-key: ${{ secrets.EPSM_WORKFLOWS_DEPLOY_KEY }}
+          persist-credentials: false
+          ref: a911743677e21f2a99bd738095a10bda8dd57b8e
+          path: .ci/epsm_workflows
       - uses: actions/setup-python@v5
         with:
           python-version: ${{ matrix.python }}
       - name: Install coordinated candidates
-        run: python -m pip install build -e .ci/epsm_data -e .ci/epsm_core -e .ci/epsm_lca -e .ci/epsm_rc -e '.[dev,rc]'
+        run: python -m pip install build -e .ci/epsm_data -e .ci/epsm_core -e .ci/epsm_lca -e .ci/epsm_rc -e .ci/epsm_workflows -e '.[dev,rc]'
       - name: Run platform suite
         run: python -m pytest -q
       - name: Build and check installed package
