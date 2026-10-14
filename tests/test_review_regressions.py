@@ -47,6 +47,8 @@ def test_portable_record_and_explicit_override_keep_source_evidence():
     )
     b = Building.from_record(record.to_dict(), storeys=3)
     assert b.identifier == "record-1" and b.geometry is not None
+    assert b.geometry.source_crs == "EPSG:3006"
+    assert b.to_dict()["source_record"]["crs"] == "EPSG:3006"
     row = next(r for r in b.compare() if r["property"] == "storeys")
     assert (row["model"], row["observed"], row["difference"]) == (3, 2, 1)
     unmodified = Building.from_record(record.to_dict())

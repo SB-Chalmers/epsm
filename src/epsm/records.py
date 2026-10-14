@@ -29,6 +29,7 @@ def building_from_record(building_type, record, **options):
     record = _record_view(record)
     geometry = _value(record, "geometry")
     facts = _value(record, "facts", {})
+    source_crs = options.pop("source_crs", _value(record, "crs", "local_metres"))
     options.setdefault("identifier", str(_value(record, "building_id", "building")))
     observed_storeys = _value(record, "storeys", facts.get("storeys"))
     storeys = options.pop("storeys", observed_storeys)
@@ -39,13 +40,18 @@ def building_from_record(building_type, record, **options):
         geometry = shape(geometry)
     if geometry is not None and storeys is not None and storey_height is not None:
         building = building_type.from_footprint(
-            geometry, storeys=storeys, storey_height_m=storey_height, **options
+            geometry,
+            storeys=storeys,
+            storey_height_m=storey_height,
+            source_crs=source_crs,
+            **options,
         )
     else:
         building = building_type.empty(**options)
     # Retain a bounded portable evidence view; no connection strings or live handles.
     building._source_record = dict(
         building_id=_value(record, "building_id"),
+        crs=source_crs,
         dataset_id=_value(record, "dataset_id"),
         facts=deepcopy(facts),
         atemp_m2=_value(record, "atemp_m2"),
