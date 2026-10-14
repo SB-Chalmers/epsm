@@ -14,10 +14,12 @@ from epsm_lca import AssessmentSettings
 
 from .building import Building
 from .cache import EvaluationCache
+from .provenance import evaluation_identity
 from .results import EnergyResult, Evaluation, Results
 
 __version__ = "0.1.0"
 __all__ = [
+    "evaluation_identity",
     "Building",
     "Weather",
     "HVACSystem",

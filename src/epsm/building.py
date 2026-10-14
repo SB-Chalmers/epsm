@@ -2,12 +2,10 @@
 
 from __future__ import annotations
 
-import importlib.util
 import logging
 import shutil
 import uuid
 from copy import deepcopy
-from functools import lru_cache
 from pathlib import Path
 
 from epsm_core import Building as CoreBuilding
@@ -16,21 +14,10 @@ from epsm_lca import AssessmentSettings, LCAResult, assess
 
 from .cache import EvaluationCache
 from .energy import normalize_energy
+from .provenance import evaluation_identity, implementation_identity
 from .results import Evaluation, Results, encode, identity
 
 logger = logging.getLogger(__name__)
-
-
-@lru_cache(maxsize=None)
-def _implementation(package):
-    """Pin executable source, including uncommitted development changes."""
-    spec = importlib.util.find_spec(package)
-    if spec is None:
-        raise ImportError(f"Install {package} to use this engine")
-    root = Path(spec.origin).parent
-    return identity(
-        {str(p.relative_to(root)): p.read_text() for p in sorted(root.rglob("*.py"))}
-    )
 
 
 class Building(CoreBuilding):
@@ -151,33 +138,9 @@ class Building(CoreBuilding):
         quantities = frozen.quantities()
         flows = deepcopy(self.material_flows)
         cache = cache if cache is not None else self._evaluation_cache
-        engine_identity = None
-        if engine == "energyplus":
-            from epsm_core.compiler import EnergyPlusCompiler
-
-            compiler = EnergyPlusCompiler(
-                options.get("energyplus"), settings=options.get("settings")
-            )
-            engine_identity = dict(
-                executable=compiler.engine_hash,
-                schema=compiler.schema_hash,
-                version=compiler.version,
-                settings=compiler.settings.model_dump(mode="json"),
-            )
+        runtime = evaluation_identity(engine=engine, weather=frozen_weather, **options)
         key = identity(
-            dict(
-                format=2,
-                physical=spec.physical_dict(),
-                engine=engine,
-                engine_identity=engine_identity,
-                core=_implementation("epsm_core"),
-                data=_implementation("epsm_data"),
-                implementation=_implementation(
-                    "epsm_core" if engine == "energyplus" else "epsm_rc"
-                ),
-                normalization=_implementation("epsm"),
-                options=options,
-            )
+            dict(format=3, physical=spec.physical_dict(), runtime=runtime["energy"])
         )
         logger.info(
             "Energy calculation started",
@@ -231,7 +194,7 @@ class Building(CoreBuilding):
                 settings=settings,
                 baseline=self._baseline_inventory,
                 requirements=getattr(self, "material_history_requirements", ()),
-                implementation=_implementation("epsm_lca"),
+                implementation=implementation_identity("epsm_lca"),
             )
         )
         lca_data = cache.get("lca", lca_key)

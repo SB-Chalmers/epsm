@@ -13,26 +13,49 @@ from epsm.results import EnergyResult, Evaluation
 
 
 def test_portable_record_and_explicit_override_keep_source_evidence():
-    record = dict(
-        building_id="record-1",
-        dataset_id="source",
-        storeys=2,
-        facts={"storey_height_m": 2.8},
-        geometry={
-            "type": "Polygon",
-            "coordinates": [[[0, 0], [20, 0], [20, 12], [0, 12], [0, 0]]],
-        },
+    from datetime import date
+
+    from shapely.geometry import box
+
+    db = pytest.importorskip("epsm_db")
+    from sweden_ubem.enums import BuildingType
+
+    record = db.BuildingRecord(
+        "source",
+        "record-1",
+        BuildingType.RESIDENTIAL_MULTIFAMILY,
+        box(0, 0, 20, 12),
+        {"storey_height_m": 2.8},
+        certificates=(
+            {
+                "certificate_id": "cert",
+                "certificate_date": date(2024, 1, 1),
+                "date_status": "verified",
+                "subject_count": 1,
+                "loaded_building_count": 1,
+                "matching_status": "fully_matched",
+            },
+        ),
+        observations=(
+            {
+                "certificate_id": "cert",
+                "source_field": "EgenAntalPlan",
+                "raw_values": ["2"],
+                "mapping_status": "verified",
+            },
+        ),
     )
-    b = Building.from_record(
-        dict(format="epsm-record-1", crs="EPSG:3006", record=record), storeys=3
-    )
+    b = Building.from_record(record.to_dict(), storeys=3)
     assert b.identifier == "record-1" and b.geometry is not None
     row = next(r for r in b.compare() if r["property"] == "storeys")
     assert (row["model"], row["observed"], row["difference"]) == (3, 2, 1)
+    unmodified = Building.from_record(record.to_dict())
+    assert unmodified.geometry is not None
+    assert unmodified.compare()[1]["model"] == 2
+    invalid = record.to_dict()
+    invalid["crs"] = "EPSG:4326"
     with pytest.raises(ValueError, match="EPSG:3006"):
-        Building.from_record(
-            dict(format="epsm-record-1", crs="EPSG:4326", record=record)
-        )
+        Building.from_record(invalid)
 
 
 def test_results_cannot_be_reassigned_and_evaluations_keep_separate_files(

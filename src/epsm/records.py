@@ -15,7 +15,13 @@ def _record_view(record):
     if isinstance(record, dict) and "format" in record:
         if record["format"] != "epsm-record-1" or record.get("crs") != "EPSG:3006":
             raise ValueError("Expected EPSM record format 1 in EPSG:3006")
-        return record["record"]
+        try:
+            from epsm_db import BuildingRecord
+        except ImportError as error:
+            raise ImportError(
+                "Install epsm[database] to decode portable BuildingRecord evidence"
+            ) from error
+        return BuildingRecord.from_dict(record)
     return record
 
 
@@ -44,6 +50,7 @@ def building_from_record(building_type, record, **options):
         facts=deepcopy(facts),
         atemp_m2=_value(record, "atemp_m2"),
         storeys=observed_storeys,
+        archetype_assignments=deepcopy(_value(record, "archetype_assignments", ())),
         observations=deepcopy(_value(record, "observations", ())),
         receipt=(
             _value(record, "receipt").to_dict()
