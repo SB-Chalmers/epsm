@@ -1,0 +1,207 @@
+"""Immutable saved evaluations and a stable collection for a Building."""
+
+from __future__ import annotations
+
+import hashlib
+import json
+from collections.abc import Sequence
+from dataclasses import asdict, is_dataclass
+from datetime import date, datetime
+from uuid import UUID
+
+
+def json_value(value):
+    if isinstance(value, (date, datetime)):
+        return value.isoformat()
+    if isinstance(value, UUID):
+        return str(value)
+    if hasattr(value, "to_dict"):
+        return value.to_dict()
+    if hasattr(value, "model_dump"):
+        return value.model_dump(mode="json")
+    if is_dataclass(value):
+        return asdict(value)
+    if hasattr(value, "tolist"):
+        return value.tolist()
+    if hasattr(value, "value"):
+        return value.value
+    raise TypeError(f"No portable representation for {type(value).__name__}")
+
+
+def encode(value):
+    return json.dumps(
+        value,
+        default=json_value,
+        sort_keys=True,
+        separators=(",", ":"),
+        allow_nan=False,
+    )
+
+
+def identity(value):
+    return hashlib.sha256(encode(value).encode()).hexdigest()
+
+
+class _FrozenJSON:
+    __slots__ = ("_json",)
+
+    def __setattr__(self, name, value):
+        if name == "_json":
+            try:
+                object.__getattribute__(self, "_json")
+            except AttributeError:
+                object.__setattr__(self, name, value)
+                return
+        raise AttributeError("Saved calculation results are read-only")
+
+
+class EnergyResult(_FrozenJSON):
+    """Fixed hourly engine output plus explicitly bounded annual carrier totals."""
+
+    __slots__ = ()
+
+    def __init__(
+        self,
+        *,
+        engine,
+        scalars,
+        hourly,
+        units,
+        diagnostics,
+        artifacts,
+        delivered_by_carrier,
+        requirements=(),
+        boundary="space_heating_and_fans",
+        time_axis=(),
+        annual=True,
+    ):
+        self._json = encode(
+            dict(
+                engine=engine,
+                scalars=scalars,
+                hourly=hourly,
+                units=units,
+                diagnostics=diagnostics,
+                artifacts=artifacts,
+                delivered_by_carrier=delivered_by_carrier,
+                requirements=requirements,
+                boundary=boundary,
+                time_axis=time_axis,
+                annual=annual,
+            )
+        )
+
+    def to_dict(self):
+        return json.loads(self._json)
+
+    @classmethod
+    def from_dict(cls, data):
+        return cls(**data)
+
+    def __getattr__(self, name):
+        data = self.to_dict()
+        if name in data:
+            return data[name]
+        raise AttributeError(name)
+
+    @property
+    def complete(self):
+        return not self.requirements and self.diagnostics.get("accepted", True)
+
+    @property
+    def annual_delivered_energy_kwh(self):
+        return (
+            sum(self.delivered_by_carrier.values())
+            if self.complete and self.annual
+            else None
+        )
+
+    def summary(self):
+        """Inspect calculation boundaries and completeness without hourly arrays."""
+        return dict(
+            engine=self.engine,
+            complete=self.complete,
+            annual=self.annual,
+            boundary=self.boundary,
+            requirements=self.requirements,
+            annual_delivered_energy_kwh=self.annual_delivered_energy_kwh,
+        )
+
+    def __repr__(self):
+        return f"EnergyResult(engine={self.engine[:24]!r}, complete={self.complete}, annual={self.annual})"
+
+
+class Evaluation(_FrozenJSON):
+    """Self-contained physical inputs, material path, settings and calculation identities."""
+
+    __slots__ = ()
+
+    def __init__(self, **data):
+        self._json = encode(data)
+
+    def to_dict(self):
+        return json.loads(self._json)
+
+    @classmethod
+    def from_dict(cls, data):
+        return cls(**data)
+
+    def __getattr__(self, name):
+        data = self.to_dict()
+        if name == "energy":
+            return EnergyResult.from_dict(data[name])
+        if name == "lca":
+            from epsm_lca import LCAResult
+
+            return LCAResult.from_dict(data[name])
+        if name in data:
+            return data[name]
+        raise AttributeError(name)
+
+    def summary(self):
+        """Inspect identities, energy boundary and assessment requirements."""
+        return dict(
+            id=self.id,
+            state_id=self.state_id,
+            path_id=self.path_id,
+            energy_id=self.energy_id,
+            lca_id=self.lca_id,
+            energy=self.energy.summary(),
+            lca=self.lca.to_dict(),
+            diagnostics=self.diagnostics,
+        )
+
+    def matches(self, building):
+        return self.state_id == building.snapshot().sha256
+
+    def __repr__(self):
+        return f"Evaluation(engine={self.engine[:24]!r}, lca={self.lca.status[:24]!r}, id={self.id[:12]!r})"
+
+
+class Results(Sequence):
+    """Append-only evaluation collection; editing a Building never rewrites it."""
+
+    def __init__(self):
+        self._entries = []
+
+    def __len__(self):
+        return len(self._entries)
+
+    def __getitem__(self, index):
+        return self._entries[index]
+
+    @property
+    def latest(self):
+        return self._entries[-1] if self._entries else None
+
+    def for_engine(self, engine):
+        return tuple(r for r in self if r.engine == engine)
+
+    def for_current_state(self, building):
+        return tuple(r for r in self if r.matches(building))
+
+    def _append(self, result):
+        self._entries.append(result)
+
+    def __repr__(self):
+        return f"Results(evaluations={len(self)})"
