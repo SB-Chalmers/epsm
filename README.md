@@ -32,6 +32,38 @@ For a local checkout, `python -m pip install -e ../epsm_data -e ../epsm_core
 -e ../epsm_lca -e ../epsm_rc -e .` installs the platform with RC.
 EnergyPlus requires a separately installed supported binary.
 
+### One shared local development environment
+
+With the EPSM repositories checked out as siblings under `~/GitHub`, run this
+once from `epsm`:
+
+```sh
+python3.12 scripts/setup_shared_venv.py
+```
+
+The script installs all local Python libraries from `requirements-local.txt` in
+`epsm/.venv`, checks their editable source paths and dependencies, then moves
+the old `.venv` directories out of the way. It verifies each replacement link
+before deleting its old directory. Core, Data, DB, Development, RC, LCA,
+Studies, Workflows, and `smhi2epw` then share the same interpreter. Studio
+keeps its own backend environment. Re-running the script updates the shared
+packages and checks existing links; `python3.12 scripts/setup_shared_venv.py
+--verify-only` checks the current installation without changing it.
+
+Use `~/GitHub/epsm/.venv/bin/python` as the Python interpreter in your editor,
+or use a repository's linked `.venv/bin/python` when running its tests. For
+example, from `epsm_core` run `.venv/bin/python -m pytest tests/core`. The
+shared environment must stay in `epsm/.venv`, and changing package metadata
+requires re-running the setup script. Python source changes are available
+immediately through the editable installs. The script needs write access to
+each sibling checkout to migrate its old `.venv`.
+
+For a package-index installation, plain `pip install epsm` retains only the
+base Core, Data, and LCA dependencies. `pip install 'epsm[all]'` also requests
+RC, DB, Workflows, Studies, and `smhi2epw`; private distributions must be
+available through a configured package index. Neither command looks for local
+sibling checkouts.
+
 ## Results and assessment
 
 `building.results` is always a collection. Each evaluation stores fixed physical

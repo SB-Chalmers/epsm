@@ -13,6 +13,13 @@ license = "MIT"
 [project.optional-dependencies]
 rc = ["epsm_rc>=0.2.0"]
 database = ["epsm_db>=0.1.0"]
+all = [
+  "epsm_rc>=0.2.0",
+  "epsm_db>=0.1.0",
+  "epsm_workflows>=0.2.0",
+  "epsm_studies>=0.1.0",
+  "smhi2epw>=1.1.1",
+]
 dev = ["pytest>=8", "ruff>=0.11"]
 
 [tool.setuptools.packages.find]

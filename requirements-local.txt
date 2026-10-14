@@ -1,0 +1,14 @@
+# Run from this repository with: .venv/bin/python -m pip install -r requirements-local.txt
+# Package dependencies stay in each repository's pyproject.toml.
+-e ../epsm_data
+-e ../epsm_core
+-e ../epsm_lca
+-e ../epsm_rc
+-e ../epsm_db
+-e ../epsm_workflows
+-e ../epsm_studies
+-e ../smhi2epw
+-e .[all,dev]
+
+# Shared handbook and test tooling. epsm_development is documentation, not a package.
+-r ../epsm_development/requirements-docs.txt
