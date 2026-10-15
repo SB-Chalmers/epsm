@@ -66,3 +66,7 @@ carrier amounts from actual RC and EnergyPlus 24.2 runs:
 Both methods count 26,183 kg CO₂e of renovation materials in the final state.
 Single-step and staged final totals agree within each engine. Their different
 energy answers reflect their declared models; this is not an accuracy ranking.
+
+## Logging
+
+`05_logging.ipynb` teaches explicit output controls and the offline DB-record → Building → RC → LCA trace. Install the coordinated logging package revisions plus the examples extra. `logging_walkthrough.py` uses synthetic evidence and packaged teaching weather; `logging_workers.py` demonstrates one application-owned queue listener. These examples need no live database, provider network or EnergyPlus. Run each notebook from a fresh kernel in this directory.

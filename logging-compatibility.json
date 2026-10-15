@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "packages": {
+    "epsm_data": "ac2c7b998f1b92d14650e578f31441d8e78c5f30",
+    "epsm_core": "88ac5499ba41efb44e099f3579c19f64c50f62e5",
+    "epsm_rc": "d49c8047fa47522873f1d09dfb389db90fde43aa",
+    "epsm_lca": "aff0330b0eed51477e3de3ba786f4c3fbc38c941",
+    "epsm_db": "6c1a38f8e4d2b1ef8bbeefc13d334a92ef89d59d",
+    "smhi2epw": "eced17d8c1946c42a0068e3066e39e1f709f2e37",
+    "epsm_studies": "8856f2e17987fbad701c4593997da9bf4855bb37"
+  }
+}

@@ -1,0 +1,41 @@
+{
+  "format": 1,
+  "python": [
+    "3.11",
+    "3.13"
+  ],
+  "packages": {
+    "epsm_data": {
+      "version": "0.4.0",
+      "revision": "909179951815332a3b8d3bf106e06aa4f7e969dd"
+    },
+    "epsm_core": {
+      "version": "0.3.0",
+      "revision": "4f7f746d1158893f73e0cf601b62fe41c35f5c73"
+    },
+    "epsm_rc": {
+      "version": "0.3.0",
+      "revision": "026d9fc93ad8c07913ecb56e20b57288b45dc318"
+    },
+    "epsm_lca": {
+      "version": "0.2.0",
+      "revision": "834660ab649594230e29cd320ba66beec0352ddd"
+    },
+    "epsm_db": {
+      "version": "0.2.0",
+      "revision": "84dd19a328b5b87b69fa9cf27453756ee5d43a83"
+    },
+    "epsm_studies": {
+      "version": "0.1.0",
+      "revision": "8abbcea3bd2c204e9e34e903ed03f3d10f0de708"
+    },
+    "smhi2epw": {
+      "version": "1.1.1",
+      "revision": "434d7b26de1a6da88e156bebc39e246c615c4ba0"
+    },
+    "epsm": {
+      "version": "0.2.0",
+      "revision": "self"
+    }
+  }
+}

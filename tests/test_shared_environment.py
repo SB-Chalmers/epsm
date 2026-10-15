@@ -74,3 +74,78 @@ def test_migration_refuses_a_link_to_another_environment(setup_script):
     with pytest.raises(RuntimeError, match="points elsewhere"):
         module.migrate_one("epsm_core")
     assert path.resolve() == other.resolve()
+
+
+def installed_checkout(
+    module, tmp_path, monkeypatch, *, declared="0.2.0", installed="0.1.0"
+):
+    import json
+    from types import SimpleNamespace
+
+    checkout = tmp_path / "library"
+    source = checkout / "src/library"
+    source.mkdir(parents=True)
+    (source / "__init__.py").write_text("")
+    (checkout / "pyproject.toml").write_text(
+        f'[project]\nname="library"\nversion="{declared}"\n'
+    )
+    monkeypatch.setattr(
+        module.importlib,
+        "import_module",
+        lambda _: SimpleNamespace(__file__=str(source / "__init__.py")),
+    )
+    monkeypatch.setattr(module.metadata, "version", lambda _: installed)
+    distribution = SimpleNamespace(
+        read_text=lambda _: json.dumps(
+            {
+                "dir_info": {"editable": True},
+                "url": checkout.as_uri(),
+            }
+        )
+    )
+    monkeypatch.setattr(module.metadata, "distribution", lambda _: distribution)
+    return checkout
+
+
+def test_verification_rejects_stale_metadata_with_reinstall_instruction(
+    setup_script, tmp_path, monkeypatch
+):
+    checkout = installed_checkout(setup_script, tmp_path, monkeypatch)
+    with pytest.raises(RuntimeError, match="library.*0.1.0.*0.2.0.*setup_shared_venv"):
+        setup_script.verify_checkout("library", "library", checkout)
+
+
+def test_verification_accepts_matching_feature_checkout_without_git_access(
+    setup_script, tmp_path, monkeypatch
+):
+    checkout = installed_checkout(
+        setup_script, tmp_path, monkeypatch, installed="0.2.0"
+    )
+    setup_script.verify_checkout("library", "library", checkout)
+
+
+def test_dynamic_version_is_read_from_current_source(
+    setup_script, tmp_path, monkeypatch
+):
+    checkout = installed_checkout(
+        setup_script, tmp_path, monkeypatch, installed="0.2.0"
+    )
+    (checkout / "pyproject.toml").write_text(
+        '[project]\nname="library"\ndynamic=["version"]\n'
+        '[tool.setuptools.dynamic]\nversion={attr="library._version.__version__"}\n'
+    )
+    (checkout / "src/library/_version.py").write_text('__version__="0.3.0"\n')
+    with pytest.raises(RuntimeError, match="0.2.0.*0.3.0"):
+        setup_script.verify_checkout("library", "library", checkout)
+
+
+def test_verification_rejects_an_old_rc_api(setup_script, monkeypatch):
+    from types import SimpleNamespace
+
+    monkeypatch.setattr(
+        setup_script.importlib,
+        "import_module",
+        lambda _: SimpleNamespace(RCSettings=type("OldSettings", (), {})),
+    )
+    with pytest.raises(RuntimeError, match="epsm_rc.*from_policy.*setup_shared_venv"):
+        setup_script.verify_capabilities()

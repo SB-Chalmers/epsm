@@ -22,7 +22,11 @@ print(result.lca.status, result.lca.requirements)
 
 This selects a teaching building. Replace its assumed inputs before a study.
 `Building()` starts empty with the current Core version. `Building.from_record`
-copies source evidence and leaves missing information unresolved. Data
+copies source evidence and leaves missing information unresolved. Portable DB
+records are retained in `building.to_dict()["source_record"]["portable_record"]`,
+including component heights, certificate subjects and quality findings, without
+retrieval credentials. Older saved Buildings with summary-only evidence remain
+readable; they do not acquire missing evidence on load. Data
 constructions, services, operation, ground choices, thermal bridge uplift and
 load reference area must be supplied or explicitly selected through a preset.
 
@@ -162,16 +166,20 @@ unless `calendar_year` is supplied. Each evaluation retains that weather evidenc
 ## Tested package combination
 
 The examples and CI use these fixed source versions, checked on 15 October 2026.
-Core and RC development changes still share version number 0.2.0 with earlier
-code, so the exact commits distinguish this combination.
+EPSM 0.2.0 requires Core and RC 0.3.0+ so the explicit-authoring and reduction
+APIs are distinguishable from earlier implementations. Exact commits still
+identify the tested source combination; the manifest is the executable CI input.
 
 | Package | Version | Tested commit |
 | --- | --- | --- |
-| Data | 0.4.0 | `2d66b181e4c3210db39c6594f80db4f26f2cc8d7` |
-| Core | 0.2.0 | `2d4a7220db34c60b6da7feed496340fd399478ee` |
-| RC | 0.2.0 | `142773fb6ed85879c71ec0b2060be49f57cd9457` |
-| LCA | 0.2.0 | `da0485906bec233fe1c9a9a95d5b6c66a2f74d5b` |
-| Workflows | 0.2.0 | `a8d29afac1b8aa4bd35c3210cf2b8490dbb795b3` |
+| Data | 0.4.0 | `909179951815332a3b8d3bf106e06aa4f7e969dd` |
+| Core | 0.3.0 | `4f7f746d1158893f73e0cf601b62fe41c35f5c73` |
+| RC | 0.3.0 | `026d9fc93ad8c07913ecb56e20b57288b45dc318` |
+| LCA | 0.2.0 | `834660ab649594230e29cd320ba66beec0352ddd` |
+| Database | 0.2.0 | `84dd19a328b5b87b69fa9cf27453756ee5d43a83` |
+| Studies | 0.1.0 | `8abbcea3bd2c204e9e34e903ed03f3d10f0de708` |
+| smhi2epw | 1.1.1 | `434d7b26de1a6da88e156bebc39e246c615c4ba0` |
+| EPSM | 0.2.0 | `self` |
 
 Core's explicit presets, ground inputs, thermal bridge choices, load reference
 area and heat-gain choices survive EPSM snapshots and round trips. RC requires
@@ -182,8 +190,60 @@ while EPSM now exposes its full renovation report too. Recalculate earlier
 teaching results after a package update; previous outputs do not establish that
 the new combination works.
 
-CI builds and installs all package wheels and checks the platform tests, fresh
-notebook kernels and Workflows walkthrough on Python 3.11 and 3.13. Optional
+The supported package combination is recorded in [compatibility.json](compatibility.json).
+CI builds and installs every wheel, records exact tested revisions, and checks
+the platform suite, public handoffs, EPSM notebooks and the LCA annual renovation
+notebook in fresh kernels on Python 3.11
+and 3.13. Separate pinned and development jobs distinguish reproducible support
+from integration against current development. Required collaborators fail
+explicitly when unavailable; Workflows and Studio are outside this matrix. Optional
 EnergyPlus checks need a separately installed binary. The compatibility modules
 for older DB and Data adapters remain available during migration. EPSM-owned
 code uses MIT; see [LICENSE](LICENSE).
+
+To run the required offline cross-package handoff locally, use
+`python scripts/check_installed_platform.py --directory build/installed-handoff`.
+Add `--require-wheels` in a clean wheel environment. The check uses synthetic DB
+evidence, retains shared-certificate scope and runs actual annual RC energy and
+renovation LCA. It performs no live database query or provider acquisition.
+
+## Migrating to EPSM 0.2.0
+
+Install the coordinated Core/RC versions and refresh editable metadata after
+changing source versions. Saved Buildings retain complete portable DB evidence
+alongside their comparison summaries; old summary-only files remain readable.
+Database 0.2.0 stock-cell conversion returns the same physical Building type as
+individual records, with the old weather/policy route explicitly named legacy.
+
+## Operation logging
+
+Library calls use Python's standard `logging` module and install no console or
+file output. Instrumented operations accept optional keyword-only `log_context`
+with small identifier mappings; nested events carry operation and parent IDs.
+INFO describes major stages; DEBUG exposes selections, conversions and caches.
+Logging context does not change physical models or scientific cache inputs.
+
+For an application using EPSM's coordinated logging setup:
+
+```python
+from epsm import configure_logging, reset_logging
+
+configure_logging(directory="outputs/example")  # INFO stderr, DEBUG JSONL
+# Run operations here.
+configure_logging(enabled=False)  # Stop console and file logging.
+reset_logging()  # Restore the host application's settings.
+```
+
+EPSM is needed only for this combined configuration, not for ordinary library
+logging. Existing scripts can keep using `logging.basicConfig(level=logging.INFO)`.
+
+See [the logging notebook](examples/05_logging.ipynb), [handoff example](examples/logging_walkthrough.py) and [worker queue example](examples/logging_workers.py).
+
+
+## Coordinated logging release
+
+The logging release is tested with the versions and exact source commits in
+`logging-compatibility.json`: Data 0.5.0, Core 0.3.0, RC 0.4.0, LCA 0.2.0,
+Database 0.2.0, Weather 1.2.0 and Studies 0.2.0. The older compatibility
+baseline above remains supported; full cross-package logging requires the
+instrumented releases. See [release notes](RELEASE_NOTES.md).

@@ -2,6 +2,8 @@
 
 from copy import deepcopy
 
+from epsm._logging import operation as logged_operation
+
 
 def _value(record, name, default=None):
     return (
@@ -25,6 +27,7 @@ def _record_view(record):
     return record
 
 
+@logged_operation("building.assemble")
 def building_from_record(building_type, record, **options):
     record = _record_view(record)
     geometry = _value(record, "geometry")
@@ -48,7 +51,8 @@ def building_from_record(building_type, record, **options):
         )
     else:
         building = building_type.empty(**options)
-    # Retain a bounded portable evidence view; no connection strings or live handles.
+    # Keep the established comparison summary and the complete public DB envelope.
+    # DB owns encoding dates/geometries and excluding connection/runtime fields.
     building._source_record = dict(
         building_id=_value(record, "building_id"),
         crs=source_crs,
@@ -74,6 +78,10 @@ def building_from_record(building_type, record, **options):
             if value is None
         ],
     )
+    if hasattr(record, "to_dict"):
+        portable = record.to_dict()
+        if portable.get("format") == "epsm-record-1":
+            building._source_record["portable_record"] = deepcopy(portable)
     return building
 
 
