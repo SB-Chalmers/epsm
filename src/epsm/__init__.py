@@ -27,7 +27,7 @@ from .logging import configure_logging, reset_logging
 from .provenance import evaluation_identity
 from .results import EnergyResult, Evaluation, Results
 
-__version__ = "0.2.0"
+__version__ = "0.3.0"
 __all__ = [
     "configure_logging",
     "reset_logging",

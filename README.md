@@ -242,11 +242,10 @@ See [the logging notebook](examples/05_logging.ipynb), [handoff example](example
 
 ## Coordinated logging release
 
-The logging release is tested with the versions and exact source commits in
-`logging-compatibility.json`: Data 0.5.0, Core 0.3.0, RC 0.4.0, LCA 0.2.0,
-Database 0.2.0, Weather 1.2.0 and Studies 0.2.0. The older compatibility
-baseline above remains supported; full cross-package logging requires the
-instrumented releases. See [release notes](RELEASE_NOTES.md).
+The coordinated release checks use the versions and exact source commits in
+`logging-compatibility.json`: Data 0.6.0, Core 0.4.0, RC 0.4.0, LCA 0.2.0,
+Database 0.3.0, Weather 1.2.0 and Studies 0.2.0. The platform compatibility manifest records the same released dependency versions.
+Full cross-package logging requires the instrumented collaborators. See [release notes](RELEASE_NOTES.md).
 
 See [archetype application](docs/archetype-application.md) and the [geometry-first example](examples/00_geometry_and_archetype.ipynb) for catalogue and custom authoring on an existing Building.
 

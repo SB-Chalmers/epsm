@@ -6,35 +6,35 @@
   ],
   "packages": {
     "epsm_data": {
-      "version": "0.5.0",
-      "revision": "8484c1039e3fdca9e3f174a1880630f0eb02c8c1"
+      "version": "0.6.0",
+      "revision": "bc8449402b9e0dbe0ea85ff76c954cf36d209f86"
     },
     "epsm_core": {
-      "version": "0.3.0",
-      "revision": "ad2e031c180462678abe8c3edc783feb112e0849"
+      "version": "0.4.0",
+      "revision": "76b9c93978d26d5f27f0616b51fbb1ca19fb6801"
     },
     "epsm_rc": {
-      "version": "0.3.0",
-      "revision": "026d9fc93ad8c07913ecb56e20b57288b45dc318"
+      "version": "0.4.0",
+      "revision": "d8f42ab69e61cfe580f234b20ddc47cf6d056e59"
     },
     "epsm_lca": {
       "version": "0.2.0",
-      "revision": "834660ab649594230e29cd320ba66beec0352ddd"
+      "revision": "00141d0500e717b4f18a9d69e158f0af2aae1934"
     },
     "epsm_db": {
-      "version": "0.2.0",
-      "revision": "9abe1d7e38475d824c2d52c5001b154baf23fa1a"
+      "version": "0.3.0",
+      "revision": "9e29a575f5495b76d5a8553bbe6e20dd4f0e1ff0"
     },
     "epsm_studies": {
-      "version": "0.1.0",
-      "revision": "8abbcea3bd2c204e9e34e903ed03f3d10f0de708"
+      "version": "0.2.0",
+      "revision": "794921797533cfa3d8bde757658fb174932027b5"
     },
     "smhi2epw": {
-      "version": "1.1.1",
-      "revision": "434d7b26de1a6da88e156bebc39e246c615c4ba0"
+      "version": "1.2.0",
+      "revision": "f27d70c8fb665c13ca4263ebe6337f11e45cf73d"
     },
     "epsm": {
-      "version": "0.2.0",
+      "version": "0.3.0",
       "revision": "self"
     }
   }
