@@ -2,10 +2,10 @@
   "schema_version": 1,
   "packages": {
     "epsm_data": "98c1f5b4cc215545e769de7ad61788c5e1a7b831",
-    "epsm_core": "c78361200a0bcbdc9b026f2858a458c1ff901fb0",
+    "epsm_core": "339f63241999050ac7038ecfd40184ce1764b89c",
     "epsm_rc": "d24c351764086f30c6c7be358d0e82a5d6019b8c",
     "epsm_lca": "7faa48f48f8da93d1ea495595b94a8d18ce5a5cf",
-    "epsm_db": "d8ab91ef7d65e083537d4a663d1fbd5c9a50427e",
+    "epsm_db": "aa369ec11846d30bd74ab5c55b21e89c8dc8580a",
     "smhi2epw": "e404efd4a095037a2fc46a11a812f90dbf21fb2f",
     "epsm_studies": "ab14536347f7916df0e71c295f442f9f9dd409d0"
   }
