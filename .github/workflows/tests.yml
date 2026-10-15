@@ -20,7 +20,7 @@ jobs:
 
   platform:
     needs: combination
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     strategy:
       fail-fast: false
       matrix: ${{ fromJSON(needs.combination.outputs.matrix) }}
@@ -85,16 +85,37 @@ jobs:
           python -m build --wheel --outdir .ci/wheels .
           python -m pip install .ci/wheels/*.whl
           python -m pip check
+      - name: Install required EnergyPlus 24.2 runtime
+        env:
+          EPSM_ENERGYPLUS_ARCHIVE: https://github.com/NatLabRockies/EnergyPlus/releases/download/v24.2.0/EnergyPlus-24.2.0-e7ecb2d53b-Linux-Ubuntu24.04-x86_64.tar.gz
+        run: |
+          mkdir -p "$RUNNER_TEMP/epsm-energyplus"
+          curl --fail --location --retry 3 "$EPSM_ENERGYPLUS_ARCHIVE" -o "$RUNNER_TEMP/epsm-energyplus.tar.gz"
+          tar -xzf "$RUNNER_TEMP/epsm-energyplus.tar.gz" -C "$RUNNER_TEMP/epsm-energyplus"
+          python - <<'PYTHON' >> "$GITHUB_ENV"
+          import os
+          from pathlib import Path
+          binaries = [p for p in (Path(os.environ["RUNNER_TEMP"]) / "epsm-energyplus").rglob("energyplus") if p.is_file() and os.access(p, os.X_OK)]
+          if len(binaries) != 1:
+              raise RuntimeError(f"Required EnergyPlus executable not uniquely installed: {binaries}")
+          print(f"ENERGYPLUS_EXE={binaries[0]}")
+          PYTHON
       - name: Check maintained modules and examples
         run: |
-          ruff check src/epsm/__init__.py src/epsm/building.py src/epsm/results.py tests examples scripts
-          ruff format --check src/epsm/__init__.py src/epsm/building.py src/epsm/results.py tests examples scripts
+          ruff check src/epsm/__init__.py src/epsm/building.py src/epsm/archetypes.py src/epsm/results.py tests examples scripts
+          ruff format --check src/epsm/__init__.py src/epsm/building.py src/epsm/archetypes.py src/epsm/results.py tests examples scripts
       - name: Record the actual tested source revisions
         run: python scripts/record_compatibility.py --mode '${{ matrix.mode }}' --output build/compatibility-receipt.json
       - name: Require installed handoffs and execute the platform suite
         run: |
           python scripts/check_installed_platform.py --require-wheels --directory build/installed-handoff
           python -m pytest -q
+      - name: Require installed archetype authoring, application and real engines
+        run: |
+          python scripts/check_archetype_handoff.py --require-wheels \
+            --directory build/archetype-handoff --wheels .ci/wheels \
+            --compatibility-receipt build/compatibility-receipt.json \
+            --energyplus-exe "$ENERGYPLUS_EXE"
       - name: Run examples in fresh kernels
         run: python scripts/run_examples.py --integration
       - name: Run LCA public annual renovation examples in fresh kernels
@@ -106,5 +127,6 @@ jobs:
           path: |
             build/compatibility-receipt.json
             build/installed-handoff
+            build/archetype-handoff
             build/executed-examples
             build/lca-executed-examples

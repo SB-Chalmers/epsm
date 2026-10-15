@@ -1,3 +1,11 @@
+# Release 0.3.0 — 15 October 2026
+
+Catalogue selections and custom authored archetypes share Building.apply_archetype(), with explicit replace/fill choices, retained application reports and visible unresolved inputs. Record assembly, component-state selection and renovation handovers use the same shared definitions.
+
+EPSM requires Data 0.6.0 and Core 0.4.0; the optional database integration requires Database 0.3.0. See [archetype application](docs/archetype-application.md), [consumer migration](docs/archetype-consumers.md) and [installed acceptance checks](docs/archetype-installed-checks.md).
+
+Required acceptance covers installed wheels, portable exchange, saved reports, actual annual RC and EnergyPlus 24.2 execution, and fresh-kernel examples. These checks establish software integration using explicit teaching assumptions, not empirical building validation.
+
 # Release 0.2.0 — 15 October 2026
 
 Application-owned console and JSONL configuration, record/catalogue handoffs, evaluation caches and engine/LCA delegation.

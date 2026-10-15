@@ -20,18 +20,20 @@ from epsm_lca import (
     assess_renovation,
 )
 
+from .archetypes import ArchetypeApplicationReport
 from .building import Building
 from .cache import EvaluationCache
 from .logging import configure_logging, reset_logging
 from .provenance import evaluation_identity
 from .results import EnergyResult, Evaluation, Results
 
-__version__ = "0.2.0"
+__version__ = "0.3.0"
 __all__ = [
     "configure_logging",
     "reset_logging",
     "evaluation_identity",
     "Building",
+    "ArchetypeApplicationReport",
     "Weather",
     "HVACSystem",
     "OperationProfile",

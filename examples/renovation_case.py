@@ -18,16 +18,19 @@ from epsm import AssessmentSettings, Building, EnvironmentalFactor
 def make_case():
     """Create the same window and wall work as one step and as two steps."""
     catalogue = Catalogue.load()
-    existing = catalogue.for_year(
-        "multi_family", 1960, state="existing"
-    ).construction_set
+    existing = catalogue.for_year("multi_family", 1960, state="existing")
     advanced = catalogue.for_year(
         "multi_family", 1960, state="advanced"
     ).construction_set
     baseline = Building(
         preset="illustrative-reference",
         identifier="epsm-renovation-example",
-        construction_set=existing,
+    )
+    # This teaching case selects fabric while retaining its explicitly named
+    # preset operation/system/envelope assumptions. Full catalogue selections
+    # expose those independent sections for an actual building study.
+    baseline.apply_archetype(
+        existing.with_changes(operating_profile=None, envelope_performance=None)
     )
     baseline.hvac = HVACSystem(
         baseline.hvac.airflow,

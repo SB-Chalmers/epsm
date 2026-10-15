@@ -11,7 +11,12 @@ from datetime import date, timedelta
 from pathlib import Path
 
 from sweden_ubem.enums import BuildingType
-from sweden_ubem.records import BuildingRecord, Receipt, implementation_hash, json_default
+from sweden_ubem.records import (
+    BuildingRecord,
+    Receipt,
+    implementation_hash,
+    json_default,
+)
 from sweden_ubem.weather import WeatherReference
 
 
@@ -506,47 +511,44 @@ def _operation(
     receipt,
     residential_type="single_family",
 ):
-    from epsm_core import (
-        AirflowSpec,
-        ScheduleSpec,
-        UseSpec,
-        load_dhw_profile,
-        load_generic_other_v1,
-        load_sveby_office_v1,
-        load_sveby_school_v1,
-        load_sveby_spec,
+    from epsm_core import AirflowSpec, ScheduleSpec, resolve_operating_profile
+    from epsm_data import (
+        load_operating_profile,
+        select_dhw_profile,
+        select_operating_profile,
     )
 
     if name == "residential":
-        profile = load_sveby_spec()
-        use = profile.use_spec(calendar_year=year)
-        dhw = load_dhw_profile(residential_type, purpose="epc_normal_use")
-        use = dhw.apply_to(use)
+        profile = select_operating_profile(residential_type)
+        resolved = resolve_operating_profile(profile, calendar={"calendar_year": year})
+        use = resolved.operation
+        dhw = select_dhw_profile(residential_type, purpose="epc_normal_use")
+        use = resolve_operating_profile(dhw, previous=use).operation
         receipt.assumptions.append(
             f"Residential DHW uses {dhw.profile_id}; standardized normal use, not measured consumption"
         )
-        flow = 0.35
+        flow = resolved.assumptions["airflow"]["mechanical_vent_l_s_m2"]
         fraction = ScheduleSpec.constant(1)
     elif name in {"office", "school"}:
-        profile = load_sveby_office_v1() if name == "office" else load_sveby_school_v1()
-        dates = _active_dates(year, profile.data["reference_active_days"], school=name == "school")
-        inputs = profile.building_assumptions(
-            calendar_year=year,
-            active_dates=dates,
-            calendar_source="ubem_v1: assumed evenly distributed weekdays; school summer closure",
-            zone_role="classrooms",
-        )
-        use = UseSpec.model_validate(inputs["use"])
+        profile = select_operating_profile(name)
+        dates = _active_dates(year, profile.values["reference_active_days"], school=name == "school")
+        resolved = resolve_operating_profile(profile, calendar={
+            "calendar_year": year, "active_dates": dates,
+            "calendar_source": "ubem_v1: assumed evenly distributed weekdays; school summer closure",
+        }, **({"zone_role": "classrooms"} if name == "school" else {}))
+        use = resolved.operation
+        inputs = resolved.assumptions
         flow = inputs["airflow"]["mechanical_vent_l_s_m2"]
         fraction = ScheduleSpec.model_validate(inputs["airflow"]["mechanical_vent_fraction"])
         receipt.assumptions.append(
             f"{name}: versioned Sveby equivalent programme with assumed calendar"
         )
     else:
-        profile = load_generic_other_v1()
-        use = profile.use_spec()
-        flow = profile.mechanical_vent_l_s_m2
-        fraction = profile.ventilation_fraction()
+        profile = load_operating_profile("generic_other")
+        resolved = resolve_operating_profile(profile)
+        use = resolved.operation
+        flow = resolved.assumptions["airflow"]["mechanical_vent_l_s_m2"]
+        fraction = ScheduleSpec.model_validate(resolved.assumptions["airflow"]["mechanical_vent_fraction"])
         receipt.assumptions.append(
             f"{name}: {profile.profile_id} screening fallback; actual use and schedule unresolved"
         )
@@ -676,7 +678,8 @@ class EPSMBuilding:
             )
             from epsm_core.compiler import EnergyPlusCompiler
             from epsm_core.specs.provenance import ProvenanceSpec, SourceRecord
-            from epsm_data import resolve_building_archetype
+
+            from .catalogue_application import resolve_building_archetype
 
             overrides = dict(overrides or {})
             if set(overrides) - {
@@ -687,6 +690,8 @@ class EPSMBuilding:
                 "wwr",
                 "climate_zone",
                 "renovation_state",
+                "component_states",
+                "component_sources",
             }:
                 raise ValueError("Unknown model override")
             renovation_state = overrides.get("renovation_state", "existing")
@@ -743,6 +748,8 @@ class EPSMBuilding:
                 climate_zone=zone,
                 ventilation=ventilation,
                 default_state=renovation_state,
+                component_states=overrides.get("component_states"),
+                component_sources=overrides.get("component_sources"),
                 tabula_reference_area_m2=area,
                 conditioned_volume_m3=geometry.conditioned_volume_m3,
             )
@@ -822,6 +829,9 @@ class EPSMBuilding:
             )
             receipt.identities["programme_blend"] = blend.model_dump(mode="json")
             receipt.identities["archetype_assignment"] = fabric["assignment"]
+            from epsm_data import archetype_to_dict
+
+            receipt.identities["archetype_definition"] = archetype_to_dict(fabric["archetype"])
             receipt.assumptions.append(
                 "Matrix existing state is a construction-era representative; renovations are not inferred"
                 if renovation_state == "existing" else

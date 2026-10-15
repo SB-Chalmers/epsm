@@ -172,11 +172,11 @@ identify the tested source combination; the manifest is the executable CI input.
 
 | Package | Version | Tested commit |
 | --- | --- | --- |
-| Data | 0.4.0 | `909179951815332a3b8d3bf106e06aa4f7e969dd` |
-| Core | 0.3.0 | `4f7f746d1158893f73e0cf601b62fe41c35f5c73` |
+| Data | 0.5.0 | `8484c1039e3fdca9e3f174a1880630f0eb02c8c1` |
+| Core | 0.3.0 | `ad2e031c180462678abe8c3edc783feb112e0849` |
 | RC | 0.3.0 | `026d9fc93ad8c07913ecb56e20b57288b45dc318` |
 | LCA | 0.2.0 | `834660ab649594230e29cd320ba66beec0352ddd` |
-| Database | 0.2.0 | `84dd19a328b5b87b69fa9cf27453756ee5d43a83` |
+| Database | 0.2.0 | `9abe1d7e38475d824c2d52c5001b154baf23fa1a` |
 | Studies | 0.1.0 | `8abbcea3bd2c204e9e34e903ed03f3d10f0de708` |
 | smhi2epw | 1.1.1 | `434d7b26de1a6da88e156bebc39e246c615c4ba0` |
 | EPSM | 0.2.0 | `self` |
@@ -242,8 +242,13 @@ See [the logging notebook](examples/05_logging.ipynb), [handoff example](example
 
 ## Coordinated logging release
 
-The logging release is tested with the versions and exact source commits in
-`logging-compatibility.json`: Data 0.5.0, Core 0.3.0, RC 0.4.0, LCA 0.2.0,
-Database 0.2.0, Weather 1.2.0 and Studies 0.2.0. The older compatibility
-baseline above remains supported; full cross-package logging requires the
-instrumented releases. See [release notes](RELEASE_NOTES.md).
+The coordinated release checks use the versions and exact source commits in
+`logging-compatibility.json`: Data 0.6.0, Core 0.4.0, RC 0.4.0, LCA 0.2.0,
+Database 0.3.0, Weather 1.2.0 and Studies 0.2.0. The platform compatibility manifest records the same released dependency versions.
+Full cross-package logging requires the instrumented collaborators. See [release notes](RELEASE_NOTES.md).
+
+See [archetype application](docs/archetype-application.md) and the [geometry-first example](examples/00_geometry_and_archetype.ipynb) for catalogue and custom authoring on an existing Building.
+
+See [archetypes and building evidence](docs/archetype-consumers.md) for record assembly, independent component selection and maintained stock handovers.
+
+See [installed archetype acceptance](docs/archetype-installed-checks.md) for authored and catalogue application checks with actual RC and EnergyPlus execution.

@@ -40,6 +40,25 @@ class Building(CoreBuilding):
         self._evaluation_cache = EvaluationCache()
         self._baseline_inventory = None
         self._source_record = None
+        self._archetype_applications = ()
+
+    @property
+    def archetype_applications(self):
+        """Immutable application records, in application order."""
+        return self._archetype_applications
+
+    @logged_operation("building.archetype.apply")
+    def apply_archetype(self, archetype, *, mode="replace", calendar=None):
+        """Apply a catalogue or authored definition to existing geometry in place.
+
+        Replace supplied roles and sections, or fill missing assignments while
+        retaining existing choices. Invalid supplied values raise before changes.
+        Missing systems, calendars and reference bases remain explicit in the
+        returned ArchetypeApplicationReport. Openings and geometry are preserved.
+        """
+        from .archetypes import apply_archetype
+
+        return apply_archetype(self, archetype, mode=mode, calendar=calendar)
 
     @property
     def results(self):
@@ -49,6 +68,7 @@ class Building(CoreBuilding):
         child.assessment = deepcopy(self.assessment)
         child._evaluation_cache = self._evaluation_cache
         child._source_record = deepcopy(self._source_record)
+        child._archetype_applications = self.archetype_applications
         child._baseline_inventory = deepcopy(
             self._baseline_inventory
             if self._baseline_inventory is not None
@@ -57,16 +77,21 @@ class Building(CoreBuilding):
 
     @classmethod
     @logged_operation("building.record.convert")
-    def from_record(cls, record, **options):
+    def from_record(cls, record, *, archetype=None, calendar=None, **options):
         """Copy observed geometry and evidence, retaining unresolved model inputs.
 
         Swedish DB footprints are projected metric coordinates. Geometry needs
         storeys and height/elevations; missing source heights remain unresolved.
-        Catalogue and HVAC selections are explicit options, never measurements.
+        ``archetype`` is an explicitly selected Data definition, applied through
+        ``apply_archetype`` after geometry and source evidence are retained.
+        ``calendar`` belongs to that application. Omitting the archetype leaves
+        existing gradual authoring behaviour. Choices never become measurements.
         """
         from .records import building_from_record
 
-        return building_from_record(cls, record, **options)
+        return building_from_record(
+            cls, record, archetype=archetype, calendar=calendar, **options
+        )
 
     def compare(self, record=None):
         """Compare like-unit model properties with preserved source evidence."""
@@ -83,6 +108,9 @@ class Building(CoreBuilding):
             baseline_inventory=deepcopy(self._baseline_inventory),
             source_record=json.loads(encode(self._source_record)),
             lineage=self.lineage_to_dict(),
+            archetype_applications=[
+                report.to_dict() for report in self.archetype_applications
+            ],
         )
 
     @classmethod
@@ -99,6 +127,12 @@ class Building(CoreBuilding):
         )
         building._baseline_inventory = deepcopy(data.get("baseline_inventory"))
         building._source_record = deepcopy(data.get("source_record"))
+        from .archetypes import ArchetypeApplicationReport
+
+        building._archetype_applications = tuple(
+            ArchetypeApplicationReport.from_dict(report)
+            for report in data.get("archetype_applications", ())
+        )
         building.restore_lineage(data.get("lineage", {}))
         return building
 
@@ -124,6 +158,9 @@ class Building(CoreBuilding):
             weather = Weather.from_epw(weather)
         self.readiness(engine=engine, weather=weather).require()
         snapshot = self.snapshot()
+        application_records = [
+            report.to_dict() for report in self.archetype_applications
+        ]
         frozen = snapshot.to_building()
         settings = (
             AssessmentSettings.from_dict(self.assessment.to_dict())
@@ -269,6 +306,7 @@ class Building(CoreBuilding):
             lca_id=lca_key,
             snapshot=snapshot.to_dict(),
             source_record=deepcopy(self._source_record),
+            archetype_applications=application_records,
             weather=frozen_weather.to_dict(),
             assessment=settings,
             energy=energy_data,

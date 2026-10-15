@@ -6,6 +6,7 @@ variables and imports installed packages. No database or live service is needed.
 
 | Example | What it shows | Energy engine |
 | --- | --- | --- |
+| [0. Geometry and archetype](00_geometry_and_archetype.ipynb) | Apply catalogue and authored definitions to explicit geometry; inspect assignments and missing inputs | None |
 | [1. Building and Data](01_building_and_data.ipynb) | An empty draft, a chosen teaching building, Data constructions, quantities, sources and a partial source record | None |
 | [2. Renovation materials](02_renovation_materials.ipynb) | Single and staged work, added and removed quantities, missing factors, saved reports and plots | None |
 | [3. Actual energy and climate](03_actual_energy_and_climate.ipynb) | Baseline and renovated annual RC runs, operational impact, savings and matching single/staged final totals | RC |
@@ -70,3 +71,5 @@ energy answers reflect their declared models; this is not an accuracy ranking.
 ## Logging
 
 `05_logging.ipynb` teaches explicit output controls and the offline DB-record → Building → RC → LCA trace. Install the coordinated logging package revisions plus the examples extra. `logging_walkthrough.py` uses synthetic evidence and packaged teaching weather; `logging_workers.py` demonstrates one application-owned queue listener. These examples need no live database, provider network or EnergyPlus. Run each notebook from a fresh kernel in this directory.
+
+The renovation case applies catalogue fabric with `Building.apply_archetype` before constructing renovation paths. Its operation and system choices remain explicit teaching assumptions; see [consumer migration](../docs/archetype-consumers.md).
