@@ -142,7 +142,7 @@ def operation(event, *, level=logging.INFO, traceback=False):
                 suffix,
                 extra={
                     "epsm_event": event + "." + suffix,
-                    "epsm_context": context,
+                    "epsm_context": dict(context),
                     "epsm_details": details,
                 },
                 exc_info=traceback and error is not None,
@@ -154,7 +154,7 @@ def operation(event, *, level=logging.INFO, traceback=False):
             if isinstance(result, Path):
                 details["path"] = str(result)
             for name in ("run_id", "dataset_id", "source_version", "rows"):
-                value = getattr(result, name, None)
+                value = vars(result).get(name) if hasattr(result, "__dict__") else None
                 if isinstance(value, (str, int)):
                     details[name] = value
             if isinstance(result, (list, tuple)):

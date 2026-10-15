@@ -117,3 +117,40 @@ def test_verbosity_does_not_change_energy_or_physical_identity(tmp_path, monkeyp
     assert quiet.scalars == detailed.scalars
     assert quiet.run_id == detailed.run_id
     assert building.snapshot().sha256 == before
+
+
+def test_captured_events_keep_context_as_it_was_emitted(caplog):
+    import logging
+
+    from epsm._logging import bind_context, operation
+
+    @operation("example.identity")
+    def assign_identity():
+        bind_context(run_id="known-after-start")
+
+    with caplog.at_level(logging.INFO):
+        assign_identity()
+    events = [
+        r
+        for r in caplog.records
+        if getattr(r, "epsm_event", "").startswith("example.identity.")
+    ]
+    assert "run_id" not in events[0].epsm_context
+    assert events[-1].epsm_context["run_id"] == "known-after-start"
+
+
+def test_logging_does_not_evaluate_returned_object_properties():
+    from epsm._logging import operation
+
+    class Result:
+        @property
+        def run_id(self):
+            raise AssertionError("Logging must not inspect or calculate this property")
+
+    result = Result()
+
+    @operation("example.result")
+    def calculate():
+        return result
+
+    assert calculate() is result

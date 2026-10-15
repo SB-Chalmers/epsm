@@ -1,12 +1,12 @@
 {
   "schema_version": 1,
   "packages": {
-    "epsm_data": "1db9718423b5ded936a44292ef2eccb2caf58362",
-    "epsm_core": "9bb323da9edece6a37851c7940fa5b2315b80fe8",
-    "epsm_rc": "f2c4fc6bd5953ba75150effae73ce571594bea77",
-    "epsm_lca": "989e60030325e6d7371ee58f267f30b79b50867c",
-    "epsm_db": "b53d68af889d854b302c537b444039ee51202198",
-    "smhi2epw": "c26aa77c6b2bdc90461681a762c9941741f31000",
-    "epsm_studies": "53596c564521ab6287a2551fc64ea9827a315492"
+    "epsm_data": "98c1f5b4cc215545e769de7ad61788c5e1a7b831",
+    "epsm_core": "c78361200a0bcbdc9b026f2858a458c1ff901fb0",
+    "epsm_rc": "d24c351764086f30c6c7be358d0e82a5d6019b8c",
+    "epsm_lca": "7faa48f48f8da93d1ea495595b94a8d18ce5a5cf",
+    "epsm_db": "d8ab91ef7d65e083537d4a663d1fbd5c9a50427e",
+    "smhi2epw": "e404efd4a095037a2fc46a11a812f90dbf21fb2f",
+    "epsm_studies": "ab14536347f7916df0e71c295f442f9f9dd409d0"
   }
 }
