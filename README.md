@@ -238,3 +238,12 @@ EPSM is needed only for this combined configuration, not for ordinary library
 logging. Existing scripts can keep using `logging.basicConfig(level=logging.INFO)`.
 
 See [the logging notebook](examples/05_logging.ipynb), [handoff example](examples/logging_walkthrough.py) and [worker queue example](examples/logging_workers.py).
+
+
+## Coordinated logging release
+
+The logging release is tested with the versions and exact source commits in
+`logging-compatibility.json`: Data 0.5.0, Core 0.3.0, RC 0.4.0, LCA 0.2.0,
+Database 0.2.0, Weather 1.2.0 and Studies 0.2.0. The older compatibility
+baseline above remains supported; full cross-package logging requires the
+instrumented releases. See [release notes](RELEASE_NOTES.md).
