@@ -172,11 +172,11 @@ identify the tested source combination; the manifest is the executable CI input.
 
 | Package | Version | Tested commit |
 | --- | --- | --- |
-| Data | 0.4.0 | `d7b19688ae7bb73dbbc4bc12afa83a6bcc67ae48` |
+| Data | 0.4.0 | `909179951815332a3b8d3bf106e06aa4f7e969dd` |
 | Core | 0.3.0 | `4f7f746d1158893f73e0cf601b62fe41c35f5c73` |
 | RC | 0.3.0 | `026d9fc93ad8c07913ecb56e20b57288b45dc318` |
-| LCA | 0.2.0 | `da0485906bec233fe1c9a9a95d5b6c66a2f74d5b` |
-| Database | 0.1.0 | `6b2d63ecde169af8b54b521859213d06bcceeb9b` |
+| LCA | 0.2.0 | `834660ab649594230e29cd320ba66beec0352ddd` |
+| Database | 0.2.0 | `84dd19a328b5b87b69fa9cf27453756ee5d43a83` |
 | Studies | 0.1.0 | `8abbcea3bd2c204e9e34e903ed03f3d10f0de708` |
 | smhi2epw | 1.1.1 | `434d7b26de1a6da88e156bebc39e246c615c4ba0` |
 | EPSM | 0.2.0 | `self` |
@@ -192,7 +192,8 @@ the new combination works.
 
 The supported package combination is recorded in [compatibility.json](compatibility.json).
 CI builds and installs every wheel, records exact tested revisions, and checks
-the platform suite, public handoffs and fresh notebook kernels on Python 3.11
+the platform suite, public handoffs, EPSM notebooks and the LCA annual renovation
+notebook in fresh kernels on Python 3.11
 and 3.13. Separate pinned and development jobs distinguish reproducible support
 from integration against current development. Required collaborators fail
 explicitly when unavailable; Workflows and Studio are outside this matrix. Optional

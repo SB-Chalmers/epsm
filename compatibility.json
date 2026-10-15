@@ -7,7 +7,7 @@
   "packages": {
     "epsm_data": {
       "version": "0.4.0",
-      "revision": "d7b19688ae7bb73dbbc4bc12afa83a6bcc67ae48"
+      "revision": "909179951815332a3b8d3bf106e06aa4f7e969dd"
     },
     "epsm_core": {
       "version": "0.3.0",
@@ -19,11 +19,11 @@
     },
     "epsm_lca": {
       "version": "0.2.0",
-      "revision": "da0485906bec233fe1c9a9a95d5b6c66a2f74d5b"
+      "revision": "834660ab649594230e29cd320ba66beec0352ddd"
     },
     "epsm_db": {
-      "version": "0.1.0",
-      "revision": "6b2d63ecde169af8b54b521859213d06bcceeb9b"
+      "version": "0.2.0",
+      "revision": "84dd19a328b5b87b69fa9cf27453756ee5d43a83"
     },
     "epsm_studies": {
       "version": "0.1.0",
