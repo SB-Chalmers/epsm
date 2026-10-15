@@ -1,4 +1,4 @@
-name: EPSM release checks
+name: EPSM supported package checks
 
 on: [push, pull_request, workflow_dispatch]
 
@@ -6,12 +6,24 @@ permissions:
   contents: read
 
 jobs:
+  combination:
+    runs-on: ubuntu-latest
+    outputs:
+      matrix: ${{ steps.matrix.outputs.matrix }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - id: matrix
+        run: python scripts/compatibility_matrix.py >> "$GITHUB_OUTPUT"
+
   platform:
+    needs: combination
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
-      matrix:
-        python: ['3.11', '3.13']
+      matrix: ${{ fromJSON(needs.combination.outputs.matrix) }}
     steps:
       - uses: actions/checkout@v4
       - uses: actions/checkout@v4
@@ -19,63 +31,77 @@ jobs:
           repository: SB-Chalmers/epsm_data
           ssh-key: ${{ secrets.EPSM_DATA_DEPLOY_KEY }}
           persist-credentials: false
-          ref: 2d66b181e4c3210db39c6594f80db4f26f2cc8d7
+          ref: ${{ matrix.epsm_data }}
           path: .ci/epsm_data
       - uses: actions/checkout@v4
         with:
           repository: SB-Chalmers/epsm_core
           ssh-key: ${{ secrets.EPSM_CORE_DEPLOY_KEY }}
           persist-credentials: false
-          ref: 2d4a7220db34c60b6da7feed496340fd399478ee
+          ref: ${{ matrix.epsm_core }}
           path: .ci/epsm_core
       - uses: actions/checkout@v4
         with:
           repository: SB-Chalmers/epsm_lca
           ssh-key: ${{ secrets.EPSM_LCA_DEPLOY_KEY }}
           persist-credentials: false
-          ref: da0485906bec233fe1c9a9a95d5b6c66a2f74d5b
+          ref: ${{ matrix.epsm_lca }}
           path: .ci/epsm_lca
       - uses: actions/checkout@v4
         with:
           repository: SB-Chalmers/epsm_rc
           ssh-key: ${{ secrets.EPSM_RC_DEPLOY_KEY }}
           persist-credentials: false
-          ref: 142773fb6ed85879c71ec0b2060be49f57cd9457
+          ref: ${{ matrix.epsm_rc }}
           path: .ci/epsm_rc
       - uses: actions/checkout@v4
         with:
-          repository: SB-Chalmers/epsm_workflows
-          ssh-key: ${{ secrets.EPSM_WORKFLOWS_DEPLOY_KEY }}
+          repository: SB-Chalmers/epsm_db
+          ssh-key: ${{ secrets.EPSM_DB_DEPLOY_KEY }}
           persist-credentials: false
-          ref: a8d29afac1b8aa4bd35c3210cf2b8490dbb795b3
-          path: .ci/epsm_workflows
+          ref: ${{ matrix.epsm_db }}
+          path: .ci/epsm_db
+      - uses: actions/checkout@v4
+        with:
+          repository: SB-Chalmers/epsm_studies
+          ssh-key: ${{ secrets.EPSM_STUDIES_DEPLOY_KEY }}
+          persist-credentials: false
+          ref: ${{ matrix.epsm_studies }}
+          path: .ci/epsm_studies
+      - uses: actions/checkout@v4
+        with:
+          repository: SB-Chalmers/smhi2epw
+          ref: ${{ matrix.smhi2epw }}
+          path: .ci/smhi2epw
       - uses: actions/setup-python@v5
         with:
           python-version: ${{ matrix.python }}
-      - name: Build coordinated package wheels
+      - name: Build and install the complete wheel combination
         run: |
-          python -m pip install build
-          for package in epsm_data epsm_core epsm_lca epsm_rc epsm_workflows; do
+          python -m pip install build pytest ruff nbclient nbformat ipykernel matplotlib
+          for package in epsm_data epsm_core epsm_lca epsm_rc epsm_db epsm_studies smhi2epw; do
             python -m build --wheel --outdir .ci/wheels ".ci/$package"
           done
           python -m build --wheel --outdir .ci/wheels .
-          python -m pip install .ci/wheels/*.whl 'epsm[dev,rc,examples,workflows]==0.1.0'
+          python -m pip install .ci/wheels/*.whl
           python -m pip check
       - name: Check maintained modules and examples
         run: |
           ruff check src/epsm/__init__.py src/epsm/building.py src/epsm/results.py tests examples scripts
           ruff format --check src/epsm/__init__.py src/epsm/building.py src/epsm/results.py tests examples scripts
-      - name: Run installed platform suite
+      - name: Record the actual tested source revisions
+        run: python scripts/record_compatibility.py --mode '${{ matrix.mode }}' --output build/compatibility-receipt.json
+      - name: Require installed handoffs and execute the platform suite
         run: |
-          python -c "import epsm; assert 'site-packages' in epsm.__file__"
+          python scripts/check_installed_platform.py --require-wheels --directory build/installed-handoff
           python -m pytest -q
-      - name: Run fresh-kernel notebooks and Workflows integration
-        run: |
-          python scripts/run_examples.py --integration
-          python examples/platform_walkthrough.py --optimise
+      - name: Run examples in fresh kernels
+        run: python scripts/run_examples.py --integration
       - uses: actions/upload-artifact@v4
+        if: always()
         with:
-          name: epsm-examples-python-${{ matrix.python }}
+          name: epsm-platform-${{ matrix.python }}-${{ matrix.mode }}
           path: |
+            build/compatibility-receipt.json
+            build/installed-handoff
             build/executed-examples
-            outputs/platform_walkthrough

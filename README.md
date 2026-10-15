@@ -186,8 +186,18 @@ while EPSM now exposes its full renovation report too. Recalculate earlier
 teaching results after a package update; previous outputs do not establish that
 the new combination works.
 
-CI builds and installs all package wheels and checks the platform tests, fresh
-notebook kernels and Workflows walkthrough on Python 3.11 and 3.13. Optional
+The supported package combination is recorded in [compatibility.json](compatibility.json).
+CI builds and installs every wheel, records exact tested revisions, and checks
+the platform suite, public handoffs and fresh notebook kernels on Python 3.11
+and 3.13. Separate pinned and development jobs distinguish reproducible support
+from integration against current development. Required collaborators fail
+explicitly when unavailable; Workflows and Studio are outside this matrix. Optional
 EnergyPlus checks need a separately installed binary. The compatibility modules
 for older DB and Data adapters remain available during migration. EPSM-owned
 code uses MIT; see [LICENSE](LICENSE).
+
+To run the required offline cross-package handoff locally, use
+`python scripts/check_installed_platform.py --directory build/installed-handoff`.
+Add `--require-wheels` in a clean wheel environment. The check uses synthetic DB
+evidence, retains shared-certificate scope and runs actual annual RC energy and
+renovation LCA. It performs no live database query or provider acquisition.
