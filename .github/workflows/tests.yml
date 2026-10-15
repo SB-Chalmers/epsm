@@ -87,8 +87,8 @@ jobs:
           python -m pip check
       - name: Check maintained modules and examples
         run: |
-          ruff check src/epsm/__init__.py src/epsm/building.py src/epsm/results.py tests examples scripts
-          ruff format --check src/epsm/__init__.py src/epsm/building.py src/epsm/results.py tests examples scripts
+          ruff check src/epsm/__init__.py src/epsm/building.py src/epsm/archetypes.py src/epsm/results.py tests examples scripts
+          ruff format --check src/epsm/__init__.py src/epsm/building.py src/epsm/archetypes.py src/epsm/results.py tests examples scripts
       - name: Record the actual tested source revisions
         run: python scripts/record_compatibility.py --mode '${{ matrix.mode }}' --output build/compatibility-receipt.json
       - name: Require installed handoffs and execute the platform suite

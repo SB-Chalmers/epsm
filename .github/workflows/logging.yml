@@ -19,14 +19,14 @@ jobs:
           repository: SB-Chalmers/epsm_data
           ssh-key: ${{ secrets.EPSM_DATA_DEPLOY_KEY }}
           persist-credentials: false
-          ref: ac2c7b998f1b92d14650e578f31441d8e78c5f30
+          ref: e78375fb72d37268d68968e1bb360faa10b69291
           path: .ci/epsm_data
       - uses: actions/checkout@v4
         with:
           repository: SB-Chalmers/epsm_core
           ssh-key: ${{ secrets.EPSM_CORE_DEPLOY_KEY }}
           persist-credentials: false
-          ref: 88ac5499ba41efb44e099f3579c19f64c50f62e5
+          ref: ad2e031c180462678abe8c3edc783feb112e0849
           path: .ci/epsm_core
       - uses: actions/checkout@v4
         with:

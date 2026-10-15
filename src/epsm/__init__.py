@@ -20,6 +20,7 @@ from epsm_lca import (
     assess_renovation,
 )
 
+from .archetypes import ArchetypeApplicationReport
 from .building import Building
 from .cache import EvaluationCache
 from .logging import configure_logging, reset_logging
@@ -32,6 +33,7 @@ __all__ = [
     "reset_logging",
     "evaluation_identity",
     "Building",
+    "ArchetypeApplicationReport",
     "Weather",
     "HVACSystem",
     "OperationProfile",

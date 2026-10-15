@@ -6,12 +6,12 @@
   ],
   "packages": {
     "epsm_data": {
-      "version": "0.4.0",
-      "revision": "909179951815332a3b8d3bf106e06aa4f7e969dd"
+      "version": "0.5.0",
+      "revision": "e78375fb72d37268d68968e1bb360faa10b69291"
     },
     "epsm_core": {
       "version": "0.3.0",
-      "revision": "4f7f746d1158893f73e0cf601b62fe41c35f5c73"
+      "revision": "ad2e031c180462678abe8c3edc783feb112e0849"
     },
     "epsm_rc": {
       "version": "0.3.0",
