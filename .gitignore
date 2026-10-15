@@ -26,3 +26,6 @@ __pycache__/
 
 # Default platform evaluation artifacts
 /outputs/
+
+# Checked-out CI dependencies
+.ci/

@@ -25,7 +25,7 @@ def weather():
 
 
 def reference():
-    building = Building()
+    building = Building(preset="illustrative-reference")
     building.hvac = HVACSystem(
         building.hvac.airflow,
         DeliverySpec(
@@ -121,6 +121,7 @@ def test_results_are_stable_snapshots_and_lca_failure_preserves_energy(
     monkeypatch.setattr(module, "assess", fail)
     second = b.simulate(engine="epsm_rc", weather=weather, directory=tmp_path / "two")
     assert second.lca.status == "failed" and second.energy.complete
+    assert second.annual_energy().state_id == second.state_id
     assert len(b.results) == 2
     data = a.energy.hourly
     data["space_heating_demand_kwh"][0] = -10
@@ -165,10 +166,21 @@ def test_record_is_gradual_and_comparison_preserves_missing():
 
 
 def test_real_rc_repeat_runs_are_independent(tmp_path, weather):
+    from epsm_rc import RCSettings
+
+    settings = RCSettings.from_policy(
+        "epsm_rc_5r1c_v1",
+        airflow_policy="sensible_only_unlimited_supply",
+        ground_policy="conductance_multiplier",
+    )
     b = reference()
     b.assessment = assessment(b)
-    a = b.simulate(engine="epsm_rc", weather=weather, directory=tmp_path / "one")
-    c = b.simulate(engine="epsm_rc", weather=weather, directory=tmp_path / "two")
+    a = b.simulate(
+        engine="epsm_rc", weather=weather, settings=settings, directory=tmp_path / "one"
+    )
+    c = b.simulate(
+        engine="epsm_rc", weather=weather, settings=settings, directory=tmp_path / "two"
+    )
     assert a.energy.complete and a.lca.complete
     assert a.energy.annual_delivered_energy_kwh > 0
     assert a.energy.scalars == c.energy.scalars
