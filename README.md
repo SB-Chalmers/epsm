@@ -166,16 +166,20 @@ unless `calendar_year` is supplied. Each evaluation retains that weather evidenc
 ## Tested package combination
 
 The examples and CI use these fixed source versions, checked on 15 October 2026.
-Core and RC development changes still share version number 0.2.0 with earlier
-code, so the exact commits distinguish this combination.
+EPSM 0.2.0 requires Core and RC 0.3.0+ so the explicit-authoring and reduction
+APIs are distinguishable from earlier implementations. Exact commits still
+identify the tested source combination; the manifest is the executable CI input.
 
 | Package | Version | Tested commit |
 | --- | --- | --- |
-| Data | 0.4.0 | `2d66b181e4c3210db39c6594f80db4f26f2cc8d7` |
-| Core | 0.2.0 | `2d4a7220db34c60b6da7feed496340fd399478ee` |
-| RC | 0.2.0 | `142773fb6ed85879c71ec0b2060be49f57cd9457` |
+| Data | 0.4.0 | `d7b19688ae7bb73dbbc4bc12afa83a6bcc67ae48` |
+| Core | 0.3.0 | `4f7f746d1158893f73e0cf601b62fe41c35f5c73` |
+| RC | 0.3.0 | `026d9fc93ad8c07913ecb56e20b57288b45dc318` |
 | LCA | 0.2.0 | `da0485906bec233fe1c9a9a95d5b6c66a2f74d5b` |
-| Workflows | 0.2.0 | `a8d29afac1b8aa4bd35c3210cf2b8490dbb795b3` |
+| Database | 0.1.0 | `6b2d63ecde169af8b54b521859213d06bcceeb9b` |
+| Studies | 0.1.0 | `8abbcea3bd2c204e9e34e903ed03f3d10f0de708` |
+| smhi2epw | 1.1.1 | `434d7b26de1a6da88e156bebc39e246c615c4ba0` |
+| EPSM | 0.2.0 | `self` |
 
 Core's explicit presets, ground inputs, thermal bridge choices, load reference
 area and heat-gain choices survive EPSM snapshots and round trips. RC requires
@@ -201,3 +205,11 @@ To run the required offline cross-package handoff locally, use
 Add `--require-wheels` in a clean wheel environment. The check uses synthetic DB
 evidence, retains shared-certificate scope and runs actual annual RC energy and
 renovation LCA. It performs no live database query or provider acquisition.
+
+## Migrating to EPSM 0.2.0
+
+Install the coordinated Core/RC versions and refresh editable metadata after
+changing source versions. Saved Buildings retain complete portable DB evidence
+alongside their comparison summaries; old summary-only files remain readable.
+Database 0.2.0 stock-cell conversion returns the same physical Building type as
+individual records, with the old weather/policy route explicitly named legacy.
