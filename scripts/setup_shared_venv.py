@@ -6,12 +6,17 @@
 from __future__ import annotations
 
 import argparse
+import ast
+import importlib
 import json
 import os
 import shutil
 import subprocess
 import sys
+import tomllib
+import urllib.parse
 import venv
+from importlib import metadata
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -51,32 +56,97 @@ def run(*args: str, cwd: Path = ROOT) -> None:
     subprocess.run(args, cwd=cwd, check=True)
 
 
+def checkout_version(checkout: Path) -> str:
+    """Read literal static or setuptools attribute versions without cached imports."""
+    project = tomllib.loads((checkout / "pyproject.toml").read_text())
+    if "version" in project["project"]:
+        return project["project"]["version"]
+    attribute = project["tool"]["setuptools"]["dynamic"]["version"]["attr"]
+    module, name = attribute.rsplit(".", 1)
+    source = checkout / "src" / (module.replace(".", "/") + ".py")
+    for node in ast.parse(source.read_text()).body:
+        if isinstance(node, ast.Assign) and any(
+            isinstance(target, ast.Name) and target.id == name
+            for target in node.targets
+        ):
+            return str(ast.literal_eval(node.value))
+    raise RuntimeError(f"Cannot read declared version from {source}")
+
+
+def verify_checkout(distribution: str, module: str, checkout: Path) -> None:
+    """Reject stale metadata or imports from an unrelated editable checkout."""
+    repair = "Run python3.12 scripts/setup_shared_venv.py from the epsm checkout."
+    loaded = importlib.import_module(module)
+    declared, installed = checkout_version(checkout), metadata.version(distribution)
+    if installed != declared:
+        raise RuntimeError(
+            f"{distribution}: installed {installed}, checkout declares {declared}. {repair}"
+        )
+    direct = json.loads(
+        metadata.distribution(distribution).read_text("direct_url.json")
+    )
+    actual = Path(urllib.parse.unquote(urllib.parse.urlparse(direct["url"]).path))
+    if (
+        not direct.get("dir_info", {}).get("editable")
+        or actual.resolve() != checkout.resolve()
+    ):
+        raise RuntimeError(f"{distribution}: wrong editable source {actual}. {repair}")
+    if not Path(loaded.__file__).resolve().is_relative_to(checkout.resolve()):
+        raise RuntimeError(f"{distribution}: imported from {loaded.__file__}. {repair}")
+
+
+def verify_capabilities() -> None:
+    """Check public handoffs without running an engine, reading weather or using Git."""
+    requirements = {
+        "epsm_rc": ("RCSettings.from_policy", "simulate_building"),
+        "epsm_core": ("Building.resolve", "resolve_internal_gains"),
+        "epsm_lca": ("AnnualEnergy.for_building", "assess_renovation"),
+    }
+    for package, attributes in requirements.items():
+        module = importlib.import_module(package)
+        for attribute in attributes:
+            value = module
+            for part in attribute.split("."):
+                value = getattr(value, part, None)
+            if not callable(value):
+                raise RuntimeError(
+                    f"{package}: missing required {attribute}. Update the checkout and run "
+                    "python3.12 scripts/setup_shared_venv.py from epsm."
+                )
+
+
 def verify() -> None:
-    """Check interpreter, imports, editable sources, and resolved dependencies."""
+    """Check interpreter, current source metadata, public APIs and dependencies."""
     checker = r"""
 import importlib
 import json
 import pathlib
 import sys
 import urllib.parse
-from importlib import metadata
 
 expected = json.loads(sys.argv[1])
 assert sys.version_info[:2] == (3, 12), sys.version
 assert pathlib.Path(sys.prefix).resolve() == pathlib.Path(sys.argv[2]).resolve()
+spec = importlib.util.spec_from_file_location('shared_setup', sys.argv[3])
+setup = importlib.util.module_from_spec(spec)
+spec.loader.exec_module(setup)
 for distribution, (module, checkout) in expected.items():
-    importlib.import_module(module)
-    direct_url = json.loads(metadata.distribution(distribution).read_text('direct_url.json'))
-    actual = pathlib.Path(urllib.parse.unquote(urllib.parse.urlparse(direct_url['url']).path))
-    assert direct_url.get('dir_info', {}).get('editable') is True, distribution
-    assert actual.resolve() == pathlib.Path(checkout).resolve(), (distribution, actual)
+    setup.verify_checkout(distribution, module, pathlib.Path(checkout))
+setup.verify_capabilities()
 importlib.import_module('pytest')
 importlib.import_module('sphinx')
 """
     expected = {
         name: (module, str(GITHUB / name)) for name, module in PACKAGE_IMPORTS.items()
     }
-    run(str(CENTRAL / "bin/python"), "-c", checker, json.dumps(expected), str(CENTRAL))
+    run(
+        str(CENTRAL / "bin/python"),
+        "-c",
+        checker,
+        json.dumps(expected),
+        str(CENTRAL),
+        str(Path(__file__).resolve()),
+    )
     run(str(CENTRAL / "bin/python"), "-m", "pip", "check")
 
 
