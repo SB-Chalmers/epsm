@@ -77,16 +77,21 @@ class Building(CoreBuilding):
 
     @classmethod
     @logged_operation("building.record.convert")
-    def from_record(cls, record, **options):
+    def from_record(cls, record, *, archetype=None, calendar=None, **options):
         """Copy observed geometry and evidence, retaining unresolved model inputs.
 
         Swedish DB footprints are projected metric coordinates. Geometry needs
         storeys and height/elevations; missing source heights remain unresolved.
-        Catalogue and HVAC selections are explicit options, never measurements.
+        ``archetype`` is an explicitly selected Data definition, applied through
+        ``apply_archetype`` after geometry and source evidence are retained.
+        ``calendar`` belongs to that application. Omitting the archetype leaves
+        existing gradual authoring behaviour. Choices never become measurements.
         """
         from .records import building_from_record
 
-        return building_from_record(cls, record, **options)
+        return building_from_record(
+            cls, record, archetype=archetype, calendar=calendar, **options
+        )
 
     def compare(self, record=None):
         """Compare like-unit model properties with preserved source evidence."""

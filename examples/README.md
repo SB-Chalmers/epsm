@@ -71,3 +71,5 @@ energy answers reflect their declared models; this is not an accuracy ranking.
 ## Logging
 
 `05_logging.ipynb` teaches explicit output controls and the offline DB-record → Building → RC → LCA trace. Install the coordinated logging package revisions plus the examples extra. `logging_walkthrough.py` uses synthetic evidence and packaged teaching weather; `logging_workers.py` demonstrates one application-owned queue listener. These examples need no live database, provider network or EnergyPlus. Run each notebook from a fresh kernel in this directory.
+
+The renovation case applies catalogue fabric with `Building.apply_archetype` before constructing renovation paths. Its operation and system choices remain explicit teaching assumptions; see [consumer migration](../docs/archetype-consumers.md).

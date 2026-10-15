@@ -172,7 +172,7 @@ identify the tested source combination; the manifest is the executable CI input.
 
 | Package | Version | Tested commit |
 | --- | --- | --- |
-| Data | 0.5.0 | `e78375fb72d37268d68968e1bb360faa10b69291` |
+| Data | 0.5.0 | `8484c1039e3fdca9e3f174a1880630f0eb02c8c1` |
 | Core | 0.3.0 | `ad2e031c180462678abe8c3edc783feb112e0849` |
 | RC | 0.3.0 | `026d9fc93ad8c07913ecb56e20b57288b45dc318` |
 | LCA | 0.2.0 | `834660ab649594230e29cd320ba66beec0352ddd` |
@@ -249,3 +249,5 @@ baseline above remains supported; full cross-package logging requires the
 instrumented releases. See [release notes](RELEASE_NOTES.md).
 
 See [archetype application](docs/archetype-application.md) and the [geometry-first example](examples/00_geometry_and_archetype.ipynb) for catalogue and custom authoring on an existing Building.
+
+See [archetypes and building evidence](docs/archetype-consumers.md) for record assembly, independent component selection and maintained stock handovers.
