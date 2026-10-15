@@ -47,7 +47,7 @@ jobs:
           repository: SB-Chalmers/epsm_db
           ssh-key: ${{ secrets.EPSM_DB_DEPLOY_KEY }}
           persist-credentials: false
-          ref: 6c1a38f8e4d2b1ef8bbeefc13d334a92ef89d59d
+          ref: 9abe1d7e38475d824c2d52c5001b154baf23fa1a
           path: .ci/epsm_db
       - uses: actions/checkout@v4
         with:
