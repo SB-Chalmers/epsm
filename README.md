@@ -176,7 +176,7 @@ identify the tested source combination; the manifest is the executable CI input.
 | Core | 0.3.0 | `ad2e031c180462678abe8c3edc783feb112e0849` |
 | RC | 0.3.0 | `026d9fc93ad8c07913ecb56e20b57288b45dc318` |
 | LCA | 0.2.0 | `834660ab649594230e29cd320ba66beec0352ddd` |
-| Database | 0.2.0 | `84dd19a328b5b87b69fa9cf27453756ee5d43a83` |
+| Database | 0.2.0 | `9abe1d7e38475d824c2d52c5001b154baf23fa1a` |
 | Studies | 0.1.0 | `8abbcea3bd2c204e9e34e903ed03f3d10f0de708` |
 | smhi2epw | 1.1.1 | `434d7b26de1a6da88e156bebc39e246c615c4ba0` |
 | EPSM | 0.2.0 | `self` |
@@ -251,3 +251,5 @@ instrumented releases. See [release notes](RELEASE_NOTES.md).
 See [archetype application](docs/archetype-application.md) and the [geometry-first example](examples/00_geometry_and_archetype.ipynb) for catalogue and custom authoring on an existing Building.
 
 See [archetypes and building evidence](docs/archetype-consumers.md) for record assembly, independent component selection and maintained stock handovers.
+
+See [installed archetype acceptance](docs/archetype-installed-checks.md) for authored and catalogue application checks with actual RC and EnergyPlus execution.
