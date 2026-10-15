@@ -29,6 +29,10 @@ def _record_view(record):
 
 @logged_operation("building.assemble")
 def building_from_record(building_type, record, **options):
+    archetype = options.pop("archetype", None)
+    calendar = options.pop("calendar", None)
+    if calendar is not None and archetype is None:
+        raise ValueError("calendar requires an explicitly selected archetype")
     record = _record_view(record)
     geometry = _value(record, "geometry")
     facts = _value(record, "facts", {})
@@ -82,6 +86,8 @@ def building_from_record(building_type, record, **options):
         portable = record.to_dict()
         if portable.get("format") == "epsm-record-1":
             building._source_record["portable_record"] = deepcopy(portable)
+    if archetype is not None:
+        building.apply_archetype(archetype, calendar=calendar)
     return building
 
 

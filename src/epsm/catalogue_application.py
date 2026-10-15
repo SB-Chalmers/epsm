@@ -11,13 +11,12 @@ from __future__ import annotations
 
 from copy import deepcopy
 
-from epsm_data.detailed import load_detailed_catalogue
-from epsm_data.parametric import ArchetypeKey, era_for_year, load_parametric_catalogue
+from epsm_data import ArchetypeKey, ConstructionSet, EnvelopePerformance
+from epsm_data.domain import BuildingElement as Role
 
-from epsm._logging import call_with_context
 from epsm._logging import operation as logged_operation
 
-from .catalogue_release import core_inputs
+from .catalogue_release import _catalogue_view, core_inputs
 
 COMPONENT_FIELDS = {
     "wall": "wall",
@@ -80,9 +79,9 @@ def resolve_building_archetype(
         audit and unresolved building requirements. Never a complete BuildingSpec
         or an assertion of building-level accuracy. Input datasets are not mutated.
     """
-    cat = catalogue or call_with_context(load_parametric_catalogue)
-    data = detailed or call_with_context(load_detailed_catalogue, catalogue=cat)
-    era = era_for_year(construction_year)
+    cat = _catalogue_view(catalogue, detailed)
+    data = cat.detailed
+    era = cat.era_for_year(construction_year)
     if era == "SE.07":
         if default_state is not None:
             raise ValueError("SE.07 has no renovation states; use default_state=None")
@@ -173,7 +172,40 @@ def resolve_building_archetype(
         if airflow_handoff
         else None
     )
+    # One physical model carries independently selected roles. Catalogue state
+    # selection does not infer a sequential renovation or an installed system.
+    role_names = {"wall": Role.EXT_WALL, "roof": Role.TOP_FLOOR,
+                  "ground": Role.GROUND_FLOOR, "basement_wall": Role.BASEMENT_WALL,
+                  "intermediate_floor": Role.INTERMEDIATE_FLOOR, "window": Role.WINDOW}
+    elements = dict(native["archetype"].construction_set.elements)
+    role_names["roof"] = Role.TOP_FLOOR if Role.TOP_FLOOR in elements else Role.ROOF
+    for role, state in states.items():
+        if role in role_names:
+            elements[role_names[role]] = cache[state]["archetype"].construction_set.elements[role_names[role]]
+    reference = native["archetype"]
+    envelope_definition = reference.envelope_performance
+    if "airtightness" in states:
+        envelope_definition = cache[states["airtightness"]]["archetype"].envelope_performance
+    if airflow_handoff is not None and area_rate is None:
+        envelope_definition = EnvelopePerformance(
+            infiltration_ach=airflow_handoff["core_envelope_infiltration_ach"],
+            infiltration_reference_basis="conditioned_volume",
+            source_references=envelope_definition.source_references,
+            notes=envelope_definition.notes + ("Explicit TABULA reference-area to conditioned-volume conversion: " + str(airflow_handoff),))
+    construction_set = (reference.construction_set
+        if elements == reference.construction_set.elements else ConstructionSet(elements=elements))
+    archetype = reference.with_changes(
+        construction_set=construction_set,
+        envelope_performance=envelope_definition,
+        source_references=tuple(dict.fromkeys(
+            ref for selected in cache.values() for ref in selected["archetype"].source_references)) + tuple(
+            role + ": " + source for role, source in sorted(sources.items())),
+        notes=tuple(dict.fromkeys(
+            note for selected in cache.values() for note in selected["archetype"].notes)) + tuple(
+            f"Component {role}: state={assignment['state']}; source={assignment['source']}; status={assignment['status']}"
+            for role, assignment in sorted(assignments.items())))
     return {
+        "archetype": archetype,
         "envelope": native["envelope"].updated(**envelope_updates),
         "glazing": glazing,
         "roof_topology": native["roof_topology"],

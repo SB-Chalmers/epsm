@@ -4,9 +4,19 @@ from __future__ import annotations
 import math
 from copy import deepcopy
 
-from epsm_data.detailed import load_detailed_catalogue
-from epsm_data.layered import load_calibrated_archetype
-from epsm_data.parametric import load_parametric_catalogue
+from epsm_data import Catalogue, export_nominal_constructions
+
+from epsm._logging import call_with_context
+
+
+def _catalogue_view(catalogue=None, detailed=None):
+    """Adapt explicit advanced inspection inputs to the one public library."""
+    if isinstance(catalogue, Catalogue):
+        return (catalogue if detailed is None or detailed is catalogue.detailed else
+                Catalogue(parametric=catalogue.parametric, detailed=detailed))
+    loaded = call_with_context(Catalogue.load)
+    return (loaded if catalogue is None and detailed is None else
+            Catalogue(parametric=catalogue or loaded.parametric, detailed=detailed or loaded.detailed))
 
 
 def core_inputs(archetype_id, state=None, *, detailed=None, catalogue=None, basement_wall=None):
@@ -19,8 +29,8 @@ def core_inputs(archetype_id, state=None, *, detailed=None, catalogue=None, base
     """
     from epsm_core.specs import ConstructionSpec, EnvelopeSpec, GlazingSpec
 
-    detailed = detailed or load_detailed_catalogue()
-    catalogue = catalogue or load_parametric_catalogue()
+    library = _catalogue_view(catalogue, detailed)
+    detailed = library.detailed
     if detailed.archetypes[archetype_id]['era'] == 'SE.07':
         if state is not None:
             raise ValueError('SE.07 has no renovation states; use state=None')
@@ -29,9 +39,9 @@ def core_inputs(archetype_id, state=None, *, detailed=None, catalogue=None, base
     definition = detailed.archetypes[archetype_id]['states'][state]
     if definition.get('release_profile') not in {'lod2-v1', 'complete_recipe'}:
         raise ValueError('This adapter requires a reviewed v1 state')
-    model = load_calibrated_archetype(detailed=detailed, catalogue=catalogue,
-                                     archetype_id=archetype_id, renovation_state=state)
-    bundle = model.to_nominal_dict()
+    archetype = call_with_context(library.get, archetype_id, state=state)
+    bundle = export_nominal_constructions(archetype,
+        metadata=library.nominal_metadata(archetype_id, state=state))
     core = bundle['core']
     roof = definition['v1_review']['roof_topology']
     # Representative non-insulated weather shell: outside felt, then roof boarding.
@@ -54,7 +64,7 @@ def core_inputs(archetype_id, state=None, *, detailed=None, catalogue=None, base
         ground=ground, intermediate_floor=ConstructionSpec(**core['INTERMEDIATE_FLOOR']),
         weather_shell=ConstructionSpec(layers=tuple(stack)),
         basement_wall=basement_wall)
-    return {'envelope': envelope, 'glazing': GlazingSpec(**core['WINDOW']),
+    return {'archetype': archetype, 'envelope': envelope, 'glazing': GlazingSpec(**core['WINDOW']),
             'roof_topology': roof, 'nominal_bundle': bundle,
             'requirements': {
                 'attic_outdoor_air_ach': 'required explicit assumption' if roof == 'cold_attic' else 'not applicable',

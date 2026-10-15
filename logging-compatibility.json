@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "packages": {
-    "epsm_data": "e78375fb72d37268d68968e1bb360faa10b69291",
+    "epsm_data": "8484c1039e3fdca9e3f174a1880630f0eb02c8c1",
     "epsm_core": "ad2e031c180462678abe8c3edc783feb112e0849",
     "epsm_rc": "d49c8047fa47522873f1d09dfb389db90fde43aa",
     "epsm_lca": "aff0330b0eed51477e3de3ba786f4c3fbc38c941",

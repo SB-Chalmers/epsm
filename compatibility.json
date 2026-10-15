@@ -7,7 +7,7 @@
   "packages": {
     "epsm_data": {
       "version": "0.5.0",
-      "revision": "e78375fb72d37268d68968e1bb360faa10b69291"
+      "revision": "8484c1039e3fdca9e3f174a1880630f0eb02c8c1"
     },
     "epsm_core": {
       "version": "0.3.0",

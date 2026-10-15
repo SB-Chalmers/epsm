@@ -1,0 +1,15 @@
+{
+  "sf_se02:existing": "9834846b620e243129eda63d9f993f6bb52a8e17891f990cb03036ef7b91a9e6",
+  "sf_se02:standard": "63e9f950e4ad63ca952a5ac59069fe32a1fbf6e172fea31b79dbd3ee0dc046ca",
+  "sf_se02:advanced": "e3acd234f1cd404fd52bb146f3f1e56a11901cdfbd8da60ec00569c1021089c7",
+  "mf_se02:existing": "b796fe34453df242ce1daa7674935cd254ae75fb013c22a89b1b0e157a242ea5",
+  "mf_se02:standard": "5c16c6e746a25b5c1494844666921903767535cb9dc0bd1087690256e5cd91cb",
+  "mf_se02:advanced": "5dfc01548276ad2c003c63dc434124e49fdc407ae5086bf0e82dd0331349a755",
+  "office_se05:existing": "a6eddb8fed2e47d075c17cb636768ab84ad7b3f2ad0c354914da64b989b3932c",
+  "office_se05:standard": "0f05156f10bf3efc4019d5e6ce67c98ababfd82e8a863ba2f7ccaa60f6b6aa9c",
+  "office_se05:advanced": "272eff8f52f48e19d658e6decefb37f789b357566d92056c4a704ef5a88fdf65",
+  "school_se05:existing": "fe061b902d3a01a065c8743ce3ebadf0345992f4dc5c1bcd73d8bf7200e111d3",
+  "school_se05:standard": "5110093977dae69f250636e28266b6d625bab42d06b7d06b9410dfc838eff333",
+  "school_se05:advanced": "fa0796314b5b5626569375c9fb18df35409099f78deff571928ed81910c72b45",
+  "mf_se07:None": "fa49fce72baeb9262b59548fd7c1efe6a45d5150b9654a20e81b8fc1e935b0a9"
+}
