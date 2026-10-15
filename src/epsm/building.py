@@ -24,8 +24,9 @@ logger = logging.getLogger(__name__)
 class Building(CoreBuilding):
     """A Core Building with record, simulation and automatic LCA conveniences.
 
-    ``Building()`` uses Core's inspectable illustrative reference preset. Use
-    ``empty()`` for blank authoring. Assessment settings must be explicit before
+    ``Building()`` starts empty, following Core. Select
+    ``preset='illustrative-reference'`` for Core's teaching inputs. Assessment
+    settings must be explicit before
     a complete LCA can be produced. EnergyPlus is an external prerequisite;
     install the RC extra to use ``engine='epsm_rc'``.
     """
@@ -107,6 +108,11 @@ class Building(CoreBuilding):
         separate energy/LCA calculations, so changing factors reuses energy.
         Each call still appends a distinct evaluation. Artifacts are retained in
         a unique evaluation subdirectory below the supplied directory, or ``outputs/epsm``.
+        RC requires explicit ``settings=RCSettings.from_policy(...)``. These are
+        energy model choices, separate from ``building.assessment``. The automatic
+        LCA is one reached state's cumulative material and energy result. Use
+        ``assess_renovation`` with each evaluation's ``annual_energy()`` to compare
+        the baseline and all recorded steps.
         """
         if engine not in {"energyplus", "epsm_rc"}:
             raise ValueError("engine must be 'energyplus' or 'epsm_rc'")

@@ -7,10 +7,13 @@ import json
 from collections.abc import Sequence
 from dataclasses import asdict, is_dataclass
 from datetime import date, datetime
+from pathlib import Path
 from uuid import UUID
 
 
 def json_value(value):
+    if isinstance(value, Path):
+        return str(value)
     if isinstance(value, (date, datetime)):
         return value.isoformat()
     if isinstance(value, UUID):
@@ -173,6 +176,48 @@ class Evaluation(_FrozenJSON):
 
     def matches(self, building):
         return self.state_id == building.snapshot().sha256
+
+    def annual_energy(self):
+        """Supply this saved evaluation's annual energy to a renovation report.
+
+        Returns
+        -------
+        epsm_lca.AnnualEnergy
+            Delivered carrier kWh tied to the saved building state. The source
+            names both the evaluation and energy calculation. No simulation or
+            file access occurs, and later building edits do not change it.
+
+        Raises
+        ------
+        ValueError
+            Energy is incomplete, does not cover a full year, or the saved
+            building identity disagrees with its snapshot.
+
+        Examples
+        --------
+        After evaluating the baseline and each renovation step, pass
+        ``{0: baseline_result.annual_energy(), 1: step_result.annual_energy()}``
+        as ``energy`` to ``assess_renovation``. See the renovation notebooks for
+        a complete example with an actual annual RC run.
+        """
+        from epsm_core import BuildingSnapshot
+        from epsm_lca import AnnualEnergy
+
+        energy = self.energy
+        if not energy.annual:
+            raise ValueError("A renovation report requires annual energy")
+        if not energy.complete:
+            raise ValueError("A renovation report requires complete delivered energy")
+        if BuildingSnapshot.from_dict(self.snapshot).sha256 != self.state_id:
+            raise ValueError(
+                "Saved evaluation state does not match its building snapshot"
+            )
+        return AnnualEnergy(
+            state_id=self.state_id,
+            delivered_by_carrier=energy.delivered_by_carrier,
+            boundary=energy.boundary,
+            source=f"{self.engine} evaluation {self.id}; energy calculation {self.energy_id}",
+        )
 
     def __repr__(self):
         return f"Evaluation(engine={self.engine[:24]!r}, lca={self.lca.status[:24]!r}, id={self.id[:12]!r})"

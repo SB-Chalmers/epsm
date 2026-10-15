@@ -1,0 +1,92 @@
+{
+  "checked_on": "2026-10-15",
+  "scope": "Teaching example: declared renovation materials and supplied space-heating/fan energy over a common 30-year comparison period",
+  "package_commits": {
+    "epsm_data": "2d66b181e4c3210db39c6594f80db4f26f2cc8d7",
+    "epsm_core": "2d4a7220db34c60b6da7feed496340fd399478ee",
+    "epsm_rc": "142773fb6ed85879c71ec0b2060be49f57cd9457",
+    "epsm_lca": "da0485906bec233fe1c9a9a95d5b6c66a2f74d5b",
+    "epsm_workflows": "a8d29afac1b8aa4bd35c3210cf2b8490dbb795b3"
+  },
+  "epsm_wheel_sha256": "49ac4c78e4278cbb920cf00becb93065a4c0fb80704b48687036f686e6f4fc0a",
+  "energyplus_version": "EnergyPlus, Version 24.2.0-94a887817b",
+  "assumptions": [
+    "Core illustrative-reference building; Data Existing/Advanced multi-family 1960 constructions",
+    "District-heat delivery efficiency 0.95; fan power 1.5 W/(L/s)",
+    "Climate factors: district heat 0.05 kgCO2e/kWh; electricity 0.1 kgCO2e/kWh",
+    "Window removal: 0.5 kgCO2e/m2 for each C1, C2, C3 and C4",
+    "RC epsm_rc_5r1c_v1, sensible_only_unlimited_supply, ground conductance multiplier 0.5"
+  ],
+  "engines": {
+    "epsm_rc": [
+      {
+        "step": 0,
+        "annual_delivered_kwh": 97517.93561470005,
+        "delivered_by_carrier": {
+          "district_heat": 94206.65561470005,
+          "electricity": 3311.28
+        },
+        "material_so_far_kgco2e": 0.0,
+        "total_kgco2e": 151243.82342205007,
+        "savings_kgco2e": 0.0
+      },
+      {
+        "step": 1,
+        "annual_delivered_kwh": 88030.72548049863,
+        "delivered_by_carrier": {
+          "district_heat": 84719.44548049863,
+          "electricity": 3311.28
+        },
+        "material_so_far_kgco2e": 11253.772185599995,
+        "total_kgco2e": 148266.78040634794,
+        "savings_kgco2e": 2977.043015702133
+      },
+      {
+        "step": 2,
+        "annual_delivered_kwh": 36505.99634502746,
+        "delivered_by_carrier": {
+          "district_heat": 33194.71634502746,
+          "electricity": 3311.28
+        },
+        "material_so_far_kgco2e": 26182.537113599992,
+        "total_kgco2e": 85908.45163114119,
+        "savings_kgco2e": 65335.37179090889
+      }
+    ],
+    "energyplus": [
+      {
+        "step": 0,
+        "annual_delivered_kwh": 82249.67508859068,
+        "delivered_by_carrier": {
+          "district_heat": 78938.39508859068,
+          "electricity": 3311.2800000000007
+        },
+        "material_so_far_kgco2e": 0.0,
+        "total_kgco2e": 128341.43263288602,
+        "savings_kgco2e": 0.0
+      },
+      {
+        "step": 1,
+        "annual_delivered_kwh": 73780.16699967164,
+        "delivered_by_carrier": {
+          "district_heat": 70468.88699967164,
+          "electricity": 3311.2800000000007
+        },
+        "material_so_far_kgco2e": 11253.772185599995,
+        "total_kgco2e": 126890.94268510748,
+        "savings_kgco2e": 1450.4899477785366
+      },
+      {
+        "step": 2,
+        "annual_delivered_kwh": 31942.6868843801,
+        "delivered_by_carrier": {
+          "district_heat": 28631.4068843801,
+          "electricity": 3311.2800000000007
+        },
+        "material_so_far_kgco2e": 26182.537113599992,
+        "total_kgco2e": 79063.48744017015,
+        "savings_kgco2e": 49277.945192715866
+      }
+    ]
+  }
+}

@@ -19,47 +19,63 @@ jobs:
           repository: SB-Chalmers/epsm_data
           ssh-key: ${{ secrets.EPSM_DATA_DEPLOY_KEY }}
           persist-credentials: false
-          ref: ae102d33eda79fd429fb445ec99b32dabcab8024
+          ref: 2d66b181e4c3210db39c6594f80db4f26f2cc8d7
           path: .ci/epsm_data
       - uses: actions/checkout@v4
         with:
           repository: SB-Chalmers/epsm_core
           ssh-key: ${{ secrets.EPSM_CORE_DEPLOY_KEY }}
           persist-credentials: false
-          ref: 8a7c5abf9228e7e6c3792f1f34490aaffd1f608f
+          ref: 2d4a7220db34c60b6da7feed496340fd399478ee
           path: .ci/epsm_core
       - uses: actions/checkout@v4
         with:
           repository: SB-Chalmers/epsm_lca
           ssh-key: ${{ secrets.EPSM_LCA_DEPLOY_KEY }}
           persist-credentials: false
-          ref: f2e646713d20f0480bb245e344f86d45292efcdd
+          ref: da0485906bec233fe1c9a9a95d5b6c66a2f74d5b
           path: .ci/epsm_lca
       - uses: actions/checkout@v4
         with:
           repository: SB-Chalmers/epsm_rc
           ssh-key: ${{ secrets.EPSM_RC_DEPLOY_KEY }}
           persist-credentials: false
-          ref: bc65cb2b5ab866ad9909a39b4b7a412beadf84e5
+          ref: 142773fb6ed85879c71ec0b2060be49f57cd9457
           path: .ci/epsm_rc
       - uses: actions/checkout@v4
         with:
           repository: SB-Chalmers/epsm_workflows
           ssh-key: ${{ secrets.EPSM_WORKFLOWS_DEPLOY_KEY }}
           persist-credentials: false
-          ref: a911743677e21f2a99bd738095a10bda8dd57b8e
+          ref: a8d29afac1b8aa4bd35c3210cf2b8490dbb795b3
           path: .ci/epsm_workflows
       - uses: actions/setup-python@v5
         with:
           python-version: ${{ matrix.python }}
-      - name: Install coordinated candidates
-        run: python -m pip install build -e .ci/epsm_data -e .ci/epsm_core -e .ci/epsm_lca -e .ci/epsm_rc -e .ci/epsm_workflows -e '.[dev,rc]'
-      - name: Run platform suite
-        run: python -m pytest -q
-      - name: Build and check installed package
+      - name: Build coordinated package wheels
         run: |
-          python -m build --wheel
-          python -m pip install --no-deps --force-reinstall dist/epsm-*.whl
+          python -m pip install build
+          for package in epsm_data epsm_core epsm_lca epsm_rc epsm_workflows; do
+            python -m build --wheel --outdir .ci/wheels ".ci/$package"
+          done
+          python -m build --wheel --outdir .ci/wheels .
+          python -m pip install .ci/wheels/*.whl 'epsm[dev,rc,examples,workflows]==0.1.0'
           python -m pip check
-          cd /tmp
-          python "$GITHUB_WORKSPACE/examples/platform_walkthrough.py"
+      - name: Check maintained modules and examples
+        run: |
+          ruff check src/epsm/__init__.py src/epsm/building.py src/epsm/results.py tests examples scripts
+          ruff format --check src/epsm/__init__.py src/epsm/building.py src/epsm/results.py tests examples scripts
+      - name: Run installed platform suite
+        run: |
+          python -c "import epsm; assert 'site-packages' in epsm.__file__"
+          python -m pytest -q
+      - name: Run fresh-kernel notebooks and Workflows integration
+        run: |
+          python scripts/run_examples.py --integration
+          python examples/platform_walkthrough.py --optimise
+      - uses: actions/upload-artifact@v4
+        with:
+          name: epsm-examples-python-${{ matrix.python }}
+          path: |
+            build/executed-examples
+            outputs/platform_walkthrough
