@@ -6,6 +6,7 @@ variables and imports installed packages. No database or live service is needed.
 
 | Example | What it shows | Energy engine |
 | --- | --- | --- |
+| [0. Geometry and archetype](00_geometry_and_archetype.ipynb) | Apply catalogue and authored definitions to explicit geometry; inspect assignments and missing inputs | None |
 | [1. Building and Data](01_building_and_data.ipynb) | An empty draft, a chosen teaching building, Data constructions, quantities, sources and a partial source record | None |
 | [2. Renovation materials](02_renovation_materials.ipynb) | Single and staged work, added and removed quantities, missing factors, saved reports and plots | None |
 | [3. Actual energy and climate](03_actual_energy_and_climate.ipynb) | Baseline and renovated annual RC runs, operational impact, savings and matching single/staged final totals | RC |

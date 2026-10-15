@@ -47,7 +47,7 @@ def main():
         encoding="utf-8",
     )
     manager = KernelSpecManager(kernel_dirs=[str(kernel.parent)])
-    notebooks = sorted((root / "examples").glob("0[12]_*.ipynb"))
+    notebooks = sorted((root / "examples").glob("0[012]_*.ipynb"))
     if args.integration:
         notebooks.extend(sorted((root / "examples").glob("03_*.ipynb")))
     if args.logging:
