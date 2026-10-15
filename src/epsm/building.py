@@ -3,7 +3,6 @@
 from __future__ import annotations
 
 import json
-import logging
 import shutil
 import uuid
 from copy import deepcopy
@@ -13,12 +12,15 @@ from epsm_core import Building as CoreBuilding
 from epsm_core import BuildingSnapshot, Weather
 from epsm_lca import AssessmentSettings, LCAResult, assess
 
+from epsm._logging import bind_context, call_with_context, context_logger
+from epsm._logging import operation as logged_operation
+
 from .cache import EvaluationCache
 from .energy import normalize_energy
 from .provenance import evaluation_identity, implementation_identity
 from .results import Evaluation, Results, encode, identity
 
-logger = logging.getLogger(__name__)
+logger = context_logger(__name__)
 
 
 class Building(CoreBuilding):
@@ -54,6 +56,7 @@ class Building(CoreBuilding):
         )
 
     @classmethod
+    @logged_operation("building.record.convert")
     def from_record(cls, record, **options):
         """Copy observed geometry and evidence, retaining unresolved model inputs.
 
@@ -99,6 +102,7 @@ class Building(CoreBuilding):
         building.restore_lineage(data.get("lineage", {}))
         return building
 
+    @logged_operation("evaluation", traceback=True)
     def simulate(
         self, *, engine="energyplus", weather, directory=None, cache=None, **options
     ):
@@ -127,6 +131,7 @@ class Building(CoreBuilding):
             else None
         )
         evaluation_id = uuid.uuid4().hex
+        bind_context(evaluation_id=evaluation_id)
         output = Path(directory or Path("outputs") / "epsm").resolve() / evaluation_id
         output.mkdir(parents=True, exist_ok=True)
         from epsm_core.weather import file_sha256
@@ -143,7 +148,7 @@ class Building(CoreBuilding):
             calendar_year=weather.climate.calendar_year,
             provenance=weather.provenance,
         )
-        spec = frozen.to_spec(frozen_weather)
+        spec = call_with_context(frozen.to_spec, frozen_weather)
         quantities = frozen.quantities()
         flows = deepcopy(self.material_flows)
         cache = cache if cache is not None else self._evaluation_cache
@@ -161,11 +166,20 @@ class Building(CoreBuilding):
         )
         energy_data = cache.get("energy", key)
         reused_energy = energy_data is not None
+        logger.debug(
+            "Energy cache %s",
+            "hit" if reused_energy else "miss",
+            extra={
+                "epsm_event": "evaluation.energy.cache",
+                "epsm_details": {"reused": reused_energy, "energy_id": key},
+            },
+        )
         if energy_data is None:
             if engine == "energyplus":
                 from epsm_core import run_building
 
-                raw = run_building(
+                raw = call_with_context(
+                    run_building,
                     frozen,
                     weather=frozen_weather,
                     directory=output / "energy",
@@ -174,7 +188,8 @@ class Building(CoreBuilding):
             else:
                 from epsm_rc import simulate_building
 
-                raw = simulate_building(
+                raw = call_with_context(
+                    simulate_building,
                     frozen,
                     weather=frozen_weather,
                     directory=output / "energy",
@@ -208,9 +223,18 @@ class Building(CoreBuilding):
         )
         lca_data = cache.get("lca", lca_key)
         reused_lca = lca_data is not None
+        logger.debug(
+            "LCA cache %s",
+            "hit" if reused_lca else "miss",
+            extra={
+                "epsm_event": "evaluation.lca.cache",
+                "epsm_details": {"reused": reused_lca, "lca_id": lca_key},
+            },
+        )
         if lca_data is None:
             try:
-                lca = assess(
+                lca = call_with_context(
+                    assess,
                     quantities,
                     flows,
                     energy,
@@ -263,14 +287,10 @@ class Building(CoreBuilding):
         # Energy and in-memory result already exist if artifact persistence fails.
         (output / "evaluation.json").write_text(encode(result.to_dict()))
         logger.info(
-            "Evaluation completed",
+            "Saved evaluation",
             extra={
-                "epsm_event": "evaluation.completed",
-                "epsm_context": {"evaluation_id": evaluation_id},
-                "epsm_details": {
-                    "energy_reused": reused_energy,
-                    "lca_status": lca_data["status"],
-                },
+                "epsm_event": "evaluation.saved",
+                "epsm_details": {"path": str(output / "evaluation.json")},
             },
         )
         return result

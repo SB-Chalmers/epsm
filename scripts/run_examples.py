@@ -19,6 +19,11 @@ def main():
     parser.add_argument(
         "--integration", action="store_true", help="Also run actual annual RC and LCA"
     )
+    parser.add_argument(
+        "--logging",
+        action="store_true",
+        help="Run the coordinated logging handoff notebook",
+    )
     parser.add_argument("--output", type=Path, default=Path("build/executed-examples"))
     args = parser.parse_args()
     root = Path(__file__).resolve().parents[1]
@@ -45,6 +50,8 @@ def main():
     notebooks = sorted((root / "examples").glob("0[12]_*.ipynb"))
     if args.integration:
         notebooks.extend(sorted((root / "examples").glob("03_*.ipynb")))
+    if args.logging:
+        notebooks.extend(sorted((root / "examples").glob("05_logging.ipynb")))
     for path in notebooks:
         notebook = read(path, as_version=4)
         NotebookClient(
