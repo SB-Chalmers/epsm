@@ -22,7 +22,11 @@ print(result.lca.status, result.lca.requirements)
 
 This selects a teaching building. Replace its assumed inputs before a study.
 `Building()` starts empty with the current Core version. `Building.from_record`
-copies source evidence and leaves missing information unresolved. Data
+copies source evidence and leaves missing information unresolved. Portable DB
+records are retained in `building.to_dict()["source_record"]["portable_record"]`,
+including component heights, certificate subjects and quality findings, without
+retrieval credentials. Older saved Buildings with summary-only evidence remain
+readable; they do not acquire missing evidence on load. Data
 constructions, services, operation, ground choices, thermal bridge uplift and
 load reference area must be supplied or explicitly selected through a preset.
 
