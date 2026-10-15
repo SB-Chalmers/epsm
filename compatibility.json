@@ -11,7 +11,7 @@
     },
     "epsm_core": {
       "version": "0.4.0",
-      "revision": "de1b81a8d9636a4d383559374e51ab89ae8d21f3"
+      "revision": "76b9c93978d26d5f27f0616b51fbb1ca19fb6801"
     },
     "epsm_rc": {
       "version": "0.4.0",
@@ -23,7 +23,7 @@
     },
     "epsm_db": {
       "version": "0.3.0",
-      "revision": "8e79e13ec0433bc6a1f4d639d8ae2267f798cf16"
+      "revision": "9e29a575f5495b76d5a8553bbe6e20dd4f0e1ff0"
     },
     "epsm_studies": {
       "version": "0.2.0",
