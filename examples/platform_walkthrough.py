@@ -1,27 +1,133 @@
-"""Run the installed platform from portable record to renovation optimisation.
+# SPDX-License-Identifier: MIT
+# Copyright (c) 2026 EPSM Development contributors
+# License: See LICENSE at the project root.
+"""Run actual annual energy and renovation LCA with installed EPSM packages.
 
-Uses illustrative constructions and deliberately synthetic factors, unsuitable
-for research conclusions. Supply an EPW with --weather; otherwise the RC package's
-bundled Gothenburg weather is used. Writes outputs only below --output.
+Data supplies catalogue constructions and Boverket material factors. Building,
+delivery, removal and carrier climate factors are teaching assumptions. Supply
+an EPW with --weather, or use RC's bundled Gothenburg example. Each call saves
+its results in a new folder below --output.
 """
 
 import argparse
+import csv
+import json
+import logging
+from datetime import datetime, timezone
 from importlib.resources import files
+from math import isclose
 from pathlib import Path
+from uuid import uuid4
 
-from epsm_core import HVACSystem
-from epsm_core.specs import DeliverySpec, HeatingDeliverySpec
-from epsm_data import ConstructionOperation, RenovationCatalogue, RenovationMeasure
-from epsm_data.domain import BuildingElement as Role
-from epsm_workflows import optimise_renovations
+from renovation_case import make_case, rc_settings
 
-from epsm import (
-    AssessmentSettings,
-    Building,
-    EnvironmentalFactor,
-    EvaluationCache,
-    Weather,
-)
+from epsm import EvaluationCache, Weather, assess_renovation
+
+
+def run_case(
+    *, output, weather=None, engine="epsm_rc", energyplus=None, optimise=False
+):
+    """Evaluate baseline, bundled work and two stages, then save both reports."""
+    if engine not in {"epsm_rc", "energyplus"}:
+        raise ValueError("Choose epsm_rc or energyplus")
+    case = make_case()
+    baseline_id = case["baseline"].snapshot().sha256
+    weather = (
+        weather
+        if isinstance(weather, Weather)
+        else Weather.from_epw(weather or files("epsm_rc") / "data/epw/goteborg.epw")
+    )
+    options = {"settings": rc_settings()} if engine == "epsm_rc" else {}
+    if energyplus is not None:
+        if engine != "energyplus":
+            raise ValueError(
+                "energyplus executable is only used by the energyplus engine"
+            )
+        options["energyplus"] = energyplus
+    directory = Path(output) / (
+        datetime.now(timezone.utc).strftime("run-%Y%m%dT%H%M%SZ-") + uuid4().hex[:8]
+    )
+    cache = EvaluationCache(directory / "cache")
+    evaluations = {
+        name: case[name].simulate(
+            engine=engine,
+            weather=weather,
+            cache=cache,
+            directory=directory / name,
+            **options,
+        )
+        for name in ("baseline", "single_step", "step_1", "step_2")
+    }
+    energy = {name: result.annual_energy() for name, result in evaluations.items()}
+    staged = assess_renovation(
+        case["step_2"],
+        case["settings"],
+        energy={0: energy["baseline"], 1: energy["step_1"], 2: energy["step_2"]},
+    )
+    single = assess_renovation(
+        case["single_step"],
+        case["settings"],
+        energy={0: energy["baseline"], 1: energy["single_step"]},
+    )
+    assert single.complete and staged.complete, (single.summary(), staged.summary())
+    assert isclose(
+        single.stages[-1].total_kgco2e, staged.stages[-1].total_kgco2e, rel_tol=1e-10
+    )
+    assert case["baseline"].snapshot().sha256 == baseline_id
+    for name, report in (("single-step", single), ("staged", staged)):
+        report.save(directory / f"{name}-report.json")
+        with (directory / f"{name}-table.csv").open(
+            "x", newline="", encoding="utf-8"
+        ) as stream:
+            rows = report.table()
+            writer = csv.DictWriter(stream, fieldnames=list(rows[0]))
+            writer.writeheader()
+            writer.writerows(rows)
+    summary = {
+        name: {
+            "annual_delivered_kwh": result.energy.annual_delivered_energy_kwh,
+            "delivered_by_carrier": result.energy.delivered_by_carrier,
+            "evaluation_id": result.id,
+            "energy_id": result.energy_id,
+            "energy_reused": result.diagnostics["energy_reused"],
+            "engine_diagnostics": result.energy.diagnostics,
+        }
+        for name, result in evaluations.items()
+    }
+    with (directory / "energy-summary.json").open("x", encoding="utf-8") as stream:
+        json.dump(summary, stream, indent=2, allow_nan=False)
+    if optimise:
+        from epsm_data import RenovationCatalogue
+        from epsm_workflows import optimise_renovations
+
+        tree = optimise_renovations(
+            case["baseline"],
+            catalogue=RenovationCatalogue(list(case["measures"])),
+            max_depth=1,
+            budget=3,
+            evaluator=lambda candidate: candidate.simulate(
+                engine=engine,
+                weather=weather,
+                cache=cache,
+                directory=directory / "search",
+                **options,
+            ),
+        )
+        assert all(node.feasible for node in tree.nodes), [
+            node.reasons for node in tree.nodes if not node.feasible
+        ]
+        with (directory / "search-tree.json").open("x", encoding="utf-8") as stream:
+            json.dump(tree.to_dict(), stream, indent=2, allow_nan=False)
+        print(
+            f"Evaluated {len(tree.nodes)} alternatives; Pareto alternatives: {len(tree.pareto)}"
+        )
+    return dict(
+        case=case,
+        evaluations=evaluations,
+        staged=staged,
+        single=single,
+        directory=directory,
+    )
 
 
 def main():
@@ -30,105 +136,34 @@ def main():
     parser.add_argument(
         "--output", type=Path, default=Path("outputs/platform_walkthrough")
     )
+    parser.add_argument(
+        "--engine", choices=("epsm_rc", "energyplus"), default="epsm_rc"
+    )
+    parser.add_argument("--energyplus-exe", type=Path)
+    parser.add_argument(
+        "--optimise",
+        action="store_true",
+        help="Also run Workflows; requires epsm[workflows]",
+    )
+    parser.add_argument(
+        "--log-level", choices=("WARNING", "INFO", "DEBUG"), default="WARNING"
+    )
     args = parser.parse_args()
-    reference = Building()
-    record = dict(
-        building_id="illustrative",
-        dataset_id="example",
-        facts={"storey_height_m": 2.8},
-        storeys=3,
-        atemp_m2=720,
-        geometry={
-            "type": "Polygon",
-            "coordinates": [[[0, 0], [20, 0], [20, 12], [0, 12], [0, 0]]],
-        },
+    logging.basicConfig(level=args.log_level)
+    result = run_case(
+        output=args.output,
+        weather=args.weather,
+        engine=args.engine,
+        energyplus=args.energyplus_exe,
+        optimise=args.optimise,
     )
-    building = Building.from_record(
-        record,
-        construction_set=reference.construction_set,
-        hvac=reference.hvac,
-        operation=reference.operation,
-        facade=reference.facade,
-    )
-    building.hvac = HVACSystem(
-        building.hvac.airflow,
-        DeliverySpec(
-            heating=HeatingDeliverySpec(
-                carrier="district_heat",
-                efficiency=0.95,
-                specific_fan_power_w_per_l_s=1.5,
-                source="Illustrative example assumptions",
-            )
-        ),
-    )
-    print("Evidence comparison:", building.compare())
-    print("Material inventory:", building.quantities().by_material())
-    window = building.construction_set.elements[Role.WINDOW]
-    measure = RenovationMeasure(
-        "replace-window",
-        "envelope",
-        "Replace windows",
-        "Illustrative like-for-like replacement",
-        "window",
-        operations=(
-            ConstructionOperation("replace_element", Role.WINDOW, element=window),
-        ),
-    )
-    factors = {
-        q.material_id: {
-            "A1A3": EnvironmentalFactor(
-                1,
-                "kg"
-                if q.mass_kg is not None
-                else ("item" if q.count is not None else "m2"),
-                "A1A3",
-                "SYNTHETIC example factor; replace before research",
-            )
-        }
-        for q in building.quantities()
-    }
-    building.assessment = AssessmentSettings(
-        30,
-        "space_heating_and_fans",
-        "retained",
-        ("A1A3",),
-        factors,
-        {
-            c: EnvironmentalFactor(0.1, "kWh", "B6", "SYNTHETIC example factor")
-            for c in ("electricity", "district_heat")
-        },
-    )
-    weather = Weather.from_epw(
-        args.weather or files("epsm_rc") / "data/epw/goteborg.epw"
-    )
-    cache = EvaluationCache(args.output / "cache")
-    child = building.renovate(measure)
-    result = child.simulate(
-        engine="epsm_rc",
-        weather=weather,
-        cache=cache,
-        directory=args.output / "renovated",
-    )
-    assert result.lca.complete, result.lca.requirements
-    assert not building.results and len(child.results) == 1
+    for row in result["staged"].table():
+        print(row)
     print(
-        result, result.energy.annual_delivered_energy_kwh, result.lca.total_gwp_kgco2e
+        "Removed materials:",
+        result["staged"].quantities(action="removed", by_material=True),
     )
-    tree = optimise_renovations(
-        building,
-        catalogue=RenovationCatalogue([measure]),
-        max_depth=1,
-        budget=2,
-        evaluator=lambda candidate: candidate.simulate(
-            engine="epsm_rc",
-            weather=weather,
-            cache=cache,
-            directory=args.output / "search" / candidate.snapshot().sha256,
-        ),
-    )
-    print(
-        f"Evaluated {len(tree.nodes)} alternatives; Pareto alternatives: {len(tree.pareto)}"
-    )
+    print("Saved results:", result["directory"].resolve())
 
 
 if __name__ == "__main__":

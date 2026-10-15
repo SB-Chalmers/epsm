@@ -10,7 +10,13 @@ from epsm_data import (
     Layer,
     Material,
 )
-from epsm_lca import AssessmentSettings
+from epsm_lca import (
+    AnnualEnergy,
+    AssessmentSettings,
+    RenovationResult,
+    StageResult,
+    assess_renovation,
+)
 
 from .building import Building
 from .cache import EvaluationCache
@@ -25,6 +31,10 @@ __all__ = [
     "HVACSystem",
     "OperationProfile",
     "AssessmentSettings",
+    "AnnualEnergy",
+    "RenovationResult",
+    "StageResult",
+    "assess_renovation",
     "EnvironmentalFactor",
     "Material",
     "Layer",
