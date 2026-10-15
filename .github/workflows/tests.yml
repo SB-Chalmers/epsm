@@ -97,6 +97,8 @@ jobs:
           python -m pytest -q
       - name: Run examples in fresh kernels
         run: python scripts/run_examples.py --integration
+      - name: Run LCA public annual renovation examples in fresh kernels
+        run: python .ci/epsm_lca/scripts/run_examples.py --integration --output build/lca-executed-examples
       - uses: actions/upload-artifact@v4
         if: always()
         with:
@@ -105,3 +107,4 @@ jobs:
             build/compatibility-receipt.json
             build/installed-handoff
             build/executed-examples
+            build/lca-executed-examples
