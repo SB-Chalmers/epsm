@@ -19,47 +19,47 @@ jobs:
           repository: SB-Chalmers/epsm_data
           ssh-key: ${{ secrets.EPSM_DATA_DEPLOY_KEY }}
           persist-credentials: false
-          ref: 8484c1039e3fdca9e3f174a1880630f0eb02c8c1
+          ref: 6d7b24dcde23353a684f58c875309f129bb9ad06
           path: .ci/epsm_data
       - uses: actions/checkout@v4
         with:
           repository: SB-Chalmers/epsm_core
           ssh-key: ${{ secrets.EPSM_CORE_DEPLOY_KEY }}
           persist-credentials: false
-          ref: ad2e031c180462678abe8c3edc783feb112e0849
+          ref: ba00ae1230e3ef8db4c4e8041624b69485bfd5c8
           path: .ci/epsm_core
       - uses: actions/checkout@v4
         with:
           repository: SB-Chalmers/epsm_rc
           ssh-key: ${{ secrets.EPSM_RC_DEPLOY_KEY }}
           persist-credentials: false
-          ref: d49c8047fa47522873f1d09dfb389db90fde43aa
+          ref: d8f42ab69e61cfe580f234b20ddc47cf6d056e59
           path: .ci/epsm_rc
       - uses: actions/checkout@v4
         with:
           repository: SB-Chalmers/epsm_lca
           ssh-key: ${{ secrets.EPSM_LCA_DEPLOY_KEY }}
           persist-credentials: false
-          ref: aff0330b0eed51477e3de3ba786f4c3fbc38c941
+          ref: 00141d0500e717b4f18a9d69e158f0af2aae1934
           path: .ci/epsm_lca
       - uses: actions/checkout@v4
         with:
           repository: SB-Chalmers/epsm_db
           ssh-key: ${{ secrets.EPSM_DB_DEPLOY_KEY }}
           persist-credentials: false
-          ref: 9abe1d7e38475d824c2d52c5001b154baf23fa1a
+          ref: 9f41b084aeb244376f9225ed19dd5dc5a5532495
           path: .ci/epsm_db
       - uses: actions/checkout@v4
         with:
           repository: SB-Chalmers/smhi2epw
-          ref: eced17d8c1946c42a0068e3066e39e1f709f2e37
+          ref: f27d70c8fb665c13ca4263ebe6337f11e45cf73d
           path: .ci/smhi2epw
       - uses: actions/checkout@v4
         with:
           repository: SB-Chalmers/epsm_studies
           ssh-key: ${{ secrets.EPSM_STUDIES_DEPLOY_KEY }}
           persist-credentials: false
-          ref: 8856f2e17987fbad701c4593997da9bf4855bb37
+          ref: 794921797533cfa3d8bde757658fb174932027b5
           path: .ci/epsm_studies
       - uses: actions/setup-python@v5
         with:
