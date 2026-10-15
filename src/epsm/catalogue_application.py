@@ -14,6 +14,9 @@ from copy import deepcopy
 from epsm_data.detailed import load_detailed_catalogue
 from epsm_data.parametric import ArchetypeKey, era_for_year, load_parametric_catalogue
 
+from epsm._logging import call_with_context
+from epsm._logging import operation as logged_operation
+
 from .catalogue_release import core_inputs
 
 COMPONENT_FIELDS = {
@@ -25,6 +28,7 @@ COMPONENT_FIELDS = {
 }
 
 
+@logged_operation("catalogue.resolve")
 def resolve_building_archetype(
     *,
     category,
@@ -76,8 +80,8 @@ def resolve_building_archetype(
         audit and unresolved building requirements. Never a complete BuildingSpec
         or an assertion of building-level accuracy. Input datasets are not mutated.
     """
-    cat = catalogue or load_parametric_catalogue()
-    data = detailed or load_detailed_catalogue(catalogue=cat)
+    cat = catalogue or call_with_context(load_parametric_catalogue)
+    data = detailed or call_with_context(load_detailed_catalogue, catalogue=cat)
     era = era_for_year(construction_year)
     if era == "SE.07":
         if default_state is not None:
@@ -105,7 +109,9 @@ def resolve_building_archetype(
     if set(sources) != set(states) or any(
         not isinstance(s, str) or not s.strip() for s in sources.values()
     ):
-        raise ValueError("Each component selection needs one nonempty independent source")
+        raise ValueError(
+            "Each component selection needs one nonempty independent source"
+        )
     native = core_inputs(aid, default_state, detailed=data, catalogue=cat)
     cache = {default_state: native}
     assignments = {}
@@ -113,7 +119,9 @@ def resolve_building_archetype(
     glazing = native["glazing"]
     infiltration = parent_slot.infiltration
     for role, state in sorted(states.items()):
-        slot = cat.get_slot(ArchetypeKey(category, era, climate_zone, state, ventilation))
+        slot = cat.get_slot(
+            ArchetypeKey(category, era, climate_zone, state, ventilation)
+        )
         if state not in cache:
             cache[state] = core_inputs(aid, state, detailed=data, catalogue=cat)
         selected = cache[state]
@@ -132,7 +140,8 @@ def resolve_building_archetype(
         }
     for role in set(COMPONENT_FIELDS) | {"window", "airtightness"}:
         assignments.setdefault(
-            role, {"state": default_state, "source": "matrix fallback", "status": "assumed"}
+            role,
+            {"state": default_state, "source": "matrix fallback", "status": "assumed"},
         )
     # TABULA equation (7), printed pp.12–13; see packaged airflow_review.json.
     # Do not multiply a source-reference ACH by arbitrary model geometry volume.
@@ -143,7 +152,8 @@ def resolve_building_archetype(
         from epsm_data.airflow import infiltration_handoff
 
         airflow_handoff = infiltration_handoff(
-            infiltration, reference_area_m2=tabula_reference_area_m2,
+            infiltration,
+            reference_area_m2=tabula_reference_area_m2,
             conditioned_volume_m3=conditioned_volume_m3,
         )
     # EPSM MF review 2026-10-04: native q is per Atemp, independently of
@@ -154,9 +164,14 @@ def resolve_building_archetype(
         area_rate = None
     core_airflow_inputs = (
         {"envelope_infiltration_ach": 0.0, "envelope_infiltration_l_s_m2": area_rate}
-        if area_rate is not None else
-        {"envelope_infiltration_ach": airflow_handoff["core_envelope_infiltration_ach"]}
-        if airflow_handoff else None
+        if area_rate is not None
+        else {
+            "envelope_infiltration_ach": airflow_handoff[
+                "core_envelope_infiltration_ach"
+            ]
+        }
+        if airflow_handoff
+        else None
     )
     return {
         "envelope": native["envelope"].updated(**envelope_updates),
@@ -164,13 +179,18 @@ def resolve_building_archetype(
         "roof_topology": native["roof_topology"],
         "infiltration_ach": (
             airflow_handoff["core_envelope_infiltration_ach"]
-            if airflow_handoff else infiltration.value
+            if airflow_handoff
+            else infiltration.value
         ),
         "infiltration_l_s_m2": area_rate,
         "core_airflow_inputs": core_airflow_inputs,
         "infiltration_source_ach": infiltration.value,
         "airflow_handoff": airflow_handoff,
-        "infiltration_reference_basis": "atemp_area_rate" if area_rate is not None else "core_conditioned_volume" if airflow_handoff else "tabula_reference_volume_conversion_required",
+        "infiltration_reference_basis": "atemp_area_rate"
+        if area_rate is not None
+        else "core_conditioned_volume"
+        if airflow_handoff
+        else "tabula_reference_volume_conversion_required",
         "assignment": {
             "archetype_id": aid,
             "category": category,
@@ -179,7 +199,9 @@ def resolve_building_archetype(
             "ventilation": ventilation,
             "components": assignments,
         },
-        "component_nominal_bundles": {s: deepcopy(b["nominal_bundle"]) for s, b in cache.items()},
+        "component_nominal_bundles": {
+            s: deepcopy(b["nominal_bundle"]) for s, b in cache.items()
+        },
         "requirements": dict(
             native["requirements"],
             operation="Select a versioned Core use profile or documented building operation",

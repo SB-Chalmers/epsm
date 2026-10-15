@@ -1,0 +1,89 @@
+name: Coordinated logging wheels
+
+on: [push, pull_request, workflow_dispatch]
+
+permissions:
+  contents: read
+
+jobs:
+  logging:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        python: ['3.11', '3.13']
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/checkout@v4
+        with:
+          repository: SB-Chalmers/epsm_data
+          ssh-key: ${{ secrets.EPSM_DATA_DEPLOY_KEY }}
+          persist-credentials: false
+          ref: ac2c7b998f1b92d14650e578f31441d8e78c5f30
+          path: .ci/epsm_data
+      - uses: actions/checkout@v4
+        with:
+          repository: SB-Chalmers/epsm_core
+          ssh-key: ${{ secrets.EPSM_CORE_DEPLOY_KEY }}
+          persist-credentials: false
+          ref: 88ac5499ba41efb44e099f3579c19f64c50f62e5
+          path: .ci/epsm_core
+      - uses: actions/checkout@v4
+        with:
+          repository: SB-Chalmers/epsm_rc
+          ssh-key: ${{ secrets.EPSM_RC_DEPLOY_KEY }}
+          persist-credentials: false
+          ref: d49c8047fa47522873f1d09dfb389db90fde43aa
+          path: .ci/epsm_rc
+      - uses: actions/checkout@v4
+        with:
+          repository: SB-Chalmers/epsm_lca
+          ssh-key: ${{ secrets.EPSM_LCA_DEPLOY_KEY }}
+          persist-credentials: false
+          ref: aff0330b0eed51477e3de3ba786f4c3fbc38c941
+          path: .ci/epsm_lca
+      - uses: actions/checkout@v4
+        with:
+          repository: SB-Chalmers/epsm_db
+          ssh-key: ${{ secrets.EPSM_DB_DEPLOY_KEY }}
+          persist-credentials: false
+          ref: 6c1a38f8e4d2b1ef8bbeefc13d334a92ef89d59d
+          path: .ci/epsm_db
+      - uses: actions/checkout@v4
+        with:
+          repository: SB-Chalmers/smhi2epw
+          ref: eced17d8c1946c42a0068e3066e39e1f709f2e37
+          path: .ci/smhi2epw
+      - uses: actions/checkout@v4
+        with:
+          repository: SB-Chalmers/epsm_studies
+          ssh-key: ${{ secrets.EPSM_STUDIES_DEPLOY_KEY }}
+          persist-credentials: false
+          ref: 8856f2e17987fbad701c4593997da9bf4855bb37
+          path: .ci/epsm_studies
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python }}
+      - name: Build and install the coordinated wheels
+        run: |
+          python -m pip install build pytest nbclient nbformat ipykernel matplotlib
+          for package in epsm_data epsm_core epsm_rc epsm_lca epsm_db smhi2epw epsm_studies; do
+            python -m build --wheel --outdir .ci/wheels ".ci/$package"
+          done
+          python -m build --wheel --outdir .ci/wheels .
+          python -m pip install .ci/wheels/*.whl
+          python -m pip check
+          python scripts/verify_logging_installation.py
+      - name: Require real handoffs and logging controls
+        env:
+          EPSM_LOGGING_INTEGRATION: '1'
+        run: python -m pytest -o pythonpath= tests/test_logging.py tests/test_logging_handoffs.py -q
+      - name: Run logging examples in fresh kernels
+        run: python scripts/run_examples.py --logging
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: logging-python-${{ matrix.python }}
+          path: |
+            build/logging-verification.json
+            build/executed-examples

@@ -1,5 +1,7 @@
 """EPSM platform entry point; importing it performs no catalogue or file I/O."""
 
+import logging as _stdlib_logging
+
 from epsm_core import HVACSystem, OperationProfile, Weather
 from epsm_data import (
     Archetype,
@@ -20,11 +22,14 @@ from epsm_lca import (
 
 from .building import Building
 from .cache import EvaluationCache
+from .logging import configure_logging, reset_logging
 from .provenance import evaluation_identity
 from .results import EnergyResult, Evaluation, Results
 
 __version__ = "0.2.0"
 __all__ = [
+    "configure_logging",
+    "reset_logging",
     "evaluation_identity",
     "Building",
     "Weather",
@@ -47,3 +52,7 @@ __all__ = [
     "Evaluation",
     "Results",
 ]
+
+# A library emits no output until its host selects handlers.
+
+_stdlib_logging.getLogger("epsm").addHandler(_stdlib_logging.NullHandler())

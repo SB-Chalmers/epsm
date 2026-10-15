@@ -2,6 +2,8 @@
 
 from copy import deepcopy
 
+from epsm._logging import operation as logged_operation
+
 
 def _value(record, name, default=None):
     return (
@@ -25,6 +27,7 @@ def _record_view(record):
     return record
 
 
+@logged_operation("building.assemble")
 def building_from_record(building_type, record, **options):
     record = _record_view(record)
     geometry = _value(record, "geometry")
