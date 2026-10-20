@@ -21,6 +21,8 @@ def main():
     manifest = json.loads((root / "compatibility.json").read_text())
     packages = {}
     for name, expected in manifest["packages"].items():
+        if expected.get("role", "scientific") == "display":
+            continue
         revision = expected["revision"]
         source = root if name == "epsm" else args.sources_root / name
         actual = subprocess.check_output(

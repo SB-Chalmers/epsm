@@ -2,12 +2,15 @@
 
 import argparse
 import json
+import re
 from pathlib import Path
 
 DEFAULT_PYTHON = ("3.11", "3.13")
 
 
-def build_matrix(manifest, *, mode="pinned"):
+def build_matrix(
+    manifest, *, mode="pinned", consumer=None, packages=None, manifest_revision=None
+):
     """Select routine pinned lanes or one opt-in main lane without changing pins.
 
     Platform entries contain ``version``/``revision`` mappings. Historical
@@ -17,16 +20,48 @@ def build_matrix(manifest, *, mode="pinned"):
     """
     if mode not in {"pinned", "main"}:
         raise ValueError("Matrix mode must be pinned or main")
-    packages = manifest.get("packages")
-    if not isinstance(packages, dict) or not packages:
+    cohort = manifest.get("packages")
+    if not isinstance(cohort, dict) or not cohort:
         raise ValueError("Manifest must declare package revisions")
+    if consumer is not None and consumer not in cohort:
+        raise ValueError(f"Unknown consumer: {consumer}")
+    if manifest_revision is not None and not re.fullmatch(
+        r"[0-9a-f]{40}", manifest_revision
+    ):
+        raise ValueError("--manifest-revision must be the captured manifest Git SHA-40")
+    selected = (
+        set(packages)
+        if packages is not None
+        else {
+            name
+            for name, entry in cohort.items()
+            if not isinstance(entry, dict)
+            or entry.get("role", "scientific") == "scientific"
+        }
+    )
+    if selected - cohort.keys():
+        raise ValueError(f"Unknown dependencies: {sorted(selected - cohort.keys())}")
     refs = {}
-    for name, package in packages.items():
-        if name == "epsm":
-            continue
+    for name, package in cohort.items():
         revision = package.get("revision") if isinstance(package, dict) else package
-        if not isinstance(revision, str) or not revision.strip():
-            raise ValueError(f"{name}: a nonempty package revision is required")
+        if not isinstance(revision, str) or not (
+            (name == "epsm" and revision == "self")
+            or re.fullmatch(r"[0-9a-f]{40}", revision)
+        ):
+            raise ValueError(
+                f"{name}: an immutable package revision is required (self only for epsm)"
+            )
+        if isinstance(package, dict) and package.get("role", "scientific") not in {
+            "scientific",
+            "display",
+        }:
+            raise ValueError(f"{name}: role must be scientific or display")
+        if name not in selected or name == (consumer or "epsm"):
+            continue
+        if revision == "self":
+            if manifest_revision is None:
+                raise ValueError("Resolving EPSM self requires --manifest-revision")
+            revision = manifest_revision
         refs[name] = revision if mode == "pinned" else "main"
     versions = manifest.get("python", DEFAULT_PYTHON)
     if not isinstance(versions, (list, tuple)) or not versions:
@@ -37,8 +72,12 @@ def build_matrix(manifest, *, mode="pinned"):
         if "3.13" not in versions:
             raise ValueError("Main-dependency checks require Python 3.13 support")
         versions = ("3.13",)
+    provenance = {"manifest_revision": manifest_revision} if manifest_revision else {}
     return {
-        "include": [{"python": python, "mode": mode, **refs} for python in versions]
+        "include": [
+            {"python": python, "mode": mode, **provenance, **refs}
+            for python in versions
+        ]
     }
 
 
@@ -51,9 +90,26 @@ def main():
         help="Package combination JSON (default: the repository's compatibility.json)",
     )
     parser.add_argument("--mode", choices=("pinned", "main"), default="pinned")
+    parser.add_argument(
+        "--consumer", help="Keep this package's own checkout under test"
+    )
+    parser.add_argument(
+        "--packages",
+        nargs="+",
+        help="Dependency names; defaults to scientific packages",
+    )
+    parser.add_argument(
+        "--manifest-revision", help="Captured Git SHA of the EPSM manifest checkout"
+    )
     args = parser.parse_args()
     try:
-        matrix = build_matrix(json.loads(args.manifest.read_text()), mode=args.mode)
+        matrix = build_matrix(
+            json.loads(args.manifest.read_text()),
+            mode=args.mode,
+            consumer=args.consumer,
+            packages=args.packages,
+            manifest_revision=args.manifest_revision,
+        )
     except (OSError, ValueError) as error:
         parser.error(str(error))
     print("matrix=" + json.dumps(matrix, separators=(",", ":")))

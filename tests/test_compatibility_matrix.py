@@ -118,3 +118,95 @@ def test_missing_package_revision_fails_before_emitting_matrix(tmp_path):
     assert "epsm_core" in result.stderr
     assert "revision" in result.stderr
     assert "matrix=" not in result.stdout
+
+
+def test_consumer_keeps_its_own_checkout_and_resolves_epsm_self(
+    tmp_path, platform_manifest
+):
+    result = matrix_output(
+        run_matrix(
+            tmp_path,
+            platform_manifest,
+            "--consumer",
+            "epsm_core",
+            "--packages",
+            "epsm_core",
+            "epsm_data",
+            "epsm",
+            "--manifest-revision",
+            "c" * 40,
+        )
+    )
+    for row in result["include"]:
+        assert "epsm_core" not in row
+        assert row["epsm_data"] == "b" * 40
+        assert row["epsm"] == row["manifest_revision"] == "c" * 40
+
+
+def test_default_scientific_matrix_excludes_display_packages(
+    tmp_path, platform_manifest
+):
+    platform_manifest["packages"]["epsm_viewer"] = {
+        "version": "0.1.0",
+        "revision": "d" * 40,
+        "role": "display",
+    }
+    result = matrix_output(run_matrix(tmp_path, platform_manifest))
+    assert all("epsm_viewer" not in row for row in result["include"])
+
+
+def test_display_handoff_can_select_only_core_and_viewer(tmp_path, platform_manifest):
+    platform_manifest["packages"]["epsm_viewer"] = {
+        "version": "0.1.0",
+        "revision": "d" * 40,
+        "role": "display",
+    }
+    result = matrix_output(
+        run_matrix(
+            tmp_path, platform_manifest, "--packages", "epsm_core", "epsm_viewer"
+        )
+    )
+    assert all(
+        set(row) == {"python", "mode", "epsm_core", "epsm_viewer"}
+        for row in result["include"]
+    )
+
+
+@pytest.mark.parametrize(
+    "extra",
+    [
+        ("--consumer", "epsm_missing"),
+        ("--packages", "epsm_missing"),
+        (
+            "--consumer",
+            "epsm_core",
+            "--packages",
+            "epsm",
+            "--manifest-revision",
+            "main",
+        ),
+    ],
+)
+def test_invalid_consumer_requests_do_not_emit_a_matrix(
+    tmp_path, platform_manifest, extra
+):
+    result = run_matrix(tmp_path, platform_manifest, *extra)
+    assert result.returncode != 0
+    assert "matrix=" not in result.stdout
+
+
+def test_consumer_self_requires_a_captured_manifest_revision(
+    tmp_path, platform_manifest
+):
+    result = run_matrix(
+        tmp_path, platform_manifest, "--consumer", "epsm_core", "--packages", "epsm"
+    )
+    assert result.returncode != 0
+    assert "manifest-revision" in result.stderr
+
+
+def test_supported_dependency_revisions_cannot_float(tmp_path, platform_manifest):
+    platform_manifest["packages"]["epsm_core"]["revision"] = "main"
+    result = run_matrix(tmp_path, platform_manifest)
+    assert result.returncode != 0
+    assert "revision" in result.stderr
