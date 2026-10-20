@@ -72,6 +72,7 @@ Later application leaves earlier evaluation records and renovation stages intact
 Physical cache identities remain based on Core inputs.
 
 The development application API requires the exact Data and Core revisions recorded
-in `compatibility.json` (and the logging combination in `logging-compatibility.json`).
+in `compatibility.json`, shared by the current platform and logging checks.
+`logging-compatibility.json` is retained as an earlier release record.
 Core retains version 0.3.0 during development, so its version requirement alone does
 not identify a revision that provides `assign_inputs` and the profile resolver.

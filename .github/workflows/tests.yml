@@ -1,13 +1,28 @@
 name: EPSM supported package checks
 
-on: [push, pull_request, workflow_dispatch]
+on:
+  pull_request:
+    branches: [dev, main]
+  push:
+    branches: [main]
+  workflow_dispatch:
+    inputs:
+      development_dependencies:
+        description: Check current dependency main branches on Python 3.13 instead of the pinned combination
+        type: boolean
+        default: false
 
 permissions:
   contents: read
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
 jobs:
   combination:
     runs-on: ubuntu-latest
+    timeout-minutes: 5
     outputs:
       matrix: ${{ steps.matrix.outputs.matrix }}
     steps:
@@ -16,11 +31,14 @@ jobs:
         with:
           python-version: '3.11'
       - id: matrix
-        run: python scripts/compatibility_matrix.py >> "$GITHUB_OUTPUT"
+        env:
+          MATRIX_MODE: ${{ inputs.development_dependencies && 'main' || 'pinned' }}
+        run: python scripts/compatibility_matrix.py --mode "$MATRIX_MODE" >> "$GITHUB_OUTPUT"
 
   platform:
     needs: combination
     runs-on: ubuntu-24.04
+    timeout-minutes: 30
     strategy:
       fail-fast: false
       matrix: ${{ fromJSON(needs.combination.outputs.matrix) }}
