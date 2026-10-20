@@ -1,0 +1,31 @@
+name: Checkout package metadata
+description: Fetch only distribution metadata, version declarations and workflow definitions.
+inputs:
+  repository:
+    description: Canonical GitHub repository
+    required: true
+  ssh-key:
+    description: Repository-specific read-only deploy key; omit for a public repository
+    required: false
+  path:
+    description: Isolated checkout directory
+    required: true
+runs:
+  using: composite
+  steps:
+    - uses: actions/checkout@v4
+      with:
+        repository: ${{ inputs.repository }}
+        ssh-key: ${{ inputs.ssh-key }}
+        persist-credentials: false
+        ref: main
+        fetch-depth: 1
+        path: ${{ inputs.path }}
+        sparse-checkout-cone-mode: false
+        sparse-checkout: |
+          /pyproject.toml
+          /VERSION
+          /package.json
+          /src/**/_version.py
+          /src/**/__init__.py
+          /.github/workflows/

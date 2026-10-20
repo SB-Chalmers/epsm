@@ -165,21 +165,22 @@ unless `calendar_year` is supplied. Each evaluation retains that weather evidenc
 
 ## Tested package combination
 
-The examples and CI use these fixed source versions, checked on 15 October 2026.
-EPSM 0.2.0 requires Core and RC 0.3.0+ so the explicit-authoring and reduction
-APIs are distinguishable from earlier implementations. Exact commits still
-identify the tested source combination; the manifest is the executable CI input.
+[compatibility.json](compatibility.json) owns the reviewed package versions and
+exact commits. The table below is generated from it. Current-main candidates are
+reported separately; metadata consistency does not establish scientific integration.
 
+<!-- compatibility-table:start -->
 | Package | Version | Tested commit |
 | --- | --- | --- |
-| Data | 0.5.0 | `8484c1039e3fdca9e3f174a1880630f0eb02c8c1` |
-| Core | 0.3.0 | `ad2e031c180462678abe8c3edc783feb112e0849` |
-| RC | 0.3.0 | `026d9fc93ad8c07913ecb56e20b57288b45dc318` |
-| LCA | 0.2.0 | `834660ab649594230e29cd320ba66beec0352ddd` |
-| Database | 0.2.0 | `9abe1d7e38475d824c2d52c5001b154baf23fa1a` |
-| Studies | 0.1.0 | `8abbcea3bd2c204e9e34e903ed03f3d10f0de708` |
-| smhi2epw | 1.1.1 | `434d7b26de1a6da88e156bebc39e246c615c4ba0` |
-| EPSM | 0.2.0 | `self` |
+| `epsm` | 0.3.0 | `self` |
+| `epsm_core` | 0.4.0 | `76b9c93978d26d5f27f0616b51fbb1ca19fb6801` |
+| `epsm_data` | 0.6.0 | `bc8449402b9e0dbe0ea85ff76c954cf36d209f86` |
+| `epsm_db` | 0.3.0 | `9e29a575f5495b76d5a8553bbe6e20dd4f0e1ff0` |
+| `epsm_lca` | 0.2.0 | `00141d0500e717b4f18a9d69e158f0af2aae1934` |
+| `epsm_rc` | 0.4.0 | `d8f42ab69e61cfe580f234b20ddc47cf6d056e59` |
+| `epsm_studies` | 0.2.0 | `794921797533cfa3d8bde757658fb174932027b5` |
+| `smhi2epw` | 1.2.0 | `f27d70c8fb665c13ca4263ebe6337f11e45cf73d` |
+<!-- compatibility-table:end -->
 
 Core's explicit presets, ground inputs, thermal bridge choices, load reference
 area and heat-gain choices survive EPSM snapshots and round trips. RC requires
@@ -190,16 +191,18 @@ while EPSM now exposes its full renovation report too. Recalculate earlier
 teaching results after a package update; previous outputs do not establish that
 the new combination works.
 
-The supported package combination is recorded in [compatibility.json](compatibility.json).
-CI builds and installs every wheel, records exact tested revisions, and checks
-the platform suite, public handoffs, EPSM notebooks and the LCA annual renovation
-notebook in fresh kernels on Python 3.11
-and 3.13. Separate pinned and development jobs distinguish reproducible support
-from integration against current development. Required collaborators fail
-explicitly when unavailable; Workflows and Studio are outside this matrix. Optional
-EnergyPlus checks need a separately installed binary. The compatibility modules
-for older DB and Data adapters remain available during migration. EPSM-owned
-code uses MIT; see [LICENSE](LICENSE).
+CI builds and installs the supported wheel combination, records exact revisions,
+and checks public handoffs, real engines and notebooks on Python 3.11 and 3.13.
+A manually selected main-dependency lane checks Python 3.13. Workflows participates
+in the lightweight metadata audit but is not yet part of the supported full matrix;
+Studio and unpublished Viewer are outside that scientific release gate.
+
+EPSM owns the [platform metadata guard](docs/platform-compatibility.md). One short
+job reads package metadata and CI references on relevant PRs, main changes, daily
+and on request. It installs no scientific packages and runs no engines, notebooks
+or downstream workflows. The generated report identifies constraints that cannot
+be satisfied, newly available main revisions and consumer pins needing review.
+Missing required source access fails explicitly.
 
 To run the required offline cross-package handoff locally, use
 `python scripts/check_installed_platform.py --directory build/installed-handoff`.
@@ -242,9 +245,9 @@ See [the logging notebook](examples/05_logging.ipynb), [handoff example](example
 
 ## Coordinated logging release
 
-The coordinated release checks use the versions and exact source commits in
-`logging-compatibility.json`: Data 0.6.0, Core 0.4.0, RC 0.4.0, LCA 0.2.0,
-Database 0.3.0, Weather 1.2.0 and Studies 0.2.0. The platform compatibility manifest records the same released dependency versions.
+Current logging release checks read the same [compatibility.json](compatibility.json)
+used by platform CI. `logging-compatibility.json` retains the earlier logging-release
+record; it no longer selects current CI dependencies.
 Full cross-package logging requires the instrumented collaborators. See [release notes](RELEASE_NOTES.md).
 
 See [archetype application](docs/archetype-application.md) and the [geometry-first example](examples/00_geometry_and_archetype.ipynb) for catalogue and custom authoring on an existing Building.

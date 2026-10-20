@@ -1,0 +1,132 @@
+name: Platform metadata guard
+
+on:
+  pull_request:
+    branches: [dev, main]
+    paths:
+      - 'compatibility.json'
+      - 'platform-registry.json'
+      - 'requirements-ci-metadata.txt'
+      - 'pyproject.toml'
+      - 'scripts/**'
+      - 'tests/test_*metadata*'
+      - 'tests/test_ci_references.py'
+      - 'tests/test_compatibility_matrix.py'
+      - 'tests/test_compatibility_references.py'
+      - 'tests/test_compatibility_receipt.py'
+      - '.github/workflows/**'
+      - '.github/actions/**'
+      - 'README.md'
+  push:
+    branches: [main]
+    paths:
+      - 'compatibility.json'
+      - 'platform-registry.json'
+      - 'requirements-ci-metadata.txt'
+      - 'pyproject.toml'
+      - 'scripts/**'
+      - 'tests/test_*metadata*'
+      - 'tests/test_ci_references.py'
+      - 'tests/test_compatibility_matrix.py'
+      - 'tests/test_compatibility_references.py'
+      - 'tests/test_compatibility_receipt.py'
+      - '.github/workflows/**'
+      - '.github/actions/**'
+      - 'README.md'
+  schedule:
+    - cron: '17 5 * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event_name }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  metadata:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.13'
+      - name: Install metadata tools only
+        run: python -m pip install -r requirements-ci-metadata.txt
+      - name: Check the guard and generated release references
+        run: |
+          python -m pytest -q tests/test_platform_metadata.py tests/test_ci_references.py tests/test_compatibility_matrix.py tests/test_compatibility_references.py tests/test_compatibility_receipt.py
+          python scripts/render_compatibility.py --check
+      - name: Require explicit read access to every active private package
+        env:
+          EPSM_DATA_DEPLOY_KEY: ${{ secrets.EPSM_DATA_DEPLOY_KEY }}
+          EPSM_CORE_DEPLOY_KEY: ${{ secrets.EPSM_CORE_DEPLOY_KEY }}
+          EPSM_RC_DEPLOY_KEY: ${{ secrets.EPSM_RC_DEPLOY_KEY }}
+          EPSM_LCA_DEPLOY_KEY: ${{ secrets.EPSM_LCA_DEPLOY_KEY }}
+          EPSM_DB_DEPLOY_KEY: ${{ secrets.EPSM_DB_DEPLOY_KEY }}
+          EPSM_STUDIES_DEPLOY_KEY: ${{ secrets.EPSM_STUDIES_DEPLOY_KEY }}
+          EPSM_WORKFLOWS_DEPLOY_KEY: ${{ secrets.EPSM_WORKFLOWS_DEPLOY_KEY }}
+        run: |
+          python - <<'PY'
+          import os
+          names = ('DATA', 'CORE', 'RC', 'LCA', 'DB', 'STUDIES', 'WORKFLOWS')
+          missing = [f'EPSM_{name}_DEPLOY_KEY' for name in names if not os.environ.get(f'EPSM_{name}_DEPLOY_KEY')]
+          if missing:
+              raise SystemExit('Metadata not checked: missing read-only access: ' + ', '.join(missing))
+          PY
+      - uses: ./.github/actions/checkout-metadata
+        with:
+          repository: SB-Chalmers/epsm_data
+          ssh-key: ${{ secrets.EPSM_DATA_DEPLOY_KEY }}
+          path: .ci/epsm_data
+      - uses: ./.github/actions/checkout-metadata
+        with:
+          repository: SB-Chalmers/epsm_core
+          ssh-key: ${{ secrets.EPSM_CORE_DEPLOY_KEY }}
+          path: .ci/epsm_core
+      - uses: ./.github/actions/checkout-metadata
+        with:
+          repository: SB-Chalmers/epsm_rc
+          ssh-key: ${{ secrets.EPSM_RC_DEPLOY_KEY }}
+          path: .ci/epsm_rc
+      - uses: ./.github/actions/checkout-metadata
+        with:
+          repository: SB-Chalmers/epsm_lca
+          ssh-key: ${{ secrets.EPSM_LCA_DEPLOY_KEY }}
+          path: .ci/epsm_lca
+      - uses: ./.github/actions/checkout-metadata
+        with:
+          repository: SB-Chalmers/epsm_db
+          ssh-key: ${{ secrets.EPSM_DB_DEPLOY_KEY }}
+          path: .ci/epsm_db
+      - uses: ./.github/actions/checkout-metadata
+        with:
+          repository: SB-Chalmers/epsm_studies
+          ssh-key: ${{ secrets.EPSM_STUDIES_DEPLOY_KEY }}
+          path: .ci/epsm_studies
+      - uses: ./.github/actions/checkout-metadata
+        with:
+          repository: SB-Chalmers/epsm_workflows
+          ssh-key: ${{ secrets.EPSM_WORKFLOWS_DEPLOY_KEY }}
+          path: .ci/epsm_workflows
+      - uses: ./.github/actions/checkout-metadata
+        with:
+          repository: SB-Chalmers/smhi2epw
+          path: .ci/smhi2epw
+      - name: Snapshot main versions and check dependency ranges
+        run: python scripts/check_platform_metadata.py --mode main --output build/platform-candidates.json --summary "$GITHUB_STEP_SUMMARY"
+      - name: Audit consumer CI references at the captured revisions
+        if: ${{ !cancelled() }}
+        run: python scripts/audit_ci_references.py --metadata build/platform-candidates.json --output build/ci-references.json --summary "$GITHUB_STEP_SUMMARY"
+      - uses: actions/upload-artifact@v4
+        if: ${{ !cancelled() }}
+        with:
+          name: platform-metadata
+          retention-days: 14
+          path: |
+            build/platform-candidates.json
+            build/ci-references.json
