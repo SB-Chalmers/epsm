@@ -88,3 +88,29 @@ def test_receipt_hashes_the_actual_wheel_files(tmp_path, monkeypatch):
     wheel.write_bytes(b"changed artifact")
     second = MODULE.collect_receipt(root, manifest, mode="pinned", wheels=wheels)
     assert first["wheels"][wheel.name] != second["wheels"][wheel.name]
+
+
+def test_receipt_records_actual_executable_contents(tmp_path, monkeypatch):
+    root = tmp_path / "epsm"
+    repository(root)
+    monkeypatch.setattr(MODULE.importlib.metadata, "version", lambda name: "0.3.1")
+    real_run = MODULE.subprocess.run
+
+    def run(command, **kwargs):
+        if command[-1] == "--version":
+            return type("Process", (), {"stdout": "EnergyPlus 24.2.0"})()
+        return real_run(command, **kwargs)
+
+    monkeypatch.setattr(MODULE.subprocess, "run", run)
+    executable = tmp_path / "energyplus"
+    executable.write_bytes(b"runtime-one")
+    manifest = {"packages": {"epsm": {"version": "0.3.1", "revision": "self"}}}
+    first = MODULE.collect_receipt(
+        root, manifest, mode="pinned", energyplus_exe=executable
+    )
+    executable.write_bytes(b"runtime-two")
+    second = MODULE.collect_receipt(
+        root, manifest, mode="pinned", energyplus_exe=executable
+    )
+    assert first["energyplus"]["version"] == "EnergyPlus 24.2.0"
+    assert first["energyplus"]["sha256"] != second["energyplus"]["sha256"]

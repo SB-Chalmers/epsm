@@ -209,3 +209,32 @@ def test_platform_gate_retains_logging_checks_without_a_second_wheel_matrix():
     ]
     assert any("build/logging-verification.json" in paths for paths in artifacts)
     assert not (ROOT / ".github/workflows/logging.yml").exists()
+
+
+def test_installed_science_and_display_have_separate_manifest_owned_checkouts():
+    yaml = pytest.importorskip("yaml")
+    manifest = json.loads((ROOT / "compatibility.json").read_text())
+    workflow = yaml.safe_load((ROOT / ".github/workflows/tests.yml").read_text())
+    science = workflow["jobs"]["platform"]
+    display = workflow["jobs"]["display"]
+
+    def dependencies(job):
+        return {
+            step["with"]["repository"].split("/")[1]
+            for step in job["steps"]
+            if step.get("with", {}).get("repository")
+        }
+
+    expected = {
+        name
+        for name, row in manifest["packages"].items()
+        if name != "epsm" and row.get("role", "scientific") == "scientific"
+    }
+    assert dependencies(science) == expected
+    assert "epsm_workflows" in expected
+    assert "epsm_viewer" not in dependencies(science)
+    assert dependencies(display) == {"epsm_core", "epsm_data", "epsm_viewer"}
+    commands = "\n".join(step.get("run", "") for step in science["steps"])
+    assert "check_workflow_handoff.py --require-wheels" in commands
+    assert '--energyplus-exe "$ENERGYPLUS_EXE"' in commands
+    assert "build/workflow-handoff" in str(science["steps"])

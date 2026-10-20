@@ -70,10 +70,11 @@ jobs:
           EPSM_DB_DEPLOY_KEY: ${{ secrets.EPSM_DB_DEPLOY_KEY }}
           EPSM_STUDIES_DEPLOY_KEY: ${{ secrets.EPSM_STUDIES_DEPLOY_KEY }}
           EPSM_WORKFLOWS_DEPLOY_KEY: ${{ secrets.EPSM_WORKFLOWS_DEPLOY_KEY }}
+          EPSM_VIEWER_DEPLOY_KEY: ${{ secrets.EPSM_VIEWER_DEPLOY_KEY }}
         run: |
           python - <<'PY'
           import os
-          names = ('DATA', 'CORE', 'RC', 'LCA', 'DB', 'STUDIES', 'WORKFLOWS')
+          names = ('DATA', 'CORE', 'RC', 'LCA', 'DB', 'STUDIES', 'WORKFLOWS', 'VIEWER')
           missing = [f'EPSM_{name}_DEPLOY_KEY' for name in names if not os.environ.get(f'EPSM_{name}_DEPLOY_KEY')]
           if missing:
               raise SystemExit('Metadata not checked: missing read-only access: ' + ', '.join(missing))
@@ -113,6 +114,11 @@ jobs:
           repository: SB-Chalmers/epsm_workflows
           ssh-key: ${{ secrets.EPSM_WORKFLOWS_DEPLOY_KEY }}
           path: .ci/epsm_workflows
+      - uses: ./.github/actions/checkout-metadata
+        with:
+          repository: SB-Chalmers/epsm_viewer
+          ssh-key: ${{ secrets.EPSM_VIEWER_DEPLOY_KEY }}
+          path: .ci/epsm_viewer
       - uses: ./.github/actions/checkout-metadata
         with:
           repository: SB-Chalmers/smhi2epw

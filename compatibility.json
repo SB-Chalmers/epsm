@@ -7,35 +7,53 @@
   "packages": {
     "epsm_data": {
       "version": "0.6.0",
-      "revision": "bc8449402b9e0dbe0ea85ff76c954cf36d209f86"
+      "revision": "bc8449402b9e0dbe0ea85ff76c954cf36d209f86",
+      "role": "scientific"
     },
     "epsm_core": {
-      "version": "0.4.0",
-      "revision": "76b9c93978d26d5f27f0616b51fbb1ca19fb6801"
+      "version": "0.8.0",
+      "revision": "b197e092eb0423de5a9547873a0f596493ab7536",
+      "role": "scientific"
     },
     "epsm_rc": {
-      "version": "0.4.0",
-      "revision": "d8f42ab69e61cfe580f234b20ddc47cf6d056e59"
+      "version": "0.8.2",
+      "revision": "6464f7d832d5ff3093fa754c0dc4d0d2930450dc",
+      "role": "scientific"
     },
     "epsm_lca": {
       "version": "0.2.0",
-      "revision": "00141d0500e717b4f18a9d69e158f0af2aae1934"
+      "revision": "00141d0500e717b4f18a9d69e158f0af2aae1934",
+      "role": "scientific"
     },
     "epsm_db": {
       "version": "0.3.0",
-      "revision": "9e29a575f5495b76d5a8553bbe6e20dd4f0e1ff0"
+      "revision": "9e29a575f5495b76d5a8553bbe6e20dd4f0e1ff0",
+      "role": "scientific"
     },
     "epsm_studies": {
-      "version": "0.2.0",
-      "revision": "794921797533cfa3d8bde757658fb174932027b5"
+      "version": "0.3.0",
+      "revision": "16ed6bd0bd63cee588f6e7ad951d71f8f9543ecb",
+      "role": "scientific"
     },
     "smhi2epw": {
       "version": "1.2.0",
-      "revision": "f27d70c8fb665c13ca4263ebe6337f11e45cf73d"
+      "revision": "f27d70c8fb665c13ca4263ebe6337f11e45cf73d",
+      "role": "scientific"
     },
     "epsm": {
-      "version": "0.3.0",
-      "revision": "self"
+      "version": "0.3.1",
+      "revision": "self",
+      "role": "scientific"
+    },
+    "epsm_workflows": {
+      "version": "0.3.1",
+      "revision": "c558edfeee9a8bf93aabe07ef3834e99aab20cce",
+      "role": "scientific"
+    },
+    "epsm_viewer": {
+      "version": "0.1.0",
+      "revision": "f2c847b9cd44280b7cf21803acfefa6e49e78b1b",
+      "role": "display"
     }
   }
 }
