@@ -18,15 +18,24 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--sources-root", type=Path, default=root / ".ci")
     args = parser.parse_args()
-    manifest = json.loads((root / "logging-compatibility.json").read_text())
+    manifest = json.loads((root / "compatibility.json").read_text())
     packages = {}
-    for name, revision in {**manifest["packages"], "epsm": "calling-checkout"}.items():
+    for name, expected in manifest["packages"].items():
+        if expected.get("role", "scientific") == "display":
+            continue
+        revision = expected["revision"]
         source = root if name == "epsm" else args.sources_root / name
         actual = subprocess.check_output(
             ["git", "rev-parse", "HEAD"], cwd=source, text=True
         ).strip()
         if name != "epsm" and actual != revision:
             raise RuntimeError(f"Unexpected source revision for {name}: {actual}")
+        version = metadata.version(name)
+        if version != expected["version"]:
+            raise RuntimeError(
+                f"Unexpected installed version for {name}: {version}, "
+                f"expected {expected['version']}"
+            )
         module = importlib.import_module(name)
         path = Path(module.__file__).resolve()
         if "site-packages" not in path.parts:
@@ -34,7 +43,7 @@ def main():
                 f"{name} did not import from its installed wheel: {path}"
             )
         packages[name] = {
-            "version": metadata.version(name),
+            "version": version,
             "import_path": str(path),
             "revision": revision,
         }

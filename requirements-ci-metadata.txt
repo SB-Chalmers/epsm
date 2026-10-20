@@ -1,0 +1,4 @@
+# Tools only: no EPSM scientific packages are installed by the metadata guard.
+packaging==25.0
+PyYAML==6.0.3
+pytest==8.4.2
