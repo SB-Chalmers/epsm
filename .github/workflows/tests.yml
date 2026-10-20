@@ -125,6 +125,7 @@ jobs:
           done
           python -m build --wheel --outdir .ci/wheels .
           python -m pip install .ci/wheels/*.whl
+          python -m pip install 'epsm_core[geometry]'
           python -m pip check
       - name: Install required EnergyPlus 24.2 runtime
         env:
@@ -235,7 +236,7 @@ jobs:
           python -m pip check
       - name: Require installed Core to Python and JavaScript Viewer handoff
         run: |
-          python scripts/check_viewer_handoff.py \
+          python scripts/check_viewer_handoff.py --mode '${{ matrix.mode }}' \
             --viewer-javascript-root .ci/epsm_viewer \
             --core-revision "$(git -C .ci/epsm_core rev-parse HEAD)" \
             --viewer-revision "$(git -C .ci/epsm_viewer rev-parse HEAD)" \
