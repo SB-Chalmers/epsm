@@ -172,13 +172,15 @@ reported separately; metadata consistency does not establish scientific integrat
 <!-- compatibility-table:start -->
 | Package | Version | Tested commit |
 | --- | --- | --- |
-| `epsm` | 0.3.0 | `self` |
-| `epsm_core` | 0.4.0 | `76b9c93978d26d5f27f0616b51fbb1ca19fb6801` |
+| `epsm` | 0.3.1 | `self` |
+| `epsm_core` | 0.8.0 | `b197e092eb0423de5a9547873a0f596493ab7536` |
 | `epsm_data` | 0.6.0 | `bc8449402b9e0dbe0ea85ff76c954cf36d209f86` |
 | `epsm_db` | 0.3.0 | `9e29a575f5495b76d5a8553bbe6e20dd4f0e1ff0` |
 | `epsm_lca` | 0.2.0 | `00141d0500e717b4f18a9d69e158f0af2aae1934` |
-| `epsm_rc` | 0.4.0 | `d8f42ab69e61cfe580f234b20ddc47cf6d056e59` |
-| `epsm_studies` | 0.2.0 | `794921797533cfa3d8bde757658fb174932027b5` |
+| `epsm_rc` | 0.8.2 | `6464f7d832d5ff3093fa754c0dc4d0d2930450dc` |
+| `epsm_studies` | 0.3.0 | `16ed6bd0bd63cee588f6e7ad951d71f8f9543ecb` |
+| `epsm_viewer` | 0.1.0 | `f2c847b9cd44280b7cf21803acfefa6e49e78b1b` |
+| `epsm_workflows` | 0.3.1 | `c558edfeee9a8bf93aabe07ef3834e99aab20cce` |
 | `smhi2epw` | 1.2.0 | `f27d70c8fb665c13ca4263ebe6337f11e45cf73d` |
 <!-- compatibility-table:end -->
 
@@ -193,9 +195,10 @@ the new combination works.
 
 CI builds and installs the supported wheel combination, records exact revisions,
 and checks public handoffs, real engines and notebooks on Python 3.11 and 3.13.
-A manually selected main-dependency lane checks Python 3.13. Workflows participates
-in the lightweight metadata audit but is not yet part of the supported full matrix;
-Studio and unpublished Viewer are outside that scientific release gate.
+A manually selected main-dependency lane checks Python 3.13. Workflows is part of
+the installed scientific cohort: bounded grid and six-row Jansen studies run
+through both engines. Viewer has a separate Core scene handoff; it is not
+installed in scientific workers. Studio remains outside this package release.
 
 EPSM owns the [platform metadata guard](docs/platform-compatibility.md). One short
 job reads package metadata and CI references on relevant PRs, main changes, daily
@@ -210,13 +213,22 @@ Add `--require-wheels` in a clean wheel environment. The check uses synthetic DB
 evidence, retains shared-certificate scope and runs actual annual RC energy and
 renovation LCA. It performs no live database query or provider acquisition.
 
-## Migrating to EPSM 0.2.0
+## Migrating to EPSM 0.3.1
 
 Install the coordinated Core/RC versions and refresh editable metadata after
 changing source versions. Saved Buildings retain complete portable DB evidence
 alongside their comparison summaries; old summary-only files remain readable.
-Database 0.2.0 stock-cell conversion returns the same physical Building type as
+Database 0.3.0 stock-cell conversion returns the same physical Building type as
 individual records, with the old weather/policy route explicitly named legacy.
+
+Core 0.8.0 exposes `.scene()` using `epsm.scene/1`. Browser `.view()` and notebook
+`.widget()` live in the separately maintained private Viewer package. Workflows
+0.3.1 requires newly prepared schema 3 plans; prepare older plans again.
+
+The DB release boundary is a portable `BuildingRecord` with stored-height evidence.
+GIS Lake is a candidate under development, not a confirmed delivery provider.
+The release gate uses fixtures and requires no live database. Application adapters,
+authentication, drafts, caches, permissions and jobs belong to Studio.
 
 ## Operation logging
 
@@ -255,3 +267,5 @@ See [archetype application](docs/archetype-application.md) and the [geometry-fir
 See [archetypes and building evidence](docs/archetype-consumers.md) for record assembly, independent component selection and maintained stock handovers.
 
 See [installed archetype acceptance](docs/archetype-installed-checks.md) for authored and catalogue application checks with actual RC and EnergyPlus execution.
+
+See [package readiness for Studio](docs/studio-package-readiness.md) for released boundaries, acceptance evidence and private Viewer delivery.

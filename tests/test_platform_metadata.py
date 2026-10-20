@@ -419,6 +419,49 @@ def test_unpublished_package_is_explicitly_skipped_not_marked_checked(platform):
     assert "unpublished_package" in codes(report)
 
 
+@pytest.mark.parametrize(
+    "npm_version, file_version",
+    [("1.0.0", "1.0.0"), ("1.0.1", "1.0.0"), ("1.0.0", "1.0.1")],
+)
+def test_display_package_versions_are_read_from_committed_sources(
+    platform, npm_version, file_version
+):
+    viewer = platform[1] / "epsm_viewer"
+    viewer.mkdir()
+    git(viewer, "init", "-q", "-b", "main")
+    sha = commit(
+        viewer,
+        {
+            "pyproject.toml": project("epsm_viewer"),
+            "package.json": json.dumps(
+                {"name": "@epsm/viewer", "version": npm_version}
+            ),
+            "VERSION": file_version + "\n",
+        },
+    )
+    platform[2]["packages"]["epsm_viewer"] = {
+        "repository": "SB-Chalmers/epsm_viewer",
+        "branch": "main",
+        "extras": [],
+        "status": "active",
+        "role": "display",
+    }
+    platform[3]["packages"]["epsm_viewer"] = {
+        "version": "1.0.0",
+        "revision": sha,
+        "role": "display",
+    }
+    report = check(platform)
+    assert report["status"] == (
+        "passed" if npm_version == file_version == "1.0.0" else "failed"
+    )
+
+
+def test_supported_role_must_match_registry_boundary(platform):
+    platform[3]["packages"]["epsm_core"]["role"] = "display"
+    assert "policy_invalid" in codes(check(platform))
+
+
 def test_metadata_path_cannot_escape_committed_repository(platform):
     core = platform[1] / "epsm_core"
     metadata = (

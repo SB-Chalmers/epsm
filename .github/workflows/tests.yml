@@ -25,6 +25,7 @@ jobs:
     timeout-minutes: 5
     outputs:
       matrix: ${{ steps.matrix.outputs.matrix }}
+      display_matrix: ${{ steps.display.outputs.matrix }}
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
@@ -35,7 +36,22 @@ jobs:
           MATRIX_MODE: ${{ inputs.development_dependencies && 'main' || 'pinned' }}
         run: python scripts/compatibility_matrix.py --mode "$MATRIX_MODE" --manifest-revision "$(git rev-parse HEAD)" >> "$GITHUB_OUTPUT"
 
+
+      - id: display
+        env:
+          MATRIX_MODE: ${{ inputs.development_dependencies && 'main' || 'pinned' }}
+        run: |
+          python - <<'PYTHON' >> "$GITHUB_OUTPUT"
+          import json, os, subprocess
+          from scripts.compatibility_matrix import build_matrix
+          revision = subprocess.check_output(['git', 'rev-parse', 'HEAD'], text=True).strip()
+          matrix = build_matrix(json.load(open('compatibility.json')), mode=os.environ['MATRIX_MODE'], packages=['epsm_data', 'epsm_core', 'epsm_viewer'], manifest_revision=revision)
+          matrix['include'] = [row for row in matrix['include'] if row['python'] == '3.13']
+          print('matrix=' + json.dumps(matrix, separators=(',', ':')))
+          PYTHON
+
   platform:
+    name: platform (${{ matrix.python }}, ${{ matrix.mode }})
     needs: combination
     runs-on: ubuntu-24.04
     timeout-minutes: 30
@@ -88,6 +104,13 @@ jobs:
           path: .ci/epsm_studies
       - uses: actions/checkout@v4
         with:
+          repository: SB-Chalmers/epsm_workflows
+          ssh-key: ${{ secrets.EPSM_WORKFLOWS_DEPLOY_KEY }}
+          persist-credentials: false
+          ref: ${{ matrix.epsm_workflows }}
+          path: .ci/epsm_workflows
+      - uses: actions/checkout@v4
+        with:
           repository: SB-Chalmers/smhi2epw
           ref: ${{ matrix.smhi2epw }}
           path: .ci/smhi2epw
@@ -96,12 +119,13 @@ jobs:
           python-version: ${{ matrix.python }}
       - name: Build and install the complete wheel combination
         run: |
-          python -m pip install build pytest ruff nbclient nbformat ipykernel matplotlib
-          for package in epsm_data epsm_core epsm_lca epsm_rc epsm_db epsm_studies smhi2epw; do
+          python -m pip install build pytest ruff PyYAML nbclient nbformat ipykernel matplotlib
+          for package in epsm_data epsm_core epsm_lca epsm_rc epsm_db epsm_studies epsm_workflows smhi2epw; do
             python -m build --wheel --outdir .ci/wheels ".ci/$package"
           done
           python -m build --wheel --outdir .ci/wheels .
           python -m pip install .ci/wheels/*.whl
+          python -m pip install 'epsm_core[geometry]'
           python -m pip check
       - name: Install required EnergyPlus 24.2 runtime
         env:
@@ -123,9 +147,9 @@ jobs:
           ruff check src/epsm/__init__.py src/epsm/building.py src/epsm/archetypes.py src/epsm/results.py tests examples scripts
           ruff format --check src/epsm/__init__.py src/epsm/building.py src/epsm/archetypes.py src/epsm/results.py tests examples scripts
       - name: Record the actual tested source revisions
-        run: python scripts/record_compatibility.py --mode '${{ matrix.mode }}' --wheels .ci/wheels --output build/compatibility-receipt.json
+        run: python scripts/record_compatibility.py --mode '${{ matrix.mode }}' --wheels .ci/wheels --energyplus-exe "$ENERGYPLUS_EXE" --output build/compatibility-receipt.json
       - name: Verify the installed logging cohort
-        run: python scripts/verify_logging_installation.py
+        run: python scripts/verify_logging_installation.py --mode '${{ matrix.mode }}'
       - name: Require installed handoffs and execute the platform suite
         env:
           EPSM_LOGGING_INTEGRATION: '1'
@@ -136,6 +160,12 @@ jobs:
         run: |
           python scripts/check_archetype_handoff.py --require-wheels \
             --directory build/archetype-handoff --wheels .ci/wheels \
+            --compatibility-receipt build/compatibility-receipt.json \
+            --energyplus-exe "$ENERGYPLUS_EXE"
+      - name: Require bounded grid and Jansen studies with both real engines
+        run: |
+          python scripts/check_workflow_handoff.py --require-wheels \
+            --directory build/workflow-handoff --wheels .ci/wheels \
             --compatibility-receipt build/compatibility-receipt.json \
             --energyplus-exe "$ENERGYPLUS_EXE"
       - name: Run examples in fresh kernels
@@ -151,5 +181,81 @@ jobs:
             build/logging-verification.json
             build/installed-handoff
             build/archetype-handoff
+            build/workflow-handoff
             build/executed-examples
             build/lca-executed-examples
+
+
+      - name: Retain compact release receipts
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: epsm-receipts-${{ matrix.python }}-${{ matrix.mode }}
+          path: |
+            build/compatibility-receipt.json
+            build/logging-verification.json
+            build/installed-handoff/compatibility-report.json
+            build/archetype-handoff/archetype-compatibility-report.json
+            build/workflow-handoff/workflow-compatibility-report.json
+
+  display:
+    name: display (${{ matrix.python }}, ${{ matrix.mode }})
+    needs: combination
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    strategy:
+      matrix: ${{ fromJSON(needs.combination.outputs.display_matrix) }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/checkout@v4
+        with:
+          repository: SB-Chalmers/epsm_data
+          ssh-key: ${{ secrets.EPSM_DATA_DEPLOY_KEY }}
+          persist-credentials: false
+          ref: ${{ matrix.epsm_data }}
+          path: .ci/epsm_data
+      - uses: actions/checkout@v4
+        with:
+          repository: SB-Chalmers/epsm_core
+          ssh-key: ${{ secrets.EPSM_CORE_DEPLOY_KEY }}
+          persist-credentials: false
+          ref: ${{ matrix.epsm_core }}
+          path: .ci/epsm_core
+      - uses: actions/checkout@v4
+        with:
+          repository: SB-Chalmers/epsm_viewer
+          ssh-key: ${{ secrets.EPSM_VIEWER_DEPLOY_KEY }}
+          persist-credentials: false
+          ref: ${{ matrix.epsm_viewer }}
+          path: .ci/epsm_viewer
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python }}
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: .ci/epsm_viewer/package-lock.json
+      - name: Build the isolated display combination
+        run: |
+          python -m pip install build 'setuptools>=77' wheel
+          npm ci --prefix .ci/epsm_viewer
+          npm run build --prefix .ci/epsm_viewer
+          for package in epsm_data epsm_core epsm_viewer; do
+            python -m build --wheel --outdir .ci/display-wheels ".ci/$package"
+          done
+          python -m pip install .ci/display-wheels/*.whl
+          python -m pip install 'epsm_core[geometry]'
+          python -m pip check
+      - name: Require installed Core to Python and JavaScript Viewer handoff
+        run: |
+          python scripts/check_viewer_handoff.py --mode '${{ matrix.mode }}' \
+            --viewer-javascript-root .ci/epsm_viewer \
+            --core-revision "$(git -C .ci/epsm_core rev-parse HEAD)" \
+            --viewer-revision "$(git -C .ci/epsm_viewer rev-parse HEAD)" \
+            --output build/viewer-handoff.json
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: epsm-display-${{ matrix.python }}-${{ matrix.mode }}
+          path: build/viewer-handoff.json

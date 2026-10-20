@@ -1,7 +1,7 @@
 # EPSM-owned platform compatibility
 
-Status: implemented on `codex/platform-compatibility-guard`; activation requires
-merging this branch. No package release or supported-version upgrade is implied.
+EPSM owns both the supported installed combination and the lightweight daily
+metadata guard. Consumers read the promoted manifest on their next normal CI run.
 
 EPSM owns the platform's reviewed combination in
 [`compatibility.json`](../compatibility.json). A package keeps its own version and
@@ -62,10 +62,11 @@ evidence and no longer selects the active logging matrix.
 ## Access and local use
 
 The remote guard uses the repository-specific read-only deploy keys already
-configured in EPSM for Data, Core, RC, LCA, DB, Studies and Workflows. Weather is
+configured in EPSM for Data, Core, RC, LCA, DB, Studies, Workflows and Viewer. Weather is
 public. It checks required key presence before cloning; it never publishes keys or
-grants access. Viewer is explicitly unpublished and excluded until its repository
-and read access exist. The developer handbook has no scientific distribution in
+grants access. Viewer is private and has a separate display handoff; scientific
+workers do not install it. Its `package.json`, tracked `VERSION` and Python
+distribution versions must agree. The developer handbook has no scientific distribution in
 this registry. Studio's application environment remains a separate consumer.
 
 For local checks, install only the small guard requirements into a separate tools
@@ -96,12 +97,13 @@ logging checkout values are generated directly from the same manifest.
 1. The next metadata run captures a new main SHA/version and reports affected
    dependency bounds and CI references. Read the package's migration notes.
 2. Update an EPSM candidate branch with the intended exact pins and compatible
-   bounds. Include Workflows in the installed cohort before advertising its full
-   compatibility; its current integration fixtures need updating first.
+   bounds. Workflows participates in the installed scientific cohort; the separate
+   display check verifies Core-to-Viewer handoffs.
 3. Run the necessary installed checks once for that candidate. Record actual
    versions, source revisions and engine identities using the existing receipt.
 4. Promote the tested combination through the normal release review. Regenerate
-   the README table. Consumers adopt the central manifest through their own review.
+   the README table. Consumers adopt the central manifest on their next normal CI
+   run while retaining their own checkout under test.
 
 ## Consumer interface
 
@@ -130,6 +132,7 @@ dispatch other repositories' checks. Their read-only deploy key grants access to
 EPSM's manifest; it does not grant API orchestration permissions. See
 [token scope](https://docs.github.com/en/actions/concepts/security/github_token).
 
-The first audit is expected to expose older pins, including EPSM's supported
-Core/RC 0.4 cohort. That is a backlog to assess, not permission to claim that every
-latest main combination has already passed the scientific release gates.
+A new main commit can differ from the supported release revision without
+changing its package version, for example when CI adopts this interface. The
+daily report records that drift; it never dispatches downstream suites or silently
+promotes a new scientific combination.
