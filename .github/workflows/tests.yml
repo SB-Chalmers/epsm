@@ -185,6 +185,19 @@ jobs:
             build/executed-examples
             build/lca-executed-examples
 
+
+      - name: Retain compact release receipts
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: epsm-receipts-${{ matrix.python }}-${{ matrix.mode }}
+          path: |
+            build/compatibility-receipt.json
+            build/logging-verification.json
+            build/installed-handoff/compatibility-report.json
+            build/archetype-handoff/archetype-compatibility-report.json
+            build/workflow-handoff/workflow-compatibility-report.json
+
   display:
     name: display (${{ matrix.python }}, ${{ matrix.mode }})
     needs: combination
