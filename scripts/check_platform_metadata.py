@@ -171,6 +171,11 @@ def _policy(root):
         if normalized in names:
             raise ValueError(f"Duplicate normalized package name: {name}")
         names[normalized] = name
+        if not isinstance(entry, dict) or entry.get("role", "scientific") not in {
+            "scientific",
+            "display",
+        }:
+            raise ValueError(f"{name}: role must be scientific or display")
         if not isinstance(entry, dict) or entry.get("status") not in {
             "active",
             "unpublished",
@@ -210,6 +215,10 @@ def _policy(root):
             )
         if not isinstance(pin, dict) or not isinstance(pin.get("version"), str):
             raise ValueError(f"{name}: supported pin needs a version and revision")
+        if pin.get("role", "scientific") != registry["packages"][name].get(
+            "role", "scientific"
+        ):
+            raise ValueError(f"{name}: supported role must match the registry")
         Version(pin["version"])
         revision = pin.get("revision")
         if not isinstance(revision, str) or not (
@@ -251,6 +260,13 @@ def _metadata(source, revision, expected_name):
             "Dynamic dependencies require a build; this guard cannot verify them"
         )
     version = _version(source, revision, metadata)
+    if expected_name == "epsm_viewer":
+        npm = json.loads(_blob(source, revision, "package.json"))
+        stored = _blob(source, revision, "VERSION").strip()
+        if npm.get("version") != version or stored != version:
+            raise ValueError(
+                "Viewer package.json, VERSION and Python versions must agree"
+            )
     python = project.get("requires-python", "")
     SpecifierSet(python)
     dependencies = project.get("dependencies", [])
