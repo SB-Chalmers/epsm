@@ -9,7 +9,7 @@ import subprocess
 from pathlib import Path
 
 
-def collect_receipt(root, manifest, *, mode, wheels=None):
+def collect_receipt(root, manifest, *, mode, wheels=None, energyplus_exe=None):
     """Record installed scientific packages without requiring display dependencies."""
     root = Path(root)
     if mode not in {"pinned", "main"}:
@@ -49,6 +49,23 @@ def collect_receipt(root, manifest, *, mode, wheels=None):
             path.name: hashlib.sha256(path.read_bytes()).hexdigest()
             for path in artifacts
         }
+    if energyplus_exe is not None:
+        executable = Path(energyplus_exe).resolve(strict=True)
+        version = subprocess.run(
+            [str(executable), "--version"],
+            check=True,
+            text=True,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.STDOUT,
+            timeout=30,
+        ).stdout.strip()
+        with executable.open("rb") as stream:
+            digest = hashlib.file_digest(stream, "sha256").hexdigest()
+        result["energyplus"] = {
+            "path": str(executable),
+            "version": version,
+            "sha256": digest,
+        }
     return result
 
 
@@ -59,10 +76,19 @@ def main():
     parser.add_argument(
         "--wheels", type=Path, help="Directory of actual built wheel artifacts"
     )
+    parser.add_argument(
+        "--energyplus-exe", type=Path, help="Actual executable identity"
+    )
     args = parser.parse_args()
     root = Path(__file__).resolve().parents[1]
     manifest = json.loads((root / "compatibility.json").read_text())
-    result = collect_receipt(root, manifest, mode=args.mode, wheels=args.wheels)
+    result = collect_receipt(
+        root,
+        manifest,
+        mode=args.mode,
+        wheels=args.wheels,
+        energyplus_exe=args.energyplus_exe,
+    )
     args.output.parent.mkdir(parents=True, exist_ok=True)
     args.output.write_text(
         json.dumps(
