@@ -221,9 +221,11 @@ alongside their comparison summaries; old summary-only files remain readable.
 Database 0.3.0 stock-cell conversion returns the same physical Building type as
 individual records, with the old weather/policy route explicitly named legacy.
 
-Core 0.8.0 exposes `.scene()` using `epsm.scene/1`. Browser `.view()` and notebook
-`.widget()` live in the separately maintained private Viewer package. Workflows
-0.3.1 requires newly prepared schema 3 plans; prepare older plans again.
+Core 0.8.0 exposes `.scene()` using `epsm.scene/1`. Replace the removed Core
+`.view()` and `.widget()` methods with `epsm_viewer.view_scene(building.scene())`
+and `epsm_viewer.scene_widget(building.scene())` from the separately installed
+private Viewer package. Use `view_scene` as a context manager to manage its local
+server. Workflows 0.3.1 requires newly prepared schema 3 plans; prepare older plans again.
 
 The DB release boundary is a portable `BuildingRecord` with stored-height evidence.
 GIS Lake is a candidate under development, not a confirmed delivery provider.
