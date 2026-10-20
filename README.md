@@ -267,3 +267,5 @@ See [archetype application](docs/archetype-application.md) and the [geometry-fir
 See [archetypes and building evidence](docs/archetype-consumers.md) for record assembly, independent component selection and maintained stock handovers.
 
 See [installed archetype acceptance](docs/archetype-installed-checks.md) for authored and catalogue application checks with actual RC and EnergyPlus execution.
+
+See [package readiness for Studio](docs/studio-package-readiness.md) for released boundaries, acceptance evidence and private Viewer delivery.
