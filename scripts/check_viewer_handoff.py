@@ -50,8 +50,10 @@ console.log(JSON.stringify({
 """
 
 
-def read_combination(path, core_revision, viewer_revision):
-    """Match captured source checkouts to the central immutable display pins."""
+def read_combination(path, core_revision, viewer_revision, *, mode="pinned"):
+    """Require immutable source identities and enforce supported pins in pinned mode."""
+    if mode not in {"pinned", "main"}:
+        raise ValueError("Display mode must be pinned or main")
     packages = json.loads(Path(path).read_text())["packages"]
     selected = {}
     for name, revision in (
@@ -63,16 +65,18 @@ def read_combination(path, core_revision, viewer_revision):
         row = packages.get(name)
         if not isinstance(row, dict) or not row.get("version"):
             raise RuntimeError(f"Manifest requires {name} version and revision")
-        if row.get("revision") != revision:
+        if mode == "pinned" and row.get("revision") != revision:
             raise RuntimeError(f"{name} checkout does not match the supported manifest")
         selected[name] = {"version": row["version"], "revision": revision}
     return selected
 
 
-def installed_package(name, expected):
-    """Require an actual installed wheel with the declared manifest version."""
+def installed_package(name, expected, *, mode="pinned"):
+    """Require an installed wheel and retain its actual candidate or supported version."""
+    if mode not in {"pinned", "main"}:
+        raise ValueError("Display mode must be pinned or main")
     version = metadata.version(name)
-    if version != expected["version"]:
+    if mode == "pinned" and version != expected["version"]:
         raise RuntimeError(
             f"Installed {name} version does not match the manifest: {version}"
         )
@@ -82,7 +86,12 @@ def installed_package(name, expected):
     editable = bool(direct and json.loads(direct).get("dir_info", {}).get("editable"))
     if "site-packages" not in path.parts or editable:
         raise RuntimeError(f"Installed wheel required for {name}: {path}")
-    return {**expected, "import_path": str(path), "editable": editable}
+    return {
+        **expected,
+        "version": version,
+        "import_path": str(path),
+        "editable": editable,
+    }
 
 
 def prepare_javascript_scene(scene, root, node, expected_version):
@@ -126,9 +135,12 @@ def prepare_javascript_scene(scene, root, node, expected_version):
 
 def run_handoff(args):
     """Capture one synthetic public Core scene and require both Viewer consumers."""
-    selected = read_combination(args.manifest, args.core_revision, args.viewer_revision)
+    selected = read_combination(
+        args.manifest, args.core_revision, args.viewer_revision, mode=args.mode
+    )
     packages = {
-        name: installed_package(name, expected) for name, expected in selected.items()
+        name: installed_package(name, expected, mode=args.mode)
+        for name, expected in selected.items()
     }
     from epsm_core import Footprint, GeometrySpec, scene_schema
     from epsm_viewer import write_scene
@@ -158,6 +170,7 @@ def run_handoff(args):
     scene_path.write_text(serialized)
     return {
         "format": 1,
+        "mode": args.mode,
         "status": "passed",
         "packages": packages,
         "scene": {
@@ -178,6 +191,7 @@ def run_handoff(args):
 def main(argv=None):
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--manifest", type=Path, default=ROOT / "compatibility.json")
+    parser.add_argument("--mode", choices=("pinned", "main"), default="pinned")
     parser.add_argument("--viewer-javascript-root", type=Path, required=True)
     parser.add_argument("--core-revision", required=True)
     parser.add_argument("--viewer-revision", required=True)
@@ -190,6 +204,7 @@ def main(argv=None):
     except Exception as error:
         report = {
             "format": 1,
+            "mode": args.mode,
             "status": "failed",
             "error": f"{type(error).__name__}: {error}",
         }

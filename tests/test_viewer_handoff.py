@@ -50,12 +50,19 @@ def test_requires_captured_source_revisions_matching_the_manifest(handoff, combi
         handoff.read_combination(combination, "c" * 40, "b" * 40)
 
 
+def test_main_accepts_new_immutable_source_revisions(handoff, combination):
+    selected = handoff.read_combination(combination, "c" * 40, "d" * 40, mode="main")
+    assert selected["epsm_core"]["revision"] == "c" * 40
+    assert selected["epsm_viewer"]["revision"] == "d" * 40
+
+
+@pytest.mark.parametrize("mode", ["pinned", "main"])
 @pytest.mark.parametrize("revision", ["main", "self", "", "a" * 39])
 def test_moving_or_missing_source_identity_is_not_release_evidence(
-    handoff, combination, revision
+    handoff, combination, revision, mode
 ):
     with pytest.raises(RuntimeError, match="SHA-40"):
-        handoff.read_combination(combination, revision, "b" * 40)
+        handoff.read_combination(combination, revision, "b" * 40, mode=mode)
 
 
 def test_missing_display_entry_fails_before_importing_packages(handoff, combination):
@@ -72,8 +79,40 @@ def test_installed_version_must_match_manifest(handoff, monkeypatch):
         )
 
 
-def test_editable_package_is_not_an_installed_wheel_gate(handoff, monkeypatch):
+@pytest.mark.parametrize("mode", ["pinned", "main"])
+@pytest.mark.parametrize("violation", ["editable", "source"])
+def test_editable_or_source_package_is_not_an_installed_wheel_gate(
+    handoff, monkeypatch, mode, violation
+):
     monkeypatch.setattr(handoff.metadata, "version", lambda name: "0.8.0")
+    monkeypatch.setattr(
+        handoff.importlib,
+        "import_module",
+        lambda name: SimpleNamespace(
+            __file__=(
+                "/source/src/epsm_core/__init__.py"
+                if violation == "source"
+                else "/environment/site-packages/epsm_core/__init__.py"
+            )
+        ),
+    )
+    monkeypatch.setattr(
+        handoff.metadata,
+        "distribution",
+        lambda name: SimpleNamespace(
+            read_text=lambda path: json.dumps(
+                {"dir_info": {"editable": violation == "editable"}}
+            )
+        ),
+    )
+    with pytest.raises(RuntimeError, match="Installed wheel required"):
+        handoff.installed_package(
+            "epsm_core", {"version": "0.8.0", "revision": "a" * 40}, mode=mode
+        )
+
+
+def test_main_records_actual_installed_version(handoff, monkeypatch):
+    monkeypatch.setattr(handoff.metadata, "version", lambda name: "0.9.0")
     monkeypatch.setattr(
         handoff.importlib,
         "import_module",
@@ -84,14 +123,14 @@ def test_editable_package_is_not_an_installed_wheel_gate(handoff, monkeypatch):
     monkeypatch.setattr(
         handoff.metadata,
         "distribution",
-        lambda name: SimpleNamespace(
-            read_text=lambda path: '{"dir_info":{"editable":true}}'
-        ),
+        lambda name: SimpleNamespace(read_text=lambda path: None),
     )
-    with pytest.raises(RuntimeError, match="Installed wheel required"):
-        handoff.installed_package(
-            "epsm_core", {"version": "0.8.0", "revision": "a" * 40}
-        )
+    observed = handoff.installed_package(
+        "epsm_core", {"version": "0.8.0", "revision": "c" * 40}, mode="main"
+    )
+    assert observed["version"] == "0.9.0"
+    assert observed["revision"] == "c" * 40
+    assert observed["editable"] is False
 
 
 def test_javascript_failure_is_required_failure_without_a_fallback(
@@ -160,4 +199,5 @@ def test_failed_required_check_writes_failure_receipt(handoff, tmp_path, monkeyp
     assert status == 1
     receipt = json.loads(output.read_text())
     assert receipt["status"] == "failed"
+    assert receipt["mode"] == "pinned"
     assert "Node prerequisite" in receipt["error"]
