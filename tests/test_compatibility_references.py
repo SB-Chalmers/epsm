@@ -170,7 +170,7 @@ def test_metadata_workflow_keeps_one_short_job_without_a_scientific_matrix():
     assert "run_examples.py" not in commands
 
 
-def test_metadata_job_runs_the_four_pure_guard_test_files_only():
+def test_metadata_job_runs_only_the_pure_guard_test_files():
     workflow, _, _ = metadata_configuration()
     commands = [
         shlex.split(line)
@@ -180,10 +180,32 @@ def test_metadata_job_runs_the_four_pure_guard_test_files_only():
     ]
     assert len(commands) == 1
     targets = [argument for argument in commands[0] if argument.startswith("tests")]
-    assert len(targets) == 4
+    assert len(targets) == 5
     assert set(targets) == {
         "tests/test_platform_metadata.py",
         "tests/test_ci_references.py",
         "tests/test_compatibility_matrix.py",
         "tests/test_compatibility_references.py",
+        "tests/test_compatibility_receipt.py",
     }
+
+
+def test_platform_gate_retains_logging_checks_without_a_second_wheel_matrix():
+    yaml = pytest.importorskip("yaml")
+    workflow = yaml.safe_load((ROOT / ".github/workflows/tests.yml").read_text())
+    steps = workflow["jobs"]["platform"]["steps"]
+    commands = "\n".join(step.get("run", "") for step in steps)
+    assert "python scripts/verify_logging_installation.py" in commands
+    assert any(
+        step.get("env", {}).get("EPSM_LOGGING_INTEGRATION") == "1"
+        and "python -m pytest" in step.get("run", "")
+        for step in steps
+    )
+    assert "python scripts/run_examples.py --integration" in commands
+    artifacts = [
+        step.get("with", {}).get("path", "")
+        for step in steps
+        if step.get("uses", "").startswith("actions/upload-artifact@")
+    ]
+    assert any("build/logging-verification.json" in paths for paths in artifacts)
+    assert not (ROOT / ".github/workflows/logging.yml").exists()

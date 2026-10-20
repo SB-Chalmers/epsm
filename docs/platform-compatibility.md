@@ -51,7 +51,9 @@ reason; a changed reference is no longer covered by that exception.
 
 Current full platform checks use two pinned Python lanes. A manual request can
 select one Python 3.13 lane using dependency main branches; its receipt records the
-actual checked-out revisions. Logging checks consume the same supported manifest.
+actual checked-out revisions. Logging installation, integration and notebook checks
+run within those same installed lanes, using the same supported manifest and
+wheels. Their verification receipt is retained; there is no second logging matrix.
 Full workflows run on PRs into dev/main and pushes to main, avoiding a duplicate
 feature-push run. Their scientific checks remain required; this guard does not
 replace them. `logging-compatibility.json` is retained as historical release
@@ -101,14 +103,32 @@ logging checkout values are generated directly from the same manifest.
 4. Promote the tested combination through the normal release review. Regenerate
    the README table. Consumers adopt the central manifest through their own review.
 
-Per-package workflows still contain independently maintained dependency checkouts.
-This increment audits them; it does not rewrite or merge changes into other
-repositories. A later rollout can make each consumer read the central manifest,
-or use a read/write GitHub App to open focused update PRs. Keep its permissions
-separate from this read-only guard. GitHub's default token is scoped to its own
-repository; sharing a private reusable workflow also needs the documented access
-setting. See [token scope](https://docs.github.com/en/actions/concepts/security/github_token)
-and [private workflow sharing](https://docs.github.com/en/actions/how-tos/reuse-automations/share-across-private-repositories).
+## Consumer interface
+
+Each consumer checks out EPSM main read-only into `.ci/platform`, captures that
+checkout's full Git SHA once, and runs its matrix generator. The names below are
+the consumer's required dependency set; versions and revisions come only from the
+central manifest. The consumer itself remains the PR checkout under test.
+
+```sh
+python .ci/platform/scripts/compatibility_matrix.py \
+  --manifest .ci/platform/compatibility.json --consumer epsm_workflows \
+  --packages epsm_data epsm_core epsm_lca epsm_rc epsm \
+  --manifest-revision "$PLATFORM_MANIFEST_SHA" --mode pinned
+```
+
+The caller sets `PLATFORM_MANIFEST_SHA` to `git -C .ci/platform rev-parse HEAD`.
+Matrix rows contain `python`, `mode`, `manifest_revision` and each dependency's
+immutable revision. An external consumer's `epsm: self` resolves to that captured
+SHA; EPSM's own workflow uses its calling checkout. Unknown dependencies, moving
+supported revisions and unresolved `self` values fail before any matrix is emitted.
+Default matrices exclude entries with `role: display`; a display handoff can select
+Core and Viewer explicitly with `--packages`.
+
+Consumers adopt promoted combinations on their next normal CI run. They do not
+dispatch other repositories' checks. Their read-only deploy key grants access to
+EPSM's manifest; it does not grant API orchestration permissions. See
+[token scope](https://docs.github.com/en/actions/concepts/security/github_token).
 
 The first audit is expected to expose older pins, including EPSM's supported
 Core/RC 0.4 cohort. That is a backlog to assess, not permission to claim that every

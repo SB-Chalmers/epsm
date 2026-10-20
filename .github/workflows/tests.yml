@@ -33,7 +33,7 @@ jobs:
       - id: matrix
         env:
           MATRIX_MODE: ${{ inputs.development_dependencies && 'main' || 'pinned' }}
-        run: python scripts/compatibility_matrix.py --mode "$MATRIX_MODE" >> "$GITHUB_OUTPUT"
+        run: python scripts/compatibility_matrix.py --mode "$MATRIX_MODE" --manifest-revision "$(git rev-parse HEAD)" >> "$GITHUB_OUTPUT"
 
   platform:
     needs: combination
@@ -123,8 +123,12 @@ jobs:
           ruff check src/epsm/__init__.py src/epsm/building.py src/epsm/archetypes.py src/epsm/results.py tests examples scripts
           ruff format --check src/epsm/__init__.py src/epsm/building.py src/epsm/archetypes.py src/epsm/results.py tests examples scripts
       - name: Record the actual tested source revisions
-        run: python scripts/record_compatibility.py --mode '${{ matrix.mode }}' --output build/compatibility-receipt.json
+        run: python scripts/record_compatibility.py --mode '${{ matrix.mode }}' --wheels .ci/wheels --output build/compatibility-receipt.json
+      - name: Verify the installed logging cohort
+        run: python scripts/verify_logging_installation.py
       - name: Require installed handoffs and execute the platform suite
+        env:
+          EPSM_LOGGING_INTEGRATION: '1'
         run: |
           python scripts/check_installed_platform.py --require-wheels --directory build/installed-handoff
           python -m pytest -q
@@ -135,7 +139,7 @@ jobs:
             --compatibility-receipt build/compatibility-receipt.json \
             --energyplus-exe "$ENERGYPLUS_EXE"
       - name: Run examples in fresh kernels
-        run: python scripts/run_examples.py --integration
+        run: python scripts/run_examples.py --integration --logging
       - name: Run LCA public annual renovation examples in fresh kernels
         run: python .ci/epsm_lca/scripts/run_examples.py --integration --output build/lca-executed-examples
       - uses: actions/upload-artifact@v4
@@ -144,6 +148,7 @@ jobs:
           name: epsm-platform-${{ matrix.python }}-${{ matrix.mode }}
           path: |
             build/compatibility-receipt.json
+            build/logging-verification.json
             build/installed-handoff
             build/archetype-handoff
             build/executed-examples

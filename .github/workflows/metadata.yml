@@ -13,6 +13,7 @@ on:
       - 'tests/test_ci_references.py'
       - 'tests/test_compatibility_matrix.py'
       - 'tests/test_compatibility_references.py'
+      - 'tests/test_compatibility_receipt.py'
       - '.github/workflows/**'
       - '.github/actions/**'
       - 'README.md'
@@ -28,6 +29,7 @@ on:
       - 'tests/test_ci_references.py'
       - 'tests/test_compatibility_matrix.py'
       - 'tests/test_compatibility_references.py'
+      - 'tests/test_compatibility_receipt.py'
       - '.github/workflows/**'
       - '.github/actions/**'
       - 'README.md'
@@ -57,7 +59,7 @@ jobs:
         run: python -m pip install -r requirements-ci-metadata.txt
       - name: Check the guard and generated release references
         run: |
-          python -m pytest -q tests/test_platform_metadata.py tests/test_ci_references.py tests/test_compatibility_matrix.py tests/test_compatibility_references.py
+          python -m pytest -q tests/test_platform_metadata.py tests/test_ci_references.py tests/test_compatibility_matrix.py tests/test_compatibility_references.py tests/test_compatibility_receipt.py
           python scripts/render_compatibility.py --check
       - name: Require explicit read access to every active private package
         env:
