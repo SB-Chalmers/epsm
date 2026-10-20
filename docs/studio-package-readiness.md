@@ -11,6 +11,8 @@ is the authoritative current list; packages keep independent release versions.
 - Workflows owns prepared studies, authenticated attempts/results, checksummed
   assets and runtime verification. Schema 3 plans bind each case to a content-addressed
   engine fingerprint. Prepare older plans again; no migration is provided.
+  The 0.3.1 packaging patch adds the missing MIT notice and distribution metadata;
+  the earlier 0.3.0 tag is preserved.
 - RC and EnergyPlus remain separate engines. Studio can select either backend.
   The accepted common annual boundary is space heating and ventilation fans.
 - Studies owns the released comparison helpers. Uncommitted grouping, assessment

@@ -180,7 +180,7 @@ reported separately; metadata consistency does not establish scientific integrat
 | `epsm_rc` | 0.8.2 | `6464f7d832d5ff3093fa754c0dc4d0d2930450dc` |
 | `epsm_studies` | 0.3.0 | `16ed6bd0bd63cee588f6e7ad951d71f8f9543ecb` |
 | `epsm_viewer` | 0.1.0 | `f2c847b9cd44280b7cf21803acfefa6e49e78b1b` |
-| `epsm_workflows` | 0.3.0 | `e464ce8f8d9756c95ac165759d1427ba3f289e52` |
+| `epsm_workflows` | 0.3.1 | `c558edfeee9a8bf93aabe07ef3834e99aab20cce` |
 | `smhi2epw` | 1.2.0 | `f27d70c8fb665c13ca4263ebe6337f11e45cf73d` |
 <!-- compatibility-table:end -->
 
@@ -223,7 +223,7 @@ individual records, with the old weather/policy route explicitly named legacy.
 
 Core 0.8.0 exposes `.scene()` using `epsm.scene/1`. Browser `.view()` and notebook
 `.widget()` live in the separately maintained private Viewer package. Workflows
-0.3.0 requires newly prepared schema 3 plans; prepare older plans again.
+0.3.1 requires newly prepared schema 3 plans; prepare older plans again.
 
 The DB release boundary is a portable `BuildingRecord` with stored-height evidence.
 GIS Lake is a candidate under development, not a confirmed delivery provider.
