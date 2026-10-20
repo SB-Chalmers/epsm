@@ -1,19 +1,97 @@
 {
   "format": 1,
   "ci_reference_exceptions": [
-    {"package": "epsm_rc", "workflow": ".github/workflows/tests.yml", "path": ".ci/core_reference", "revision": "3e0256d70c5e82849308b05544b1ad2fd0573665", "reason": "Retained numerical regression baseline; not the active Core dependency."},
-    {"package": "epsm_rc", "workflow": ".github/workflows/tests.yml", "path": ".ci/rc_reference", "revision": "5a9d5f4251847e270b5dc4a526a4b2260915a4f9", "reason": "Retained numerical regression baseline; not the active RC dependency."}
+    {
+      "package": "epsm_rc",
+      "workflow": ".github/workflows/tests.yml",
+      "path": ".ci/core_reference",
+      "revision": "3e0256d70c5e82849308b05544b1ad2fd0573665",
+      "reason": "Retained numerical regression baseline; not the active Core dependency."
+    },
+    {
+      "package": "epsm_rc",
+      "workflow": ".github/workflows/tests.yml",
+      "path": ".ci/rc_reference",
+      "revision": "5a9d5f4251847e270b5dc4a526a4b2260915a4f9",
+      "reason": "Retained numerical regression baseline; not the active RC dependency."
+    }
   ],
   "packages": {
-    "epsm": {"repository": "SB-Chalmers/epsm", "branch": "main", "extras": ["all"], "status": "active"},
-    "epsm_data": {"repository": "SB-Chalmers/epsm_data", "branch": "main", "extras": [], "status": "active"},
-    "epsm_core": {"repository": "SB-Chalmers/epsm_core", "branch": "main", "extras": ["geometry"], "status": "active"},
-    "epsm_rc": {"repository": "SB-Chalmers/epsm_rc", "branch": "main", "extras": ["platform"], "status": "active"},
-    "epsm_lca": {"repository": "SB-Chalmers/epsm_lca", "branch": "main", "extras": ["integration"], "status": "active"},
-    "epsm_db": {"repository": "SB-Chalmers/epsm_db", "branch": "main", "extras": ["catalogue", "epsm", "weather"], "status": "active"},
-    "epsm_workflows": {"repository": "SB-Chalmers/epsm_workflows", "branch": "main", "extras": ["epsm", "weather"], "status": "active"},
-    "epsm_studies": {"repository": "SB-Chalmers/epsm_studies", "branch": "main", "extras": [], "status": "active"},
-    "smhi2epw": {"repository": "SB-Chalmers/smhi2epw", "branch": "main", "extras": [], "status": "active"},
-    "epsm_viewer": {"repository": null, "branch": "main", "extras": [], "status": "unpublished"}
+    "epsm": {
+      "repository": "SB-Chalmers/epsm",
+      "branch": "main",
+      "extras": [
+        "all"
+      ],
+      "status": "active"
+    },
+    "epsm_data": {
+      "repository": "SB-Chalmers/epsm_data",
+      "branch": "main",
+      "extras": [],
+      "status": "active"
+    },
+    "epsm_core": {
+      "repository": "SB-Chalmers/epsm_core",
+      "branch": "main",
+      "extras": [
+        "geometry"
+      ],
+      "status": "active"
+    },
+    "epsm_rc": {
+      "repository": "SB-Chalmers/epsm_rc",
+      "branch": "main",
+      "extras": [
+        "platform"
+      ],
+      "status": "active"
+    },
+    "epsm_lca": {
+      "repository": "SB-Chalmers/epsm_lca",
+      "branch": "main",
+      "extras": [
+        "integration"
+      ],
+      "status": "active"
+    },
+    "epsm_db": {
+      "repository": "SB-Chalmers/epsm_db",
+      "branch": "main",
+      "extras": [
+        "catalogue",
+        "epsm",
+        "weather"
+      ],
+      "status": "active"
+    },
+    "epsm_workflows": {
+      "repository": "SB-Chalmers/epsm_workflows",
+      "branch": "main",
+      "extras": [
+        "epsm",
+        "weather"
+      ],
+      "status": "active"
+    },
+    "epsm_studies": {
+      "repository": "SB-Chalmers/epsm_studies",
+      "branch": "main",
+      "extras": [],
+      "status": "active"
+    },
+    "smhi2epw": {
+      "repository": "SB-Chalmers/smhi2epw",
+      "branch": "main",
+      "extras": [],
+      "status": "active"
+    },
+    "epsm_viewer": {
+      "repository": "SB-Chalmers/epsm_viewer",
+      "branch": "main",
+      "extras": [],
+      "status": "active",
+      "role": "display"
+    }
   }
 }
