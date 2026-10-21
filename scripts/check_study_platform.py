@@ -137,7 +137,9 @@ def run_cases(directory, energyplus, *, require_wheels):
     for row in rows:
         case_id = row["case_id"]
         metadata_value = results.evaluation_metadata(case_id)
-        if len(results.hourly(case_id)) != 8760 or list(results.time_axis(case_id)) != intended_calendar():
+        observed_calendar = [datetime.fromisoformat(str(value)).isoformat()
+                             for value in results.time_axis(case_id)]
+        if len(results.hourly(case_id)) != 8760 or observed_calendar != intended_calendar():
             raise RuntimeError("Hourly heating lost the intended annual calendar")
         assessment = metadata_value["lca"]
         contributions = assessment.get("contributions", [])
