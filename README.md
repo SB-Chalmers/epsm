@@ -1,5 +1,16 @@
 # EPSM
 
+<!-- EPSM introduction: Pocket CAD -->
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="docs/assets/brand/epsm-dark.png">
+  <img src="docs/assets/brand/epsm.png" width="64" height="64" alt="EPSM platform — connected building model">
+</picture>
+
+Build, simulate and compare buildings and renovation options with one Python interface to the EPSM platform.
+
+[Explore the EPSM platform](docs/platform.md)
+<!-- /EPSM introduction -->
+
 Version **0.4.0** adds portable evaluation bundles and output preflight.
 
 EPSM connects a physical Core building, Data constructions, an energy engine and
