@@ -15,3 +15,7 @@ Do not retry dependency conflicts or missing credentials unchanged. Fix their
 cause, then rerun only the affected checks. Preserve failing evidence.
 
 See the [shared branch and CI policy](https://github.com/SB-Chalmers/epsm_development/blob/main/docs/branches-and-releases.md).
+
+EPSM development checks cover compatibility metadata and acceptance-harness
+contracts. Simulation identity and installed scientific handoffs remain in the
+full release suite, which installs their required packages.
