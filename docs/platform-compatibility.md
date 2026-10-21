@@ -1,6 +1,6 @@
 # EPSM-owned platform compatibility
 
-EPSM owns both the supported installed combination and the lightweight daily
+EPSM owns both the supported installed combination and the lightweight weekly
 metadata guard. Consumers read the promoted manifest on their next normal CI run.
 
 EPSM owns the platform's reviewed combination in
@@ -37,8 +37,7 @@ its strict revision and installed-version checks use the same choice as its matr
 
 ## Automatic, bounded work
 
-The metadata workflow runs one Python 3.13 job on relevant pull requests, relevant
-main changes, once daily, and by manual request. It has a five-minute timeout and
+The metadata workflow runs one Python 3.13 job once weekly and by manual request. It has a five-minute timeout and
 cancels superseded runs. Sparse source checkouts retain only package metadata,
 version declarations and workflow definitions. No EPSM package is imported or
 installed; no model is compiled, no engine runs and no database is queried.
@@ -245,20 +244,12 @@ contains a separate `compatibility-candidate.json` record. Leaving the input emp
 keeps the ordinary supported-manifest route. The existing main-dependency
 experiment is separate and cannot be combined with candidate selection.
 
-Campaign pull requests use the same checks through an explicit maintainer opt-in:
-set repository variable `EPSM_CANDIDATE_MANIFEST_SHA` to that immutable EPSM SHA,
-then add the `platform-candidate` PR label. Adding or removing that label starts
-the corresponding check selection; unrelated label events do not rerun the
-scientific matrix. A labelled PR without a valid variable fails clearly. This
-uses one manifest pointer, not another package-version table.
-
-Ordinary PRs continue using supported pins. Those older pins can be incompatible
-with a new feature's declared dependency bounds; an earlier failed stable run is
-not relabelled as a candidate success. The explicit labelled run must pass all
-existing check names at the recorded feature head before campaign review. It
-checks prospective merge conflicts against the current target branch using
-`git merge-tree` and tests the exact captured head. Testing all actual merged
-development commits remains a later, separate gate.
+Candidate verification is an explicit manual release check. Select the immutable
+manifest revision at the recorded consumer source, and retain its receipt beside
+the PR. PR labels and repository variables no longer select dependencies or
+start extra runs. A manual candidate result does not replace the lightweight
+required development `ci` check. Resolve actual merge conflicts and verify the
+affected integrations at the resulting source revision.
 
 Prepare the candidate record after owner feature commits are fixed. Use the
 same captured cohort to generate it without copying pins by hand:
@@ -306,12 +297,12 @@ and maintainer review remain in force; selecting a candidate does not bypass
 either. After all development merges, capture and check their actual merged
 sources again before release promotion.
 
-After the supported release manifest is promoted, remove campaign labels and
-clear `EPSM_CANDIDATE_MANIFEST_SHA` in each consumer. Required normal PR/main runs
-then use the new supported combination. A variable is configuration only: its
-presence does not establish any passing hosted check or weaken manual review.
+After promoting the supported manifest, subsequent explicit release checks use
+that supported combination by default. Branch synchronization does not dispatch
+another full suite. See [CI scope](ci.md) and the shared branch policy for the
+one-job PR checks and release prerequisites.
 
 A new main commit can differ from the supported release revision without
 changing its package version, for example when CI adopts this interface. The
-daily report records that drift; it never dispatches downstream suites or silently
+weekly report records that drift; it never dispatches downstream suites or silently
 promotes a new scientific combination.

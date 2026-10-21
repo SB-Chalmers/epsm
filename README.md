@@ -1,5 +1,16 @@
 # EPSM
 
+<!-- EPSM introduction: Pocket CAD -->
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="docs/assets/brand/epsm-dark.png">
+  <img src="docs/assets/brand/epsm.png" width="64" height="64" alt="EPSM platform — connected building model">
+</picture>
+
+Build, simulate and compare buildings and renovation options with one Python interface to the EPSM platform.
+
+[Explore the EPSM platform](docs/platform.md)
+<!-- /EPSM introduction -->
+
 Version **0.4.0** adds portable evaluation bundles and output preflight.
 
 EPSM connects a physical Core building, Data constructions, an energy engine and
@@ -200,7 +211,7 @@ while EPSM now exposes its full renovation report too. Recalculate earlier
 teaching results after a package update; previous outputs do not establish that
 the new combination works.
 
-CI builds and installs the supported wheel combination, records exact revisions,
+Explicit release verification builds and installs the supported wheel combination, records exact revisions,
 and checks public handoffs, real engines and notebooks on Python 3.11 and 3.13.
 A manually selected main-dependency lane checks Python 3.13. Workflows is part of
 the installed scientific cohort: bounded grid and six-row Jansen studies run
@@ -208,7 +219,7 @@ through both engines. Viewer has a separate Core scene handoff; it is not
 installed in scientific workers. Studio remains outside this package release.
 
 EPSM owns the [platform metadata guard](docs/platform-compatibility.md). One short
-job reads package metadata and CI references on relevant PRs, main changes, daily
+job reads package metadata and CI references weekly
 and on request. It installs no scientific packages and runs no engines, notebooks
 or downstream workflows. The generated report identifies constraints that cannot
 be satisfied, newly available main revisions and consumer pins needing review.
@@ -278,3 +289,9 @@ See [archetypes and building evidence](docs/archetype-consumers.md) for record a
 See [installed archetype acceptance](docs/archetype-installed-checks.md) for authored and catalogue application checks with actual RC and EnergyPlus execution.
 
 See [package readiness for Studio](docs/studio-package-readiness.md) for released boundaries, acceptance evidence and private Viewer delivery.
+
+## Development CI
+
+Pull requests run one lightweight `ci` job. Full installed-package and engine
+verification is explicitly requested before publication or for affected
+integrations. See [CI scope and commands](docs/ci.md).

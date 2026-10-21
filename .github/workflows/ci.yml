@@ -1,0 +1,30 @@
+name: Development checks
+'on':
+  pull_request:
+    branches:
+    - dev
+    - main
+  workflow_dispatch: null
+permissions:
+  contents: read
+concurrency:
+  group: ci-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+jobs:
+  ci:
+    name: ci
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+    - uses: actions/checkout@v4
+    - uses: actions/setup-python@v5
+      with:
+        python-version: '3.13'
+        cache: pip
+    - name: Install development prerequisites
+      run: python -m pip install -r requirements-ci-metadata.txt build
+    - name: Run offline development checks
+      run: |
+        python -m pytest -q tests/test_platform_metadata.py tests/test_ci_references.py tests/test_compatibility_matrix.py tests/test_compatibility_references.py tests/test_compatibility_receipt.py tests/test_candidate_ci.py tests/test_candidate_cohort.py tests/test_viewer_handoff.py tests/test_logging_installation.py tests/test_study_platform_check.py tests/test_archetype_installed_checks.py
+        python scripts/render_compatibility.py --check
+        python -m build --wheel
