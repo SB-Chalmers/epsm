@@ -249,11 +249,29 @@ checks prospective merge conflicts against the current target branch using
 development commits remains a later, separate gate.
 
 Prepare the candidate record after owner feature commits are fixed. Use the
-captured package versions and exact revisions, mark `kind` as `candidate`, and
-use `self` for EPSM. Retain the unchanged Viewer display entry from the supported
-manifest so the display handoff can also run. Commit that candidate record in
-EPSM, then use the resulting EPSM SHA as the manual input in each consumer. This
-avoids both moving dependency branches and circular commit references.
+same captured cohort to generate it without copying pins by hand:
+
+```sh
+python scripts/candidate_cohort.py manifest \
+  --candidate /path/to/evidence/candidate.json \
+  --output compatibility-candidate.json
+```
+
+The converter revalidates clean source identities and requires exactly all
+active scientific packages in the registry. It copies their declared versions
+and immutable revisions, marks `kind` as `candidate`, and uses `self` for EPSM.
+Python lanes and format come from the supported manifest. Display entries remain
+unchanged supported rows with released versions and immutable pins; the converter
+rejects missing, moving or prerelease display entries. `--supported` and
+`--registry` select explicit inputs when needed. Output is exclusive: choose a
+new path for every conversion, and never overwrite an earlier record. The command
+refuses to write `compatibility.json` or the selected supported file.
+
+Commit that candidate record in EPSM, then use the resulting EPSM SHA as the
+manual input in each consumer. Recapture this committed cohort before the final
+installed run: the EPSM source now includes its candidate record. Repeat the same
+conversion for actual development and release merge cohorts. This avoids moving
+dependency branches, duplicate pin tables and circular commit references.
 
 Run each workflow from the exact consumer source recorded by the candidate.
 The shared matrix generator checks its calling checkout and the selected EPSM

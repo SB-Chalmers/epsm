@@ -21,11 +21,14 @@ import subprocess
 import sys
 import tarfile
 import zipfile
+from copy import deepcopy
 from email.parser import Parser
 from pathlib import Path
 
 from check_platform_metadata import _git, _load_json, _metadata
+from compatibility_matrix import build_matrix
 from packaging.utils import canonicalize_name
+from packaging.version import Version
 
 SCENARIOS = {
     "installed-platform": "scripts/check_installed_platform.py",
@@ -157,6 +160,75 @@ def validate_cohort(manifest):
             or any(canonicalize_name(extra) not in declared_extras for extra in extras)
         ):
             raise ValueError(f"{name}: invalid or unavailable extras")
+
+
+def central_manifest(candidate, supported, registry):
+    """Convert a complete captured cohort to the central candidate CI contract.
+
+    Scientific pins come only from revalidated committed sources. Display rows
+    remain the supported released rows; conversion does not claim a new display
+    check or promote the scientific combination to supported status. EPSM uses
+    ``self`` because the commit containing this output does not yet exist.
+    """
+    validate_cohort(candidate)
+    if (
+        not isinstance(supported, dict)
+        or type(supported.get("format")) is not int
+        or supported["format"] != 1
+        or supported.get("kind") not in (None, "supported")
+    ):
+        raise ValueError("Expected a format-1 supported manifest")
+    if "python" not in supported:
+        raise ValueError("The supported manifest must declare Python lanes")
+    build_matrix(supported)
+    policies = registry.get("packages") if isinstance(registry, dict) else None
+    if not isinstance(policies, dict) or not policies:
+        raise ValueError("Registry must declare active scientific packages")
+    active = {}
+    for name, policy in policies.items():
+        if not isinstance(policy, dict):
+            raise ValueError(f"{name}: invalid registry policy")
+        if policy.get("status") != "active":
+            continue
+        role = policy.get("role", "scientific")
+        if role not in {"scientific", "display"}:
+            raise ValueError(f"{name}: registry role must be scientific or display")
+        active[name] = role
+    scientific = {name for name, role in active.items() if role == "scientific"}
+    if "epsm" not in scientific or set(candidate["packages"]) != scientific:
+        raise ValueError(
+            "Captured cohort must contain exactly every active scientific package"
+        )
+    displays = {name for name, role in active.items() if role == "display"}
+    released_displays = {
+        name
+        for name, entry in supported["packages"].items()
+        if isinstance(entry, dict) and entry.get("role") == "display"
+    }
+    if released_displays != displays:
+        raise ValueError("Supported display rows differ from the active registry")
+    packages = {}
+    for name, entry in candidate["packages"].items():
+        Version(entry["version"])
+        packages[name] = {
+            "version": entry["version"],
+            "revision": "self" if name == "epsm" else entry["revision"],
+            "role": "scientific",
+        }
+    for name in sorted(displays):
+        entry = supported["packages"][name]
+        version = Version(entry.get("version", ""))
+        if version.is_prerelease or version.is_devrelease:
+            raise ValueError(f"{name}: display must retain a released version")
+        packages[name] = deepcopy(entry)
+    result = {
+        "format": supported["format"],
+        "kind": "candidate",
+        "python": deepcopy(supported["python"]),
+        "packages": packages,
+    }
+    build_matrix(result)
+    return result
 
 
 def wheel_identity(path, name, version):
@@ -408,6 +480,21 @@ def main(argv=None):
         default=Path(__file__).resolve().parents[1] / "platform-registry.json",
     )
     capture.add_argument("--output", type=Path, required=True)
+    manifest = commands.add_parser(
+        "manifest", help="Convert a full captured cohort to central candidate CI pins"
+    )
+    manifest.add_argument("--candidate", type=Path, required=True)
+    manifest.add_argument(
+        "--supported",
+        type=Path,
+        default=Path(__file__).resolve().parents[1] / "compatibility.json",
+    )
+    manifest.add_argument(
+        "--registry",
+        type=Path,
+        default=Path(__file__).resolve().parents[1] / "platform-registry.json",
+    )
+    manifest.add_argument("--output", type=Path, required=True)
     verify = commands.add_parser(
         "verify", help="Build/install candidates and retain selected gate evidence"
     )
@@ -440,6 +527,21 @@ def main(argv=None):
             args.output.parent.mkdir(parents=True, exist_ok=True)
             with args.output.open("x") as stream:
                 stream.write(json.dumps(manifest, indent=2) + "\n")
+            print(args.output)
+        elif args.command == "manifest":
+            if (
+                args.output.name == "compatibility.json"
+                or args.output.resolve() == args.supported.resolve()
+            ):
+                raise ValueError("Candidate output cannot be the supported manifest")
+            converted = central_manifest(
+                _load_json(args.candidate),
+                _load_json(args.supported),
+                _load_json(args.registry),
+            )
+            args.output.parent.mkdir(parents=True, exist_ok=True)
+            with args.output.open("x") as stream:
+                stream.write(json.dumps(converted, indent=2) + "\n")
             print(args.output)
         else:
             verify_cohort(

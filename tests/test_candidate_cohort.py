@@ -6,6 +6,7 @@ import json
 import subprocess
 import sys
 import zipfile
+from copy import deepcopy
 from pathlib import Path
 
 import pytest
@@ -25,17 +26,17 @@ def git(path, *arguments):
     ).strip()
 
 
-def source(tmp_path, *, dynamic=False):
-    root = tmp_path / "demo"
+def source(tmp_path, *, dynamic=False, name="demo"):
+    root = tmp_path / name
     root.mkdir()
     subprocess.run(["git", "init", "-q", str(root)], check=True)
     version = 'dynamic = ["version"]' if dynamic else 'version = "1.2.0"'
-    text = f'[project]\nname = "demo"\n{version}\nrequires-python = ">=3.11"\n'
+    text = f'[project]\nname = "{name}"\n{version}\nrequires-python = ">=3.11"\n'
     text += "[project.optional-dependencies]\nexample = []\n"
     if dynamic:
-        text += '[tool.setuptools.dynamic]\nversion = {attr = "demo._version.__version__"}\n'
-        (root / "src/demo").mkdir(parents=True)
-        (root / "src/demo/_version.py").write_text('__version__ = "1.2.0"\n')
+        text += f'[tool.setuptools.dynamic]\nversion = {{attr = "{name}._version.__version__"}}\n'
+        (root / f"src/{name}").mkdir(parents=True)
+        (root / f"src/{name}/_version.py").write_text('__version__ = "1.2.0"\n')
     (root / "pyproject.toml").write_text(text)
     git(root, "add", ".")
     git(
@@ -358,6 +359,145 @@ def test_cli_capture_is_repeatable_and_refuses_overwrite(tmp_path):
         MODULE.main(arguments)
     assert error.value.code == 1
     assert output.read_text() == content
+
+
+@pytest.fixture
+def central_inputs(tmp_path):
+    source(tmp_path)
+    source(tmp_path, name="epsm")
+    policy = registry()
+    policy["packages"]["epsm"] = {"status": "active", "extras": []}
+    policy["packages"]["viewer"] = {"status": "active", "role": "display"}
+    policy["packages"]["retired"] = {"status": "retired"}
+    candidate = MODULE.capture_cohort(tmp_path, ["epsm", "demo"], policy)
+    supported = {
+        "format": 1,
+        "python": ["3.11", "3.13"],
+        "packages": {
+            "epsm": {"version": "1.1.0", "revision": "self", "role": "scientific"},
+            "demo": {"version": "1.1.0", "revision": "b" * 40},
+            "viewer": {
+                "version": "0.1.0",
+                "revision": "c" * 40,
+                "role": "display",
+            },
+        },
+    }
+    return candidate, supported, policy
+
+
+def test_central_manifest_uses_captured_pins_and_preserves_display(central_inputs):
+    candidate, supported, policy = central_inputs
+    before = deepcopy((candidate, supported, policy))
+    result = MODULE.central_manifest(candidate, supported, policy)
+    assert result["format"] == supported["format"]
+    assert result["kind"] == "candidate"
+    assert result["python"] == supported["python"]
+    assert result["packages"] == {
+        "epsm": {"version": "1.2.0", "revision": "self", "role": "scientific"},
+        "demo": {
+            "version": "1.2.0",
+            "revision": candidate["packages"]["demo"]["revision"],
+            "role": "scientific",
+        },
+        "viewer": supported["packages"]["viewer"],
+    }
+    result["python"].append("future")
+    result["packages"]["viewer"]["revision"] = "changed"
+    assert (candidate, supported, policy) == before
+
+
+@pytest.mark.parametrize("change", ["partial", "extra", "display"])
+def test_central_manifest_requires_exact_active_scientific_cohort(
+    central_inputs, change
+):
+    candidate, supported, policy = central_inputs
+    if change == "partial":
+        del candidate["packages"]["demo"]
+    elif change == "extra":
+        policy["packages"]["demo"]["status"] = "retired"
+    else:
+        policy["packages"]["demo"]["role"] = "display"
+    with pytest.raises(ValueError, match="active scientific"):
+        MODULE.central_manifest(candidate, supported, policy)
+
+
+@pytest.mark.parametrize(
+    "change,match",
+    [
+        ("moving_display", "immutable"),
+        ("missing_display", "display"),
+        ("unreleased_display", "released"),
+        ("wrong_display_role", "display"),
+        ("missing_python", "Python"),
+        ("candidate_supported", "supported"),
+        ("unknown_role", "role"),
+    ],
+)
+def test_central_manifest_rejects_invalid_supported_or_registry_inputs(
+    central_inputs, change, match
+):
+    candidate, supported, policy = central_inputs
+    if change == "moving_display":
+        supported["packages"]["viewer"]["revision"] = "main"
+    elif change == "missing_display":
+        del supported["packages"]["viewer"]
+    elif change == "unreleased_display":
+        supported["packages"]["viewer"]["version"] = "0.2.0.dev1"
+    elif change == "wrong_display_role":
+        supported["packages"]["viewer"]["role"] = "scientific"
+    elif change == "missing_python":
+        del supported["python"]
+    elif change == "candidate_supported":
+        supported["kind"] = "candidate"
+    else:
+        policy["packages"]["viewer"]["role"] = "invented"
+    with pytest.raises(ValueError, match=match):
+        MODULE.central_manifest(candidate, supported, policy)
+
+
+def test_manifest_cli_is_exclusive_and_keeps_supported_file(tmp_path, central_inputs):
+    candidate, supported, policy = central_inputs
+    inputs = {}
+    for name, value in (
+        ("candidate", candidate),
+        ("supported", supported),
+        ("registry", policy),
+    ):
+        inputs[name] = tmp_path / f"{name}.json"
+        inputs[name].write_text(json.dumps(value))
+    unchanged = inputs["supported"].read_bytes()
+    output = tmp_path / "compatibility-candidate.json"
+    arguments = ["manifest"]
+    for name, path in inputs.items():
+        arguments.extend([f"--{name}", str(path)])
+    arguments.extend(["--output", str(output)])
+    assert MODULE.main(arguments) == 0
+    contents = output.read_bytes()
+    assert json.loads(contents)["packages"]["epsm"]["revision"] == "self"
+    with pytest.raises(SystemExit) as error:
+        MODULE.main(arguments)
+    assert error.value.code == 1
+    assert output.read_bytes() == contents
+    assert inputs["supported"].read_bytes() == unchanged
+
+
+def test_manifest_cli_never_writes_supported_filename(tmp_path, central_inputs):
+    candidate, supported, policy = central_inputs
+    paths = []
+    for name, value in (
+        ("candidate", candidate),
+        ("supported", supported),
+        ("registry", policy),
+    ):
+        path = tmp_path / f"{name}.json"
+        path.write_text(json.dumps(value))
+        paths.extend([f"--{name}", str(path)])
+    output = tmp_path / "compatibility.json"
+    with pytest.raises(SystemExit) as error:
+        MODULE.main(["manifest", *paths, "--output", str(output)])
+    assert error.value.code == 1
+    assert not output.exists()
 
 
 def test_cli_extra_selection_requires_a_package_and_extra(tmp_path):
