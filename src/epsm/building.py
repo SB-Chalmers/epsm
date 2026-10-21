@@ -16,7 +16,7 @@ from epsm._logging import bind_context, call_with_context, context_logger
 from epsm._logging import operation as logged_operation
 
 from .cache import EvaluationCache
-from .energy import normalize_energy
+from .energy import cached_energy_matches, normalize_energy
 from .provenance import evaluation_identity, implementation_identity
 from .results import Evaluation, Results, encode, identity
 
@@ -191,7 +191,7 @@ class Building(CoreBuilding):
         cache = cache if cache is not None else self._evaluation_cache
         runtime = evaluation_identity(engine=engine, weather=frozen_weather, **options)
         key = identity(
-            dict(format=3, physical=spec.physical_dict(), runtime=runtime["energy"])
+            dict(format=4, physical=spec.physical_dict(), runtime=runtime["energy"])
         )
         logger.info(
             "Energy calculation started",
@@ -202,6 +202,17 @@ class Building(CoreBuilding):
             },
         )
         energy_data = cache.get("energy", key)
+        if energy_data is not None and not cached_energy_matches(
+            spec, energy_data, engine=engine
+        ):
+            logger.info(
+                "Energy cache lacks captured input identity; recalculating",
+                extra={
+                    "epsm_event": "evaluation.energy.cache.legacy",
+                    "epsm_details": {"energy_id": key},
+                },
+            )
+            energy_data = None
         reused_energy = energy_data is not None
         logger.debug(
             "Energy cache %s",
@@ -232,7 +243,9 @@ class Building(CoreBuilding):
                     directory=output / "energy",
                     **options,
                 )
-            energy = normalize_energy(spec, raw, engine=engine)
+            energy = normalize_energy(
+                spec, raw, engine=engine, state_id=snapshot.sha256
+            )
             energy_data = energy.to_dict()
             # Valid thermal output is reusable even when delivery is incomplete.
             if raw.diagnostics.get("accepted", True):

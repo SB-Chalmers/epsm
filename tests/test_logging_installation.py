@@ -5,6 +5,7 @@
 
 import importlib.util
 import json
+import sys
 from pathlib import Path
 from types import SimpleNamespace
 
@@ -16,6 +17,31 @@ SPEC = importlib.util.spec_from_file_location(
 )
 MODULE = importlib.util.module_from_spec(SPEC)
 SPEC.loader.exec_module(MODULE)
+
+
+def test_logging_cli_uses_the_selected_candidate_manifest(tmp_path, monkeypatch):
+    candidate = tmp_path / "candidate.json"
+    candidate.write_text(
+        json.dumps(
+            {
+                "kind": "candidate",
+                "packages": {"epsm": {"version": "0.4.0", "revision": "self"}},
+            }
+        )
+    )
+    observed = {}
+
+    def collect(root, manifest, **options):
+        observed.update(manifest)
+        return {"packages": manifest["packages"]}
+
+    monkeypatch.setattr(
+        MODULE, "__file__", str(tmp_path / "scripts/verify_logging_installation.py")
+    )
+    monkeypatch.setattr(MODULE, "collect_logging", collect)
+    monkeypatch.setattr(sys, "argv", ["logging", "--manifest", str(candidate)])
+    MODULE.main()
+    assert observed["packages"]["epsm"]["version"] == "0.4.0"
 
 
 @pytest.fixture

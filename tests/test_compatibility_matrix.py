@@ -210,3 +210,60 @@ def test_supported_dependency_revisions_cannot_float(tmp_path, platform_manifest
     result = run_matrix(tmp_path, platform_manifest)
     assert result.returncode != 0
     assert "revision" in result.stderr
+
+
+def test_explicit_candidate_checks_exact_consumer_and_manifest_revisions(
+    tmp_path, platform_manifest
+):
+    platform_manifest["kind"] = "candidate"
+    result = matrix_output(
+        run_matrix(
+            tmp_path,
+            platform_manifest,
+            "--consumer",
+            "epsm_core",
+            "--consumer-revision",
+            "a" * 40,
+            "--manifest-revision",
+            "c" * 40,
+            "--candidate-revision",
+            "c" * 40,
+        )
+    )
+    for row in result["include"]:
+        assert row["cohort"] == "candidate"
+        assert row["manifest_revision"] == row["epsm"] == "c" * 40
+        assert row["consumer_revision"] == "a" * 40
+        assert row["mode"] == "pinned"
+
+
+@pytest.mark.parametrize(
+    "arguments,match",
+    [
+        (("--candidate-revision", "main"), "immutable"),
+        (("--candidate-revision", "c" * 40, "--mode", "main"), "pinned"),
+        (
+            ("--candidate-revision", "c" * 40, "--manifest-revision", "d" * 40),
+            "checkout",
+        ),
+        (
+            (
+                "--candidate-revision",
+                "c" * 40,
+                "--manifest-revision",
+                "c" * 40,
+                "--consumer-revision",
+                "e" * 40,
+            ),
+            "consumer",
+        ),
+    ],
+)
+def test_candidate_mismatch_fails_before_checkout_matrix(
+    tmp_path, platform_manifest, arguments, match
+):
+    platform_manifest["kind"] = "candidate"
+    result = run_matrix(tmp_path, platform_manifest, *arguments)
+    assert result.returncode != 0
+    assert match in result.stderr
+    assert "matrix=" not in result.stdout

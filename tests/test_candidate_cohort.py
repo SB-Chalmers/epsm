@@ -1,0 +1,621 @@
+# SPDX-License-Identifier: MIT
+"""Candidate checks retain exact sources and never certify a partial run."""
+
+import importlib.util
+import json
+import subprocess
+import sys
+import zipfile
+from copy import deepcopy
+from pathlib import Path
+
+import pytest
+
+SCRIPTS = Path(__file__).resolve().parents[1] / "scripts"
+sys.path.insert(0, str(SCRIPTS))
+SPEC = importlib.util.spec_from_file_location(
+    "candidate_cohort", SCRIPTS / "candidate_cohort.py"
+)
+MODULE = importlib.util.module_from_spec(SPEC)
+SPEC.loader.exec_module(MODULE)
+
+
+def git(path, *arguments):
+    return subprocess.check_output(
+        ["git", "-C", str(path), *arguments], text=True
+    ).strip()
+
+
+def source(tmp_path, *, dynamic=False, name="demo"):
+    root = tmp_path / name
+    root.mkdir()
+    subprocess.run(["git", "init", "-q", str(root)], check=True)
+    version = 'dynamic = ["version"]' if dynamic else 'version = "1.2.0"'
+    text = f'[project]\nname = "{name}"\n{version}\nrequires-python = ">=3.11"\n'
+    text += "[project.optional-dependencies]\nexample = []\n"
+    if dynamic:
+        text += f'[tool.setuptools.dynamic]\nversion = {{attr = "{name}._version.__version__"}}\n'
+        (root / f"src/{name}").mkdir(parents=True)
+        (root / f"src/{name}/_version.py").write_text('__version__ = "1.2.0"\n')
+    (root / "pyproject.toml").write_text(text)
+    git(root, "add", ".")
+    git(
+        root,
+        "-c",
+        "user.name=Fixture",
+        "-c",
+        "user.email=fixture@example.invalid",
+        "commit",
+        "-qm",
+        "fixture",
+    )
+    return root
+
+
+def registry():
+    return {"packages": {"demo": {"status": "active", "extras": ["example"]}}}
+
+
+@pytest.mark.parametrize("dynamic", [False, True])
+def test_capture_records_committed_sources_without_importing_them(tmp_path, dynamic):
+    root = source(tmp_path, dynamic=dynamic)
+    result = MODULE.capture_cohort(tmp_path, ["demo"], registry())
+    assert result["kind"] == "candidate"
+    assert result["packages"]["demo"] == {
+        "source": str(root.resolve()),
+        "revision": git(root, "rev-parse", "HEAD"),
+        "version": "1.2.0",
+        "extras": ["example"],
+    }
+    assert "self" not in json.dumps(result)
+
+
+@pytest.mark.parametrize("untracked", [False, True])
+def test_capture_rejects_uncommitted_inputs(tmp_path, untracked):
+    root = source(tmp_path)
+    (root / ("new.py" if untracked else "pyproject.toml")).write_text("changed")
+    with pytest.raises(ValueError, match="uncommitted"):
+        MODULE.capture_cohort(tmp_path, ["demo"], registry())
+
+
+def test_capture_checks_requested_names_and_extras(tmp_path):
+    source(tmp_path)
+    with pytest.raises(ValueError, match="Unknown"):
+        MODULE.capture_cohort(tmp_path, ["missing"], registry())
+    policy = registry()
+    policy["packages"]["demo"]["extras"] = ["nonexistent"]
+    with pytest.raises(ValueError, match="extra"):
+        MODULE.capture_cohort(tmp_path, ["demo"], policy)
+
+
+def test_capture_accepts_explicit_extra_selection_without_editing_registry(tmp_path):
+    source(tmp_path)
+    policy = registry()
+    policy["packages"]["demo"]["extras"] = []
+    manifest = MODULE.capture_cohort(
+        tmp_path, ["demo"], policy, extras={"demo": ["example"]}
+    )
+    assert manifest["packages"]["demo"]["extras"] == ["example"]
+    assert policy["packages"]["demo"]["extras"] == []
+    with pytest.raises(ValueError, match="selected package"):
+        MODULE.capture_cohort(
+            tmp_path, ["demo"], policy, extras={"missing": ["example"]}
+        )
+
+
+def test_revalidation_rejects_source_moved_after_capture(tmp_path):
+    root = source(tmp_path)
+    manifest = MODULE.capture_cohort(tmp_path, ["demo"], registry())
+    (root / "another").write_text("next revision")
+    git(root, "add", "another")
+    git(
+        root,
+        "-c",
+        "user.name=Fixture",
+        "-c",
+        "user.email=fixture@example.invalid",
+        "commit",
+        "-qm",
+        "second",
+    )
+    with pytest.raises(ValueError, match="revision"):
+        MODULE.validate_cohort(manifest)
+
+
+@pytest.mark.parametrize("replacement", ["dev", "self", "a" * 39, None])
+def test_moving_or_incomplete_revisions_are_rejected(tmp_path, replacement):
+    source(tmp_path)
+    manifest = MODULE.capture_cohort(tmp_path, ["demo"], registry())
+    manifest["packages"]["demo"]["revision"] = replacement
+    with pytest.raises(ValueError, match="revision"):
+        MODULE.validate_cohort(manifest)
+
+
+def test_wheel_identity_uses_packaged_metadata_and_actual_bytes(tmp_path):
+    wheel = tmp_path / "demo-1.2.0-py3-none-any.whl"
+    with zipfile.ZipFile(wheel, "w") as stream:
+        stream.writestr("demo-1.2.0.dist-info/METADATA", "Name: demo\nVersion: 1.2.0\n")
+    first = MODULE.wheel_identity(wheel, "demo", "1.2.0")
+    assert len(first["sha256"]) == 64
+    assert first["version"] == "1.2.0"
+    with pytest.raises(ValueError, match="version"):
+        MODULE.wheel_identity(wheel, "demo", "1.3.0")
+    with pytest.raises(ValueError, match="name"):
+        MODULE.wheel_identity(wheel, "different", "1.2.0")
+
+
+def test_candidate_subprocess_environment_cannot_import_editable_siblings(monkeypatch):
+    monkeypatch.setenv("PYTHONPATH", "/unreviewed/source")
+    monkeypatch.setenv("PYTHONHOME", "/unreviewed/runtime")
+    monkeypatch.setenv("VIRTUAL_ENV", "/old/venv")
+    monkeypatch.setenv("EXPLICIT_ENGINE_PATH", "/declared/engine")
+    result = MODULE.clean_environment()
+    assert not {"PYTHONPATH", "PYTHONHOME", "VIRTUAL_ENV"} & result.keys()
+    assert result["EXPLICIT_ENGINE_PATH"] == "/declared/engine"
+
+
+def test_failed_build_keeps_failure_receipt_and_unrun_required_scenarios(
+    tmp_path, monkeypatch
+):
+    source(tmp_path)
+    manifest = MODULE.capture_cohort(tmp_path, ["demo"], registry())
+    destination = tmp_path / "verification"
+
+    def fail(*args, **kwargs):
+        raise RuntimeError("build prerequisite absent")
+
+    monkeypatch.setattr(MODULE, "execute", fail)
+    with pytest.raises(RuntimeError, match="prerequisite"):
+        MODULE.verify_cohort(
+            manifest,
+            destination,
+            python=sys.executable,
+            scenarios=["installed-platform"],
+        )
+    receipt = json.loads((destination / "receipt.json").read_text())
+    assert receipt["status"] == "failed"
+    assert receipt["scenarios"]["installed-platform"]["status"] == "not_run"
+    assert "build prerequisite absent" in receipt["error"]
+    assert receipt["packages"] == manifest["packages"]
+
+
+def test_output_reuse_and_unknown_scenarios_fail_before_building(tmp_path):
+    source(tmp_path)
+    manifest = MODULE.capture_cohort(tmp_path, ["demo"], registry())
+    with pytest.raises(ValueError, match="Unknown scenario"):
+        MODULE.verify_cohort(manifest, tmp_path / "unknown", scenarios=["misspelled"])
+    output = tmp_path / "old"
+    output.mkdir()
+    (output / "receipt.json").write_text("preserve me")
+    with pytest.raises(FileExistsError):
+        MODULE.verify_cohort(manifest, output)
+    assert (output / "receipt.json").read_text() == "preserve me"
+
+
+def test_archive_uses_committed_files_and_never_the_mutable_checkout(tmp_path):
+    root = source(tmp_path)
+    manifest = MODULE.capture_cohort(tmp_path, ["demo"], registry())
+    (root / "pyproject.toml").write_text("changed after capture")
+    destination = tmp_path / "snapshot"
+    MODULE._archive(manifest["packages"]["demo"], destination)
+    assert 'version = "1.2.0"' in (destination / "pyproject.toml").read_text()
+    assert not (destination / ".git").exists()
+
+
+def test_successful_receipt_only_claims_selected_checks(tmp_path, monkeypatch):
+    source(tmp_path)
+    manifest = MODULE.capture_cohort(tmp_path, ["demo"], registry())
+
+    def simulate(command, *, directory, log):
+        Path(log).write_text("")
+        if "wheel" in command:
+            wheel = directory / "wheels/demo-1.2.0-py3-none-any.whl"
+            with zipfile.ZipFile(wheel, "w") as stream:
+                stream.writestr(
+                    "demo-1.2.0.dist-info/METADATA", "Name: demo\nVersion: 1.2.0\n"
+                )
+        if "-c" in command:
+            Path(log).write_text(
+                json.dumps(
+                    {
+                        "python": "fixture",
+                        "packages": {
+                            "demo": {
+                                "version": "1.2.0",
+                                "import_path": "fixture/site-packages/demo.py",
+                            },
+                        },
+                    }
+                )
+            )
+
+    monkeypatch.setattr(MODULE, "execute", simulate)
+    result = MODULE.verify_cohort(manifest, tmp_path / "checked")
+    assert result["status"] == "passed"
+    assert result["scenarios"] == {}
+    assert result["installed"]["packages"]["demo"]["version"] == "1.2.0"
+    assert all(stage["status"] == "passed" for stage in result["stages"])
+    assert result["wheels"]["demo"]["filename"] == "demo-1.2.0-py3-none-any.whl"
+    assert result["dependency_inventory"]["sha256"]
+
+
+@pytest.mark.parametrize(
+    "name", ["study-platform", "archetype-handoff", "workflow-handoff"]
+)
+def test_scientific_scenarios_receive_the_same_frozen_receipt_and_wheels(
+    tmp_path, name, monkeypatch
+):
+    monkeypatch.setenv("ENERGYPLUS_EXE", str(tmp_path / "declared-engine"))
+    command = MODULE.scenario_command(
+        name,
+        tmp_path / "python",
+        tmp_path / "epsm",
+        tmp_path / "out",
+        tmp_path / "candidate.json",
+        tmp_path / "wheels",
+    )
+    assert (
+        command[command.index("--compatibility-receipt") + 1]
+        == tmp_path / "candidate.json"
+    )
+    assert command[command.index("--wheels") + 1] == tmp_path / "wheels"
+    assert "--require-wheels" in command
+
+
+@pytest.mark.parametrize("name", ["archetype-handoff", "workflow-handoff"])
+def test_engine_scenarios_require_an_explicit_selected_runtime(
+    tmp_path, name, monkeypatch
+):
+    monkeypatch.delenv("ENERGYPLUS_EXE", raising=False)
+    with pytest.raises(ValueError, match="ENERGYPLUS_EXE"):
+        MODULE.scenario_command(
+            name, sys.executable, tmp_path, tmp_path, tmp_path, tmp_path
+        )
+
+
+@pytest.mark.parametrize("name", ["archetype-handoff", "workflow-handoff"])
+def test_scenario_subprocess_imports_only_its_captured_helpers(
+    tmp_path, name, monkeypatch
+):
+    captured = tmp_path / "captured sources" / "epsm"
+    scripts = captured / "scripts"
+    scripts.mkdir(parents=True)
+    script = captured / MODULE.SCENARIOS[name]
+    (scripts / "captured_helper.py").write_text("VALUE = 'captured helper'\n")
+    (captured / "src" / "uninstalled_owner").mkdir(parents=True)
+    (captured / "src" / "uninstalled_owner" / "__init__.py").write_text("")
+    workdir = tmp_path / "untrusted workdir"
+    workdir.mkdir()
+    (workdir / "untrusted_workdir_only.py").write_text("raise AssertionError\n")
+    monkeypatch.setenv("PYTHONPATH", str(workdir))
+    engine = tmp_path / "selected runtime" / "energyplus"
+    monkeypatch.setenv("ENERGYPLUS_EXE", str(engine))
+    script.write_text(
+        "import argparse, importlib.util, json, sys\n"
+        "from pathlib import Path\n"
+        "from captured_helper import VALUE\n"
+        "assert sys.flags.isolated == 1\n"
+        "assert sys.argv[0] == str(Path(__file__).resolve())\n"
+        "assert importlib.util.find_spec('untrusted_workdir_only') is None\n"
+        "assert importlib.util.find_spec('uninstalled_owner') is None\n"
+        "parser = argparse.ArgumentParser()\n"
+        "parser.add_argument('--directory', required=True)\n"
+        "parser.add_argument('--require-wheels', action='store_true')\n"
+        "parser.add_argument('--compatibility-receipt', required=True)\n"
+        "parser.add_argument('--wheels', required=True)\n"
+        "parser.add_argument('--energyplus-exe', required=True)\n"
+        "args = parser.parse_args()\n"
+        "assert args.require_wheels\n"
+        "print(json.dumps({'helper': VALUE, 'engine': args.energyplus_exe}))\n"
+    )
+    log = tmp_path / "scenario.log"
+    command = MODULE.scenario_command(
+        name,
+        sys.executable,
+        captured,
+        tmp_path / "output",
+        tmp_path / "candidate.json",
+        tmp_path / "wheels",
+    )
+    MODULE.execute(command, directory=workdir, log=log)
+    assert json.loads(log.read_text()) == {
+        "helper": "captured helper",
+        "engine": str(engine),
+    }
+
+
+def test_missing_required_scenario_is_a_failed_gate(tmp_path, monkeypatch):
+    source(tmp_path)
+    manifest = MODULE.capture_cohort(tmp_path, ["demo"], registry())
+
+    def simulate(command, *, directory, log):
+        Path(log).write_text("{}")
+        if "wheel" in command:
+            wheel = directory / "wheels/demo-1.2.0-py3-none-any.whl"
+            with zipfile.ZipFile(wheel, "w") as stream:
+                stream.writestr(
+                    "demo-1.2.0.dist-info/METADATA", "Name: demo\nVersion: 1.2.0\n"
+                )
+
+    monkeypatch.setattr(MODULE, "execute", simulate)
+    destination = tmp_path / "checked"
+    with pytest.raises(ValueError, match="Required scenario"):
+        MODULE.verify_cohort(manifest, destination, scenarios=["study-platform"])
+    result = json.loads((destination / "receipt.json").read_text())
+    assert result["status"] == "failed"
+    assert result["scenarios"]["study-platform"]["status"] == "failed"
+
+
+@pytest.mark.parametrize(
+    "changes",
+    [
+        {"format": True},
+        {"format": 2},
+        {"kind": "supported"},
+        {"packages": {}},
+    ],
+)
+def test_candidate_and_supported_records_cannot_be_confused(tmp_path, changes):
+    source(tmp_path)
+    manifest = MODULE.capture_cohort(tmp_path, ["demo"], registry())
+    manifest.update(changes)
+    with pytest.raises(ValueError, match="candidate"):
+        MODULE.validate_cohort(manifest)
+
+
+@pytest.mark.parametrize(
+    "field,value,match",
+    [
+        ("source", "relative/path", "absolute"),
+        ("version", "9.0.0", "version"),
+        ("extras", ["missing"], "extras"),
+        ("extras", ["example", "example"], "extras"),
+    ],
+)
+def test_modified_manifest_fields_fail_before_build(tmp_path, field, value, match):
+    source(tmp_path)
+    manifest = MODULE.capture_cohort(tmp_path, ["demo"], registry())
+    manifest["packages"]["demo"][field] = value
+    with pytest.raises(ValueError, match=match):
+        MODULE.validate_cohort(manifest)
+
+
+def test_revalidation_rejects_dirty_source(tmp_path):
+    root = source(tmp_path)
+    manifest = MODULE.capture_cohort(tmp_path, ["demo"], registry())
+    (root / "untracked").write_text("uncommitted")
+    with pytest.raises(ValueError, match="uncommitted"):
+        MODULE.validate_cohort(manifest)
+
+
+def test_subprocess_failure_retains_real_output(tmp_path):
+    log = tmp_path / "failed.log"
+    with pytest.raises(RuntimeError, match="failed \\(7\\)"):
+        MODULE.execute(
+            [sys.executable, "-I", "-c", "print('retained failure'); exit(7)"],
+            directory=tmp_path,
+            log=log,
+        )
+    assert "retained failure" in log.read_text()
+
+
+def test_cli_capture_is_repeatable_and_refuses_overwrite(tmp_path):
+    source(tmp_path)
+    policy = tmp_path / "registry.json"
+    policy.write_text(json.dumps(registry()))
+    output = tmp_path / "candidate.json"
+    arguments = [
+        "capture",
+        "--sources",
+        str(tmp_path),
+        "--registry",
+        str(policy),
+        "--extra",
+        "demo:example",
+        "--output",
+        str(output),
+    ]
+    assert MODULE.main(arguments) == 0
+    content = output.read_text()
+    assert json.loads(content)["packages"]["demo"]["version"] == "1.2.0"
+    with pytest.raises(SystemExit) as error:
+        MODULE.main(arguments)
+    assert error.value.code == 1
+    assert output.read_text() == content
+
+
+@pytest.fixture
+def central_inputs(tmp_path):
+    source(tmp_path)
+    source(tmp_path, name="epsm")
+    policy = registry()
+    policy["packages"]["epsm"] = {"status": "active", "extras": []}
+    policy["packages"]["viewer"] = {"status": "active", "role": "display"}
+    policy["packages"]["retired"] = {"status": "retired"}
+    candidate = MODULE.capture_cohort(tmp_path, ["epsm", "demo"], policy)
+    supported = {
+        "format": 1,
+        "python": ["3.11", "3.13"],
+        "packages": {
+            "epsm": {"version": "1.1.0", "revision": "self", "role": "scientific"},
+            "demo": {"version": "1.1.0", "revision": "b" * 40},
+            "viewer": {
+                "version": "0.1.0",
+                "revision": "c" * 40,
+                "role": "display",
+            },
+        },
+    }
+    return candidate, supported, policy
+
+
+def test_central_manifest_uses_captured_pins_and_preserves_display(central_inputs):
+    candidate, supported, policy = central_inputs
+    before = deepcopy((candidate, supported, policy))
+    result = MODULE.central_manifest(candidate, supported, policy)
+    assert result["format"] == supported["format"]
+    assert result["kind"] == "candidate"
+    assert result["python"] == supported["python"]
+    assert result["packages"] == {
+        "epsm": {"version": "1.2.0", "revision": "self", "role": "scientific"},
+        "demo": {
+            "version": "1.2.0",
+            "revision": candidate["packages"]["demo"]["revision"],
+            "role": "scientific",
+        },
+        "viewer": supported["packages"]["viewer"],
+    }
+    result["python"].append("future")
+    result["packages"]["viewer"]["revision"] = "changed"
+    assert (candidate, supported, policy) == before
+
+
+@pytest.mark.parametrize("change", ["partial", "extra", "display"])
+def test_central_manifest_requires_exact_active_scientific_cohort(
+    central_inputs, change
+):
+    candidate, supported, policy = central_inputs
+    if change == "partial":
+        del candidate["packages"]["demo"]
+    elif change == "extra":
+        policy["packages"]["demo"]["status"] = "retired"
+    else:
+        policy["packages"]["demo"]["role"] = "display"
+    with pytest.raises(ValueError, match="active scientific"):
+        MODULE.central_manifest(candidate, supported, policy)
+
+
+@pytest.mark.parametrize(
+    "change,match",
+    [
+        ("moving_display", "immutable"),
+        ("missing_display", "display"),
+        ("unreleased_display", "released"),
+        ("wrong_display_role", "display"),
+        ("missing_python", "Python"),
+        ("candidate_supported", "supported"),
+        ("unknown_role", "role"),
+    ],
+)
+def test_central_manifest_rejects_invalid_supported_or_registry_inputs(
+    central_inputs, change, match
+):
+    candidate, supported, policy = central_inputs
+    if change == "moving_display":
+        supported["packages"]["viewer"]["revision"] = "main"
+    elif change == "missing_display":
+        del supported["packages"]["viewer"]
+    elif change == "unreleased_display":
+        supported["packages"]["viewer"]["version"] = "0.2.0.dev1"
+    elif change == "wrong_display_role":
+        supported["packages"]["viewer"]["role"] = "scientific"
+    elif change == "missing_python":
+        del supported["python"]
+    elif change == "candidate_supported":
+        supported["kind"] = "candidate"
+    else:
+        policy["packages"]["viewer"]["role"] = "invented"
+    with pytest.raises(ValueError, match=match):
+        MODULE.central_manifest(candidate, supported, policy)
+
+
+def test_manifest_cli_is_exclusive_and_keeps_supported_file(tmp_path, central_inputs):
+    candidate, supported, policy = central_inputs
+    inputs = {}
+    for name, value in (
+        ("candidate", candidate),
+        ("supported", supported),
+        ("registry", policy),
+    ):
+        inputs[name] = tmp_path / f"{name}.json"
+        inputs[name].write_text(json.dumps(value))
+    unchanged = inputs["supported"].read_bytes()
+    output = tmp_path / "compatibility-candidate.json"
+    arguments = ["manifest"]
+    for name, path in inputs.items():
+        arguments.extend([f"--{name}", str(path)])
+    arguments.extend(["--output", str(output)])
+    assert MODULE.main(arguments) == 0
+    contents = output.read_bytes()
+    assert json.loads(contents)["packages"]["epsm"]["revision"] == "self"
+    with pytest.raises(SystemExit) as error:
+        MODULE.main(arguments)
+    assert error.value.code == 1
+    assert output.read_bytes() == contents
+    assert inputs["supported"].read_bytes() == unchanged
+
+
+def test_manifest_cli_never_writes_supported_filename(tmp_path, central_inputs):
+    candidate, supported, policy = central_inputs
+    paths = []
+    for name, value in (
+        ("candidate", candidate),
+        ("supported", supported),
+        ("registry", policy),
+    ):
+        path = tmp_path / f"{name}.json"
+        path.write_text(json.dumps(value))
+        paths.extend([f"--{name}", str(path)])
+    output = tmp_path / "compatibility.json"
+    with pytest.raises(SystemExit) as error:
+        MODULE.main(["manifest", *paths, "--output", str(output)])
+    assert error.value.code == 1
+    assert not output.exists()
+
+
+def test_cli_extra_selection_requires_a_package_and_extra(tmp_path):
+    policy = tmp_path / "registry.json"
+    policy.write_text(json.dumps(registry()))
+    with pytest.raises(SystemExit) as error:
+        MODULE.main(
+            [
+                "capture",
+                "--sources",
+                str(tmp_path),
+                "--registry",
+                str(policy),
+                "--extra",
+                "example",
+                "--output",
+                str(tmp_path / "candidate.json"),
+            ]
+        )
+    assert error.value.code == 1
+    assert not (tmp_path / "candidate.json").exists()
+
+
+def test_cli_verify_passes_declared_prerequisites_to_the_harness(tmp_path, monkeypatch):
+    source(tmp_path)
+    manifest = tmp_path / "candidate.json"
+    manifest.write_text(
+        json.dumps(MODULE.capture_cohort(tmp_path, ["demo"], registry()))
+    )
+    observed = {}
+
+    def verify(candidate, directory, **kwargs):
+        observed.update(kwargs)
+        observed["candidate"] = candidate
+
+    monkeypatch.setattr(MODULE, "verify_cohort", verify)
+    assert (
+        MODULE.main(
+            [
+                "verify",
+                "--manifest",
+                str(manifest),
+                "--directory",
+                str(tmp_path / "verify"),
+                "--scenario",
+                "study-platform",
+                "--requirements",
+                str(tmp_path / "requirements.txt"),
+                "--dependency-wheels",
+                str(tmp_path / "third-party"),
+                "--no-index",
+            ]
+        )
+        == 0
+    )
+    assert observed["no_index"] is True
+    assert observed["scenarios"] == ["study-platform"]
+    assert observed["requirements"] == tmp_path / "requirements.txt"

@@ -69,8 +69,13 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--sources-root", type=Path, default=root / ".ci")
     parser.add_argument("--mode", choices=("pinned", "main"), default="pinned")
+    parser.add_argument(
+        "--manifest",
+        type=Path,
+        help="Explicit candidate manifest; defaults to supported pins",
+    )
     args = parser.parse_args()
-    manifest = json.loads((root / "compatibility.json").read_text())
+    manifest = json.loads((args.manifest or root / "compatibility.json").read_text())
     result = collect_logging(
         root, manifest, sources_root=args.sources_root, mode=args.mode
     )

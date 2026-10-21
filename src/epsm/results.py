@@ -77,22 +77,24 @@ class EnergyResult(_FrozenJSON):
         boundary="space_heating_and_fans",
         time_axis=(),
         annual=True,
+        run_id=None,
     ):
-        self._json = encode(
-            dict(
-                engine=engine,
-                scalars=scalars,
-                hourly=hourly,
-                units=units,
-                diagnostics=diagnostics,
-                artifacts=artifacts,
-                delivered_by_carrier=delivered_by_carrier,
-                requirements=requirements,
-                boundary=boundary,
-                time_axis=time_axis,
-                annual=annual,
-            )
+        data = dict(
+            engine=engine,
+            scalars=scalars,
+            hourly=hourly,
+            units=units,
+            diagnostics=diagnostics,
+            artifacts=artifacts,
+            delivered_by_carrier=delivered_by_carrier,
+            requirements=requirements,
+            boundary=boundary,
+            time_axis=time_axis,
+            annual=annual,
         )
+        if run_id is not None:
+            data["run_id"] = run_id
+        self._json = encode(data)
 
     def to_dict(self):
         return json.loads(self._json)
@@ -148,6 +150,38 @@ class Evaluation(_FrozenJSON):
     @classmethod
     def from_dict(cls, data):
         return cls(**data)
+
+    def save_bundle(self, directory):
+        """Save a new portable bundle with external arrays and retained files.
+
+        Parameters
+        ----------
+        directory : str or pathlib.Path
+            New destination directory, relative to the caller's working directory.
+            Existing destinations are refused. The completion manifest is written
+            last; failed writes remove this call's incomplete destination.
+
+        Returns
+        -------
+        pathlib.Path
+            Absolute bundle directory. See ``docs/evaluation-bundles.md`` for
+            the versioned format; the in-memory evaluation is unchanged.
+        """
+        from .io import save_evaluation_bundle
+
+        return save_evaluation_bundle(self, directory)
+
+    @classmethod
+    def load_bundle(cls, directory):
+        """Verify and eagerly load a saved bundle without executing calculations.
+
+        All checksummed paths must remain inside the bundle and contain no
+        symbolic links. This restores ordinary immutable JSON-backed results;
+        consumers that only need metadata can call ``load_bundle_metadata``.
+        """
+        from .io import load_evaluation_bundle
+
+        return cls.from_dict(load_evaluation_bundle(directory))
 
     def __getattr__(self, name):
         data = self.to_dict()

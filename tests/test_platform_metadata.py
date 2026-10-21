@@ -145,6 +145,26 @@ def test_remote_main_precedes_detached_head(platform):
     assert report["packages"]["epsm_core"]["selected_ref"] == "refs/remotes/origin/main"
 
 
+def test_umbrella_main_snapshot_does_not_read_feature_dependency_bounds(platform):
+    root, _, _, _, main_sha, _ = platform
+    git(root, "update-ref", "refs/remotes/origin/main", main_sha)
+    git(root, "checkout", "-qb", "codex/new-platform-bounds")
+    feature_sha = commit(
+        root,
+        {"pyproject.toml": project("epsm", "2.0.0", dependencies=["epsm_core>=99"])},
+    )
+    git(root, "checkout", "-q", "--detach")
+    git(root, "branch", "-D", "main")
+    report = check(platform, mode="main")
+    assert git(root, "rev-parse", "HEAD") == feature_sha
+    assert report["status"] == "passed"
+    own = report["packages"]["epsm"]
+    assert own["revision"] == main_sha
+    assert own["version"] == "1.0.0"
+    assert own["selected_ref"] == "refs/remotes/origin/main"
+    assert "dependency_unsatisfied" not in codes(report)
+
+
 def test_feature_branch_cannot_substitute_for_missing_main(platform):
     core = platform[1] / "epsm_core"
     git(core, "branch", "-m", "codex/only-feature")
