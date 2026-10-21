@@ -98,11 +98,11 @@ The repositories develop independently. Use the
 installing coordinated packages, and read each package's prerequisites and
 limitations. Some distributions require access to private EPSM repositories.
 
-Studio's existing application and its unfinished
-[frontend rebuild](https://github.com/SB-Chalmers/epsm_studio/tree/codex/studio-rebuild)
-have separate delivery histories. The rebuild demonstrates workflows with
-illustrative authentication and calculations; production services remain planned.
-Consult Studio's README for the application and setup on the branch you use.
+Studio's [frontend rebuild](https://github.com/SB-Chalmers/epsm_studio/tree/main)
+now lives on `main`. The previous application's source remains in Git history.
+The rebuild demonstrates workflows with illustrative authentication and
+calculations; production services remain planned. Consult Studio's README for
+its current scope and setup.
 Viewer's README retains its current candidate status and documents private artifact
 installation; consult its release documentation for publication evidence.
 The [design manual](https://github.com/SB-Chalmers/epsm_studio/blob/main/docs/design/README.md)
