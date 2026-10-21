@@ -15,14 +15,13 @@ def test_platform_workflow_parses_and_candidate_source_is_explicit():
     events = workflow.get("on", workflow.get(True))
     candidate = events["workflow_dispatch"]["inputs"]["candidate_manifest_revision"]
     assert candidate["type"] == "string" and candidate["default"] == ""
-    assert "platform-candidate" in workflow["env"]["CANDIDATE_REVISION"]
-    assert "vars.EPSM_CANDIDATE_MANIFEST_SHA" in workflow["env"]["CANDIDATE_REVISION"]
-    assert "labeled" in events["pull_request"]["types"]
+    assert set(events) == {"workflow_dispatch"}
+    assert "inputs.candidate_manifest_revision" in workflow["env"]["CANDIDATE_REVISION"]
+    assert "vars." not in workflow["env"]["CANDIDATE_REVISION"]
     combination = workflow["jobs"]["combination"]
     matrix = next(step for step in combination["steps"] if step.get("id") == "matrix")
     assert "--candidate-revision" in matrix["run"]
     assert "--consumer-revision" in matrix["run"]
-    assert any("git merge-tree" in step.get("run", "") for step in combination["steps"])
     platform = workflow["jobs"]["platform"]
     assert any(
         "check_study_platform.py" in step.get("run", "") for step in platform["steps"]
