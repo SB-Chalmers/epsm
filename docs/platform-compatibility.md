@@ -28,6 +28,13 @@ supported pins must be checked against metadata at those exact historical commit
 today's dependency bounds cannot invalidate a previously tested historical set.
 Uncommitted local edits are not inspected as released package inputs.
 
+The root metadata checkout retains full history so a detached PR checkout still
+has `origin/main`. The guard therefore reads EPSM's actual main metadata beside
+the peers' main metadata, rather than mixing new feature bounds with released
+peers. Candidate feature bounds are checked separately in the selected installed
+wheel cohort. The display handoff also receives that selected manifest explicitly;
+its strict revision and installed-version checks use the same choice as its matrix.
+
 ## Automatic, bounded work
 
 The metadata workflow runs one Python 3.13 job on relevant pull requests, relevant
@@ -84,7 +91,7 @@ python scripts/render_compatibility.py --check
 ```
 
 Use `--mode pinned` with local clones containing the historical objects to inspect
-the supported set. CI's shallow main checkouts do not contain those older commits;
+the supported set. CI's sparse peer main checkouts do not retain older history;
 the installed release workflow checks its own exact pinned sources.
 
 After an approved supported-manifest edit, run

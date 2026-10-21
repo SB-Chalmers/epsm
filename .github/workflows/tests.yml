@@ -254,6 +254,8 @@ jobs:
     needs: combination
     runs-on: ubuntu-latest
     timeout-minutes: 10
+    env:
+      PLATFORM_MANIFEST: ${{ matrix.cohort == 'candidate' && 'compatibility-candidate.json' || 'compatibility.json' }}
     strategy:
       matrix: ${{ fromJSON(needs.combination.outputs.display_matrix) }}
     steps:
@@ -304,6 +306,7 @@ jobs:
       - name: Require installed Core to Python and JavaScript Viewer handoff
         run: |
           python scripts/check_viewer_handoff.py --mode '${{ matrix.mode }}' \
+            --manifest "$PLATFORM_MANIFEST" \
             --viewer-javascript-root .ci/epsm_viewer \
             --core-revision "$(git -C .ci/epsm_core rev-parse HEAD)" \
             --viewer-revision "$(git -C .ci/epsm_viewer rev-parse HEAD)" \
