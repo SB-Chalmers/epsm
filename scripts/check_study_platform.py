@@ -102,6 +102,17 @@ print(json.dumps({'archive_id': results.id, 'coverage': results.coverage(),
     return json.loads(result.stdout)
 
 
+def check_material_assessment(assessment, *, is_baseline):
+    """Require material evidence, allowing the explicitly retained baseline."""
+    value = assessment.get("material_gwp_kgco2e")
+    retained = (is_baseline and value == 0
+                and assessment.get("assessment", {}).get("baseline") == "retained")
+    contributions = assessment.get("contributions", [])
+    if value is None or not math.isfinite(value) or (
+            not retained and not any(item.get("module") != "B6" for item in contributions)):
+        raise RuntimeError("Embodied impacts or their contributions were omitted")
+
+
 def run_cases(directory, energyplus, *, require_wheels):
     """Run six frozen cases, inspect both comparisons and reopen retained results."""
     from epsm_studies import StudyResults
@@ -143,9 +154,7 @@ def run_cases(directory, energyplus, *, require_wheels):
             raise RuntimeError("Hourly heating lost the intended annual calendar")
         assessment = metadata_value["lca"]
         contributions = assessment.get("contributions", [])
-        if assessment.get("material_gwp_kgco2e") is None or not any(
-                item.get("module") != "B6" for item in contributions):
-            raise RuntimeError("Embodied impacts or their contributions were omitted")
+        check_material_assessment(assessment, is_baseline=row["axes"]["is_baseline"])
         monthly = results.aggregate_energy(case_id)
         if len(monthly) != 12 or not math.isclose(
                 math.fsum(monthly.values()), row["metrics"][SIGNAL], rel_tol=0.001, abs_tol=0.001):
