@@ -38,7 +38,7 @@
     },
     "epsm_workflows": {
       "version": "0.4.0",
-      "revision": "11c16829f0e27cc09db4f8b7a36be67a1c9bd412",
+      "revision": "0d5230bfa84bf16fe29601142399e66ccf29cc07",
       "role": "scientific"
     },
     "epsm_studies": {
