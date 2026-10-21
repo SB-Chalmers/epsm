@@ -49,4 +49,5 @@ def normalize_energy(spec, result, *, engine):
         requirements=requirements,
         time_axis=time_axis,
         annual=len(time_axis) == spec.climate.hours_in_year,
+        run_id=result.run_id,
     )

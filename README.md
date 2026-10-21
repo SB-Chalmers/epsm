@@ -4,6 +4,9 @@ EPSM connects a physical Core building, Data constructions, an energy engine and
 LCA. It keeps the building state, calculation choices, energy and climate results
 for each evaluation.
 
+Existing evaluations can be saved as [portable bundles](docs/evaluation-bundles.md)
+with external arrays and checksummed relative artifacts.
+
 ```python
 from epsm import Building, Weather
 from epsm_rc import RCSettings

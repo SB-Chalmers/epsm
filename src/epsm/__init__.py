@@ -23,6 +23,7 @@ from epsm_lca import (
 from .archetypes import ArchetypeApplicationReport
 from .building import Building
 from .cache import EvaluationCache
+from .io import load_bundle_metadata
 from .logging import configure_logging, reset_logging
 from .provenance import evaluation_identity
 from .results import EnergyResult, Evaluation, Results
@@ -53,6 +54,7 @@ __all__ = [
     "EnergyResult",
     "Evaluation",
     "Results",
+    "load_bundle_metadata",
 ]
 
 # A library emits no output until its host selects handlers.
