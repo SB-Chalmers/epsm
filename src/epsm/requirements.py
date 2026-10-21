@@ -56,8 +56,8 @@ def output_requirements(outputs=None):
         )
         item.setdefault("required", True)
         item.setdefault("level", "building")
-        if name == "space_heating_demand_kwh":
-            item.setdefault("unit", "kWh")
+        if name == "space_heating_demand_kwh" and item.get("unit") is None:
+            item["unit"] = "kWh"
         if item["resolution"] not in {"hourly", "annual", "assessment"}:
             raise ValueError(f"Unsupported output resolution: {item['resolution']}")
         if item["level"] not in {"building", "zone"} or not isinstance(
@@ -83,6 +83,112 @@ def _issue(diagnostics, code, field, message, required=True):
             severity="error" if required else "warning",
         )
     )
+
+
+def output_capabilities(
+    building=None, *, weather=None, engine="energyplus", settings=None
+):
+    """Discover engine-owned outputs plus common delivery/assessment boundaries.
+
+    Parameters
+    ----------
+    building : epsm_core.Building, optional
+        Already loaded authoring inputs; conditional systems remain explicit.
+    weather : epsm_core.Weather, optional
+        Captured climate metadata for exact Core native-zone key resolution.
+    engine : {'energyplus', 'epsm_rc'}
+        Owner catalogue to query. No simulation is started.
+    settings : owner settings or dict, optional
+        Explicit engine settings; no reduction approximation is selected here.
+
+    Returns
+    -------
+    dict
+        ``epsm-output-capabilities/1`` descriptors containing exact output name,
+        resolution, level, unit, availability and any missing prerequisite.
+        Free-text EnergyPlus requests remain unverified by their owner.
+    """
+    if engine == "energyplus":
+        from epsm_core import output_capabilities as owner_outputs
+
+        catalogue = owner_outputs(building, weather=weather, settings=settings)
+    elif engine == "epsm_rc":
+        from epsm_rc import output_capabilities as owner_outputs
+
+        catalogue = owner_outputs(building, settings=settings)
+    else:
+        raise ValueError(f"Unsupported engine: {engine}")
+    hvac = getattr(building, "hvac", None)
+    heating = hvac.delivery.heating if hvac is not None else None
+    delivered = heating is not None and (
+        hvac.airflow.topology == "S" or heating.specific_fan_power_w_per_l_s is not None
+    )
+    assessed = getattr(building, "assessment", None) is not None
+    catalogue["outputs"].extend(
+        [
+            dict(
+                name="delivered_energy",
+                resolution="annual",
+                level="building",
+                unit="kWh",
+                available=delivered,
+                **(
+                    {}
+                    if delivered
+                    else {"reason": "Requires explicit heating and fan accounting"}
+                ),
+            ),
+            dict(
+                name="lca",
+                resolution="assessment",
+                level="building",
+                unit="kgCO2e",
+                available=assessed,
+                **(
+                    {}
+                    if assessed
+                    else {"reason": "Requires explicit assessment settings"}
+                ),
+            ),
+        ]
+    )
+    return catalogue
+
+
+def _check_output_contract(requirements, catalogue, diagnostics):
+    for request in catalogue.get("unverified_requests", []):
+        _issue(
+            diagnostics,
+            "unverified_native_output",
+            "settings.hourly_outputs",
+            f"Additional EnergyPlus request {request['name']}::{request['key']} has no verified owner descriptor; Core treats additional requests as required",
+        )
+    available = {
+        (row["name"], row["resolution"], row["level"]): row
+        for row in catalogue["outputs"]
+    }
+    for item in requirements:
+        key = item["name"], item["resolution"], item["level"]
+        descriptor = available.get(key)
+        reason = None
+        if descriptor is None:
+            reason = "Owner does not guarantee this output name, resolution and scope; inspect output_capabilities"
+        elif not descriptor["available"]:
+            reason = descriptor.get(
+                "reason", "The selected method does not provide this output"
+            )
+        elif item.get("unit") is not None and item["unit"] != descriptor["unit"]:
+            reason = f"Output uses {descriptor['unit']}; requested {item['unit']}. No unit conversion is performed"
+        if reason:
+            _issue(
+                diagnostics,
+                "unsupported_output",
+                item["name"],
+                reason,
+                item["required"],
+            )
+        elif item.get("unit") is None:
+            item["unit"] = descriptor["unit"]
 
 
 def preflight(
@@ -192,16 +298,16 @@ def preflight(
             except (TypeError, ValueError, OSError) as error:
                 _issue(diagnostics, "weather_or_inputs", "weather", error)
     if isinstance(building, Building):
+        if engine in {"energyplus", "epsm_rc"}:
+            try:
+                catalogue = output_capabilities(
+                    building, weather=weather, engine=engine, settings=settings
+                )
+                _check_output_contract(requirements, catalogue, diagnostics)
+            except (ValueError, TypeError, ImportError, OSError) as error:
+                _issue(diagnostics, "output_discovery", "outputs", error)
         for item in requirements:
             required, name = item["required"], item["name"]
-            if item["level"] == "zone" and engine == "epsm_rc":
-                _issue(
-                    diagnostics,
-                    "unsupported_output",
-                    name,
-                    "RC does not provide arbitrary per-zone outputs",
-                    required,
-                )
             if name == "delivered_energy":
                 delivery = (
                     building.hvac.delivery.heating

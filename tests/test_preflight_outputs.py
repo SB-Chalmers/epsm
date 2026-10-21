@@ -112,3 +112,130 @@ def test_explicit_energyplus_executable_is_checked_through_core(monkeypatch):
         Building(), engine="energyplus", energyplus="/selected/EnergyPlus", outputs=[]
     )
     assert checked == ["/selected/EnergyPlus"]
+
+
+@pytest.mark.parametrize(
+    "requirement",
+    [
+        {"name": "invented_energy", "resolution": "hourly"},
+        {"name": "space_heating_demand_kwh", "resolution": "assessment"},
+        {"name": "space_heating_demand_kwh", "level": "zone"},
+        {"name": "space_heating_demand_kwh", "unit": "J"},
+    ],
+)
+def test_preflight_rejects_unknown_required_output_contracts(requirement):
+    from epsm_rc import RCSettings
+
+    from epsm import preflight
+
+    building = Building(preset="illustrative-reference")
+    weather = Weather.from_epw(files("epsm_rc") / "data/epw/goteborg.epw")
+    report = preflight(
+        building,
+        weather,
+        "epsm_rc",
+        RCSettings(
+            airflow_policy="sensible_only_unlimited_supply",
+            ground_policy="conductance_multiplier",
+        ),
+        [requirement],
+    )
+    assert not report["ready"]
+    assert any(row["code"] == "unsupported_output" for row in report["diagnostics"])
+
+
+def test_optional_unknown_output_is_warning_and_discovery_is_public():
+    from epsm_rc import RCSettings
+
+    from epsm import output_capabilities, preflight
+
+    building = Building(preset="illustrative-reference")
+    weather = Weather.from_epw(files("epsm_rc") / "data/epw/goteborg.epw")
+    settings = RCSettings(
+        airflow_policy="sensible_only_unlimited_supply",
+        ground_policy="conductance_multiplier",
+    )
+    report = preflight(
+        building,
+        weather,
+        "epsm_rc",
+        settings,
+        [{"name": "invented_energy", "required": False}],
+    )
+    assert report["ready"]
+    assert report["diagnostics"][0]["severity"] == "warning"
+    catalogue = output_capabilities(
+        building, weather=weather, engine="epsm_rc", settings=settings
+    )
+    assert any(row["name"] == "lca" for row in catalogue["outputs"])
+
+
+def test_null_unit_still_requires_kwh_for_heating():
+    from epsm import validate_outputs
+
+    data = evaluated().to_dict()
+    data["energy"]["units"]["space_heating_demand_kwh"] = "J"
+    report = validate_outputs(
+        data, [{"name": "space_heating_demand_kwh", "unit": None}]
+    )
+    assert not report["ready"]
+
+
+def test_exact_core_zone_key_is_supported_but_invented_key_is_not():
+    from epsm import output_capabilities, preflight
+
+    building = Building(preset="illustrative-reference")
+    weather = Weather.from_epw(files("epsm_rc") / "data/epw/goteborg.epw")
+    catalogue = output_capabilities(building, weather=weather)
+    descriptor = next(row for row in catalogue["outputs"] if row["level"] == "zone")
+    request = {key: descriptor[key] for key in ("name", "resolution", "level", "unit")}
+    report = preflight(building, weather, outputs=[request])
+    assert report["ready"], report
+    request["name"] = "Zone Mean Air Temperature::INVENTED"
+    report = preflight(building, weather, outputs=[request])
+    assert not report["ready"]
+
+
+def test_configured_free_text_native_variable_is_not_a_verified_study_output():
+    from epsm_core import CompilerSettings, HourlyOutputRequest
+
+    from epsm import preflight
+
+    building = Building(preset="illustrative-reference")
+    weather = Weather.from_epw(files("epsm_rc") / "data/epw/goteborg.epw")
+    settings = CompilerSettings(
+        hourly_outputs=(HourlyOutputRequest(name="Invented Energy", key="WORLD"),)
+    )
+    report = preflight(
+        building,
+        weather,
+        settings=settings,
+        outputs=[
+            {
+                "name": "Invented Energy::WORLD",
+                "resolution": "hourly",
+                "level": "building",
+            }
+        ],
+    )
+    assert not report["ready"]
+    assert any(row["code"] == "unsupported_output" for row in report["diagnostics"])
+
+
+def test_unknown_additional_compiler_output_cannot_hide_behind_known_heating_requirement():
+    from epsm_core import CompilerSettings, HourlyOutputRequest
+
+    from epsm import preflight
+
+    building = Building(preset="illustrative-reference")
+    weather = Weather.from_epw(files("epsm_rc") / "data/epw/goteborg.epw")
+    settings = CompilerSettings(
+        hourly_outputs=(HourlyOutputRequest(name="Invented Energy"),)
+    )
+    report = preflight(
+        building, weather, settings=settings, outputs=["space_heating_demand_kwh"]
+    )
+    assert not report["ready"]
+    assert any(
+        row["code"] == "unverified_native_output" for row in report["diagnostics"]
+    )

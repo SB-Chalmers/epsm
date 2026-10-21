@@ -2,6 +2,12 @@
 
 Add portable, checksummed evaluation bundles with external hourly signals and retained engine-run identity. Public preflight delegates engine-owned capability checks; output validation separates thermal, delivery and assessment completeness. Existing in-memory and dictionary result interfaces remain readable.
 
+Preflight composes public Core/RC output discovery and rejects unsupported required
+names, resolutions, scopes, inactive channels and incompatible units before
+execution. Optional unavailable signals remain warnings. Core 0.8.2 supplies the
+new owner descriptor handoff; extra free-text EnergyPlus variables stay explicitly
+unverified rather than being advertised as guaranteed study outputs.
+
 Candidate verification tooling builds and installs immutable wheel cohorts and records required scenario evidence. The study acceptance harness exercises paired annual energy and complete declared renovation impacts. Candidate status remains until installed and release gates pass.
 
 # Release 0.3.0 — 15 October 2026

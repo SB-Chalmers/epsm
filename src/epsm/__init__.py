@@ -26,7 +26,12 @@ from .cache import EvaluationCache
 from .io import load_bundle_metadata
 from .logging import configure_logging, reset_logging
 from .provenance import evaluation_identity
-from .requirements import output_requirements, preflight, validate_outputs
+from .requirements import (
+    output_capabilities,
+    output_requirements,
+    preflight,
+    validate_outputs,
+)
 from .results import EnergyResult, Evaluation, Results
 
 __version__ = "0.4.0"
@@ -57,6 +62,7 @@ __all__ = [
     "Results",
     "load_bundle_metadata",
     "output_requirements",
+    "output_capabilities",
     "preflight",
     "validate_outputs",
 ]

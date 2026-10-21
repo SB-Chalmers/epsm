@@ -7,7 +7,7 @@ name = "epsm"
 version = "0.4.0"
 description = "Researcher-facing EPSM Building, simulations and assessment"
 requires-python = ">=3.11"
-dependencies = ["epsm_core>=0.8.1,<0.9", "epsm_data>=0.6.0", "epsm_lca>=0.2.0", "numpy>=2,<3"]
+dependencies = ["epsm_core>=0.8.2,<0.9", "epsm_data>=0.6.0", "epsm_lca>=0.2.0", "numpy>=2,<3"]
 license = "MIT"
 license-files = ["LICENSE"]
 readme = "README.md"
