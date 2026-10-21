@@ -73,6 +73,18 @@ def test_capture_checks_requested_names_and_extras(tmp_path):
         MODULE.capture_cohort(tmp_path, ["demo"], policy)
 
 
+def test_capture_accepts_explicit_extra_selection_without_editing_registry(tmp_path):
+    source(tmp_path)
+    policy = registry()
+    policy["packages"]["demo"]["extras"] = []
+    manifest = MODULE.capture_cohort(tmp_path, ["demo"], policy,
+                                     extras={"demo": ["example"]})
+    assert manifest["packages"]["demo"]["extras"] == ["example"]
+    assert policy["packages"]["demo"]["extras"] == []
+    with pytest.raises(ValueError, match="selected package"):
+        MODULE.capture_cohort(tmp_path, ["demo"], policy, extras={"missing": ["example"]})
+
+
 def test_revalidation_rejects_source_moved_after_capture(tmp_path):
     root = source(tmp_path)
     manifest = MODULE.capture_cohort(tmp_path, ["demo"], registry())
@@ -249,7 +261,7 @@ def test_cli_capture_is_repeatable_and_refuses_overwrite(tmp_path):
     policy.write_text(json.dumps(registry()))
     output = tmp_path / "candidate.json"
     arguments = ["capture", "--sources", str(tmp_path), "--registry", str(policy),
-                 "--output", str(output)]
+                 "--extra", "demo:example", "--output", str(output)]
     assert MODULE.main(arguments) == 0
     content = output.read_text()
     assert json.loads(content)["packages"]["demo"]["version"] == "1.2.0"
@@ -257,6 +269,16 @@ def test_cli_capture_is_repeatable_and_refuses_overwrite(tmp_path):
         MODULE.main(arguments)
     assert error.value.code == 1
     assert output.read_text() == content
+
+
+def test_cli_extra_selection_requires_a_package_and_extra(tmp_path):
+    policy = tmp_path / "registry.json"
+    policy.write_text(json.dumps(registry()))
+    with pytest.raises(SystemExit) as error:
+        MODULE.main(["capture", "--sources", str(tmp_path), "--registry", str(policy),
+                     "--extra", "example", "--output", str(tmp_path / "candidate.json")])
+    assert error.value.code == 1
+    assert not (tmp_path / "candidate.json").exists()
 
 
 def test_cli_verify_passes_declared_prerequisites_to_the_harness(tmp_path, monkeypatch):

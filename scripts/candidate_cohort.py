@@ -42,7 +42,7 @@ def clean_environment():
     return environment
 
 
-def capture_cohort(sources, packages, registry):
+def capture_cohort(sources, packages, registry, *, extras=None):
     """Read clean HEADs and committed package metadata without importing owners.
 
     ``sources`` contains one checkout named after each selected package. Registry
@@ -51,6 +51,9 @@ def capture_cohort(sources, packages, registry):
     """
     if not packages or len(set(packages)) != len(packages):
         raise ValueError("Select a nonempty list of unique packages")
+    additions = extras or {}
+    if set(additions) - set(packages):
+        raise ValueError("Extra selections must name a selected package")
     captured = {}
     for name in packages:
         policy = registry.get("packages", {}).get(name)
@@ -61,12 +64,12 @@ def capture_cohort(sources, packages, registry):
             raise ValueError(f"{name}: uncommitted inputs; commit or preserve them first")
         revision = _git(source, "rev-parse", "HEAD")
         version, _, _, declared_extras = _metadata(source, revision, name)
-        extras = policy.get("extras", [])
-        if any(canonicalize_name(extra) not in declared_extras for extra in extras):
+        selected_extras = list(dict.fromkeys([*policy.get("extras", []), *additions.get(name, [])]))
+        if any(canonicalize_name(extra) not in declared_extras for extra in selected_extras):
             raise ValueError(f"{name}: requested extra is absent from committed metadata")
         captured[name] = {
             "source": str(source), "revision": revision, "version": version,
-            "extras": list(extras),
+            "extras": selected_extras,
         }
     manifest = {"format": 1, "kind": "candidate", "packages": captured}
     validate_cohort(manifest)
@@ -268,6 +271,8 @@ def main(argv=None):
     capture = commands.add_parser("capture", help="Capture clean committed candidate sources")
     capture.add_argument("--sources", type=Path, required=True)
     capture.add_argument("--packages", nargs="+")
+    capture.add_argument("--extra", action="append", default=[], metavar="PACKAGE:EXTRA",
+                         help="Add a declared package extra without changing registry defaults")
     capture.add_argument("--registry", type=Path, default=Path(__file__).resolve().parents[1] / "platform-registry.json")
     capture.add_argument("--output", type=Path, required=True)
     verify = commands.add_parser("verify", help="Build/install candidates and retain selected gate evidence")
@@ -284,7 +289,13 @@ def main(argv=None):
             policy = _load_json(args.registry)
             packages = args.packages or [name for name, entry in policy["packages"].items()
                 if entry.get("status") == "active" and entry.get("role", "scientific") == "scientific"]
-            manifest = capture_cohort(args.sources, packages, policy)
+            additions = {}
+            for selection in args.extra:
+                parts = selection.split(":")
+                if len(parts) != 2 or not all(parts):
+                    raise ValueError("Extra selections use PACKAGE:EXTRA")
+                additions.setdefault(parts[0], []).append(parts[1])
+            manifest = capture_cohort(args.sources, packages, policy, extras=additions)
             args.output.parent.mkdir(parents=True, exist_ok=True)
             with args.output.open("x") as stream:
                 stream.write(json.dumps(manifest, indent=2) + "\n")

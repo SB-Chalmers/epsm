@@ -139,6 +139,11 @@ changing the supported manifest. Use it when related APIs must be tested togethe
 before any of the participating changes reaches `dev`. Sources are sibling Git
 checkouts named after the packages. Default selection is the registry's active
 scientific packages; `--packages` selects a smaller explicit group.
+Repeat `--extra PACKAGE:EXTRA` to add declared notebook or integration extras
+for that candidate without editing the registry. For example, full study checks
+can select `--extra epsm:examples --extra epsm_workflows:epc
+--extra epsm_studies:workflows --extra epsm_studies:results`. Core's geometry and
+EPSM's `all` extras are already selected by the current registry.
 
 Install the metadata requirements and the packages' declared build backends in
 the builder environment first. The current scientific packages use setuptools;
