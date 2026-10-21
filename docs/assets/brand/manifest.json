@@ -1,0 +1,181 @@
+{
+  "canonical_directory": "design/pocket-cad/icons",
+  "canonical_manifest_sha256": "0b5d0075108c7740e595dddbfb874cded88572a378d34b5ebbf2850d0fedb5a6",
+  "canonical_repository": "SB-Chalmers/epsm_studio",
+  "files": [
+    {
+      "id": "epsm",
+      "path": "epsm.png",
+      "sha256": "1fe0c8b46c4af800fde10c1bfa1945ef082203534be4abb52f1dcaaeb4850a5f",
+      "source": "png/64/epsm.png",
+      "variant": "light"
+    },
+    {
+      "id": "epsm",
+      "path": "epsm-dark.png",
+      "sha256": "8cb93b19142c798cb64fd85c1e34722b401a1ba51b7c59eaf9860217cacb62d6",
+      "source": "png/dark/64/epsm.png",
+      "variant": "dark"
+    },
+    {
+      "id": "epsm_core",
+      "path": "epsm_core.png",
+      "sha256": "8d7905a8897a8947ba06ff4b6a9b67629a4d46b8824e9325df2e4b12a4c9390e",
+      "source": "png/64/epsm_core.png",
+      "variant": "light"
+    },
+    {
+      "id": "epsm_core",
+      "path": "epsm_core-dark.png",
+      "sha256": "a9f37764612d54f00075e58f0119c1759d2e953d563d20f33d9bf48f87df4758",
+      "source": "png/dark/64/epsm_core.png",
+      "variant": "dark"
+    },
+    {
+      "id": "epsm_data",
+      "path": "epsm_data.png",
+      "sha256": "194befdc4772d0fef5120b32c3d5fce217af929a777af529e40129d635e76846",
+      "source": "png/64/epsm_data.png",
+      "variant": "light"
+    },
+    {
+      "id": "epsm_data",
+      "path": "epsm_data-dark.png",
+      "sha256": "0cad0eb65ff4fd17410ed1854a313957b724237b971c248b373c7e189abfa939",
+      "source": "png/dark/64/epsm_data.png",
+      "variant": "dark"
+    },
+    {
+      "id": "epsm_db",
+      "path": "epsm_db.png",
+      "sha256": "738d39a86ca76d489e501dd0076108ed480ef160bec5e309b3034cc0a12209cb",
+      "source": "png/64/epsm_db.png",
+      "variant": "light"
+    },
+    {
+      "id": "epsm_db",
+      "path": "epsm_db-dark.png",
+      "sha256": "08acb0ed5d607ec904af8e0bf8338a40e0d73fab65c1f8385187103c2ad0aa5b",
+      "source": "png/dark/64/epsm_db.png",
+      "variant": "dark"
+    },
+    {
+      "id": "epsm_development",
+      "path": "epsm_development.png",
+      "sha256": "68a2ec69d978a434a073d772c9077f529f5274ca28c167879b2a9adbebfced6d",
+      "source": "png/64/epsm_development.png",
+      "variant": "light"
+    },
+    {
+      "id": "epsm_development",
+      "path": "epsm_development-dark.png",
+      "sha256": "820c976f6ece9fa644add326f175c9ff28b8d3cfd4c1e80ddd9d0322934ade28",
+      "source": "png/dark/64/epsm_development.png",
+      "variant": "dark"
+    },
+    {
+      "id": "epsm_lca",
+      "path": "epsm_lca.png",
+      "sha256": "90a9e7a3e5fcdb77d092d3e26b8a7e778199e1d42d201931802c77e8599d40aa",
+      "source": "png/64/epsm_lca.png",
+      "variant": "light"
+    },
+    {
+      "id": "epsm_lca",
+      "path": "epsm_lca-dark.png",
+      "sha256": "99f2c71dcbd20cb7e706c07533c008926a78be8589297ca60967a01e772a140a",
+      "source": "png/dark/64/epsm_lca.png",
+      "variant": "dark"
+    },
+    {
+      "id": "epsm_rc",
+      "path": "epsm_rc.png",
+      "sha256": "9a5774511a325606376083ae2332cbacb104904572007b85a41f88e2f481ef41",
+      "source": "png/64/epsm_rc.png",
+      "variant": "light"
+    },
+    {
+      "id": "epsm_rc",
+      "path": "epsm_rc-dark.png",
+      "sha256": "159f8d0eee6abb008dcfed3ebb0a9855ca6fbbc9633d65f9835b622044562efb",
+      "source": "png/dark/64/epsm_rc.png",
+      "variant": "dark"
+    },
+    {
+      "id": "epsm_studies",
+      "path": "epsm_studies.png",
+      "sha256": "4afee20f9e95f8644ce7d98630b4c589e055c7939ccce9f996846628f91199a2",
+      "source": "png/64/epsm_studies.png",
+      "variant": "light"
+    },
+    {
+      "id": "epsm_studies",
+      "path": "epsm_studies-dark.png",
+      "sha256": "41d9d1583cfa07c2f4b59145ec5d9b08ce754a3b841a13dc8d2d12f947c7291b",
+      "source": "png/dark/64/epsm_studies.png",
+      "variant": "dark"
+    },
+    {
+      "id": "epsm_studio",
+      "path": "epsm_studio.png",
+      "sha256": "69a55e9a342b6055741d2cf79074d3fc060fe180acda4c4d58fc276418cf9f16",
+      "source": "png/64/epsm_studio.png",
+      "variant": "light"
+    },
+    {
+      "id": "epsm_studio",
+      "path": "epsm_studio-dark.png",
+      "sha256": "940ab1f30dafd2bdfb45808880a0ff14553de9bfba34a8716ffd6f8fec303cab",
+      "source": "png/dark/64/epsm_studio.png",
+      "variant": "dark"
+    },
+    {
+      "id": "epsm_viewer",
+      "path": "epsm_viewer.png",
+      "sha256": "bd6ddadac5ae8e3baebe24eb6f33510924e42925c5034abf020abebacf5149a0",
+      "source": "png/64/epsm_viewer.png",
+      "variant": "light"
+    },
+    {
+      "id": "epsm_viewer",
+      "path": "epsm_viewer-dark.png",
+      "sha256": "c3139837d07de634d19ae1ed16c2a1e79ae16f302b7706b47418a8c4cdcdeb43",
+      "source": "png/dark/64/epsm_viewer.png",
+      "variant": "dark"
+    },
+    {
+      "id": "epsm_workflows",
+      "path": "epsm_workflows.png",
+      "sha256": "7b7a0fc5a95758655723557b28aca74df4d4321358e11047fac243e8bcad83f1",
+      "source": "png/64/epsm_workflows.png",
+      "variant": "light"
+    },
+    {
+      "id": "epsm_workflows",
+      "path": "epsm_workflows-dark.png",
+      "sha256": "63215a0eb0fec1468c00b3e527809d5e0a83f200e8d1c1b5523f751cf55566aa",
+      "source": "png/dark/64/epsm_workflows.png",
+      "variant": "dark"
+    },
+    {
+      "id": "smhi2epw",
+      "path": "smhi2epw.png",
+      "sha256": "0a3b216710d2dfe9ef874275d69281e478c936206d9e711574d3bf7f929bb695",
+      "source": "png/64/smhi2epw.png",
+      "variant": "light"
+    },
+    {
+      "id": "smhi2epw",
+      "path": "smhi2epw-dark.png",
+      "sha256": "d37c55447a01c66949c6f857ba3965e0e1df5cc2104a4f69a6b7bb39fb8200f0",
+      "source": "png/dark/64/smhi2epw.png",
+      "variant": "dark"
+    }
+  ],
+  "hash_algorithm": "sha256",
+  "license": "MIT",
+  "license_sha256": "bb5aadb75096fac733a2417a0c27c2656b656afba306ff84bdda3f722f453e51",
+  "name": "EPSM Pocket CAD",
+  "repository": "epsm",
+  "version": "1.0.0"
+}
