@@ -26,6 +26,7 @@ from .cache import EvaluationCache
 from .io import load_bundle_metadata
 from .logging import configure_logging, reset_logging
 from .provenance import evaluation_identity
+from .requirements import output_requirements, preflight, validate_outputs
 from .results import EnergyResult, Evaluation, Results
 
 __version__ = "0.3.1"
@@ -55,6 +56,9 @@ __all__ = [
     "Evaluation",
     "Results",
     "load_bundle_metadata",
+    "output_requirements",
+    "preflight",
+    "validate_outputs",
 ]
 
 # A library emits no output until its host selects handlers.

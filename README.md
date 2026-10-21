@@ -6,6 +6,8 @@ for each evaluation.
 
 Existing evaluations can be saved as [portable bundles](docs/evaluation-bundles.md)
 with external arrays and checksummed relative artifacts.
+Explicit [preflight and output checks](docs/preflight-and-outputs.md) help prepare
+study cases without running an engine.
 
 ```python
 from epsm import Building, Weather
