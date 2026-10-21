@@ -37,19 +37,39 @@ SCENARIOS = {
     "workflow-handoff": "scripts/check_workflow_handoff.py",
 }
 
+SCENARIO_TRAMPOLINE = "\n".join(
+    [
+        "import runpy, sys",
+        "from pathlib import Path",
+        "script = Path(sys.argv[1]).resolve(strict=True)",
+        "sys.path.insert(0, str(script.parent))",
+        "sys.argv = [str(script), *sys.argv[2:]]",
+        "runpy.run_path(str(script), run_name='__main__')",
+    ]
+)
+
 
 def scenario_command(name, worker, source, directory, candidate, wheels):
-    """Call an existing installed scientific gate with its immutable evidence."""
+    """Run an isolated gate with only its captured helper directory added."""
     command = [
         worker,
         "-I",
-        source / SCENARIOS[name],
+        "-c",
+        SCENARIO_TRAMPOLINE,
+        (source / SCENARIOS[name]).resolve(),
         "--directory",
         directory,
         "--require-wheels",
     ]
     if name != "installed-platform":
         command.extend(["--compatibility-receipt", candidate, "--wheels", wheels])
+    if name in {"archetype-handoff", "workflow-handoff"}:
+        engine = os.environ.get("ENERGYPLUS_EXE")
+        if not engine or not engine.strip():
+            raise ValueError(
+                f"{name}: set ENERGYPLUS_EXE to the selected 24.2 executable"
+            )
+        command.extend(["--energyplus-exe", Path(engine).expanduser().resolve()])
     return command
 
 

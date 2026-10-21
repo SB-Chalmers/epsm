@@ -243,8 +243,9 @@ def test_successful_receipt_only_claims_selected_checks(tmp_path, monkeypatch):
     "name", ["study-platform", "archetype-handoff", "workflow-handoff"]
 )
 def test_scientific_scenarios_receive_the_same_frozen_receipt_and_wheels(
-    tmp_path, name
+    tmp_path, name, monkeypatch
 ):
+    monkeypatch.setenv("ENERGYPLUS_EXE", str(tmp_path / "declared-engine"))
     command = MODULE.scenario_command(
         name,
         tmp_path / "python",
@@ -259,6 +260,68 @@ def test_scientific_scenarios_receive_the_same_frozen_receipt_and_wheels(
     )
     assert command[command.index("--wheels") + 1] == tmp_path / "wheels"
     assert "--require-wheels" in command
+
+
+@pytest.mark.parametrize("name", ["archetype-handoff", "workflow-handoff"])
+def test_engine_scenarios_require_an_explicit_selected_runtime(
+    tmp_path, name, monkeypatch
+):
+    monkeypatch.delenv("ENERGYPLUS_EXE", raising=False)
+    with pytest.raises(ValueError, match="ENERGYPLUS_EXE"):
+        MODULE.scenario_command(
+            name, sys.executable, tmp_path, tmp_path, tmp_path, tmp_path
+        )
+
+
+@pytest.mark.parametrize("name", ["archetype-handoff", "workflow-handoff"])
+def test_scenario_subprocess_imports_only_its_captured_helpers(
+    tmp_path, name, monkeypatch
+):
+    captured = tmp_path / "captured sources" / "epsm"
+    scripts = captured / "scripts"
+    scripts.mkdir(parents=True)
+    script = captured / MODULE.SCENARIOS[name]
+    (scripts / "captured_helper.py").write_text("VALUE = 'captured helper'\n")
+    (captured / "src" / "uninstalled_owner").mkdir(parents=True)
+    (captured / "src" / "uninstalled_owner" / "__init__.py").write_text("")
+    workdir = tmp_path / "untrusted workdir"
+    workdir.mkdir()
+    (workdir / "untrusted_workdir_only.py").write_text("raise AssertionError\n")
+    monkeypatch.setenv("PYTHONPATH", str(workdir))
+    engine = tmp_path / "selected runtime" / "energyplus"
+    monkeypatch.setenv("ENERGYPLUS_EXE", str(engine))
+    script.write_text(
+        "import argparse, importlib.util, json, sys\n"
+        "from pathlib import Path\n"
+        "from captured_helper import VALUE\n"
+        "assert sys.flags.isolated == 1\n"
+        "assert sys.argv[0] == str(Path(__file__).resolve())\n"
+        "assert importlib.util.find_spec('untrusted_workdir_only') is None\n"
+        "assert importlib.util.find_spec('uninstalled_owner') is None\n"
+        "parser = argparse.ArgumentParser()\n"
+        "parser.add_argument('--directory', required=True)\n"
+        "parser.add_argument('--require-wheels', action='store_true')\n"
+        "parser.add_argument('--compatibility-receipt', required=True)\n"
+        "parser.add_argument('--wheels', required=True)\n"
+        "parser.add_argument('--energyplus-exe', required=True)\n"
+        "args = parser.parse_args()\n"
+        "assert args.require_wheels\n"
+        "print(json.dumps({'helper': VALUE, 'engine': args.energyplus_exe}))\n"
+    )
+    log = tmp_path / "scenario.log"
+    command = MODULE.scenario_command(
+        name,
+        sys.executable,
+        captured,
+        tmp_path / "output",
+        tmp_path / "candidate.json",
+        tmp_path / "wheels",
+    )
+    MODULE.execute(command, directory=workdir, log=log)
+    assert json.loads(log.read_text()) == {
+        "helper": "captured helper",
+        "engine": str(engine),
+    }
 
 
 def test_missing_required_scenario_is_a_failed_gate(tmp_path, monkeypatch):

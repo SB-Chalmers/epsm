@@ -168,7 +168,9 @@ acceptance script when that script exists at the captured EPSM revision. A
 selected missing script fails; it never becomes a passing or skipped gate.
 `--scenario archetype-handoff` and `--scenario workflow-handoff` call the existing
 installed authoring and callback-design gates with the same frozen source
-receipt and wheels. Repeat the option to select every required gate. The receipt
+receipt and wheels. Both require `ENERGYPLUS_EXE`; the harness passes that
+explicit selection as the gate's `--energyplus-exe` argument. Repeat the option
+to select every required gate. The receipt
 also links a checksummed inventory of installed third-party distributions.
 Without `--scenario`, the check establishes wheel installation, dependency
 consistency and isolated owner imports only.
@@ -203,6 +205,9 @@ still match, archives the captured commits into its new output directory, builds
 one wheel per package and installs all candidate wheels together into a fresh
 virtual environment. It removes inherited Python path overrides, checks actual
 installed owner paths/versions and runs scenarios outside the source checkouts.
+Scenario interpreters retain `-I`; their launcher adds only the captured gate's
+scripts directory so shared acceptance helpers can import one another. It does
+not add source package directories, the calling directory or `PYTHONPATH`.
 Scientific scenarios keep their own fixtures, prerequisites and numerical
 assertions. They must fail when a required engine or service is missing.
 
