@@ -132,6 +132,65 @@ dispatch other repositories' checks. Their read-only deploy key grants access to
 EPSM's manifest; it does not grant API orchestration permissions. See
 [token scope](https://docs.github.com/en/actions/concepts/security/github_token).
 
+## Verify a feature cohort before development merges
+
+`scripts/candidate_cohort.py` captures selected clean feature-branch HEADs without
+changing the supported manifest. Use it when related APIs must be tested together
+before any of the participating changes reaches `dev`. Sources are sibling Git
+checkouts named after the packages. Default selection is the registry's active
+scientific packages; `--packages` selects a smaller explicit group.
+
+Install the metadata requirements and the packages' declared build backends in
+the builder environment first. The current scientific packages use setuptools;
+`python -m pip install -r requirements-ci-metadata.txt build setuptools wheel`
+prepares that builder. Build tools do not need to be added to every runtime
+environment. Then capture the committed sources and choose the checks:
+
+```sh
+python scripts/candidate_cohort.py capture --sources /path/to/checkouts \
+  --output /path/to/evidence/candidate.json
+python scripts/candidate_cohort.py verify \
+  --manifest /path/to/evidence/candidate.json \
+  --directory /path/to/evidence/python311 \
+  --python /path/to/python3.11 --scenario installed-platform
+```
+
+Run a separate verification directory with Python 3.13 for the other supported
+lane. A development run on another interpreter is useful evidence for that
+interpreter only. `--scenario study-platform` selects the six-evaluation study
+acceptance script when that script exists at the captured EPSM revision. A
+selected missing script fails; it never becomes a passing or skipped gate.
+Without `--scenario`, the check establishes wheel installation, dependency
+consistency and isolated owner imports only.
+
+Capture refuses dirty sources and records each actual immutable SHA, version,
+local source location and selected extras. Verification checks that those sources
+still match, archives the captured commits into its new output directory, builds
+one wheel per package and installs all candidate wheels together into a fresh
+virtual environment. It removes inherited Python path overrides, checks actual
+installed owner paths/versions and runs scenarios outside the source checkouts.
+Scientific scenarios keep their own fixtures, prerequisites and numerical
+assertions. They must fail when a required engine or service is missing.
+
+The output contains the wheel files, archived sources, environment, stage logs
+and `receipt.json`. The receipt records the candidate identity, source commits,
+actual wheel hashes, observed interpreter and imports, selected scenarios and
+failure/not-run status. Existing output directories are never replaced. A failed
+build or scenario leaves its receipt available. Keep outputs outside tracked
+source directories or under an explicitly ignored artifact directory.
+
+Use `--dependency-wheels` to supply an additional third-party wheel directory and
+`--no-index` for an offline installation. `--requirements` adds declared test or
+notebook prerequisites to the isolated environment. The tool invokes commands
+with argument lists rather than shell strings. It does not check out branches,
+commit files, publish artifacts or update release pins.
+
+After all feature gates pass, merge into `dev` through reviewed PRs and capture
+the actual merged cohort again. Conflict resolutions invalidate earlier evidence
+for the affected code. After normal release merges, verify tagged sources and
+artifacts separately before promoting the supported manifest. The handbook's
+study readiness guide records the campaign acceptance criteria and ownership.
+
 A new main commit can differ from the supported release revision without
 changing its package version, for example when CI adopts this interface. The
 daily report records that drift; it never dispatches downstream suites or silently
