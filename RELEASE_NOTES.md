@@ -1,3 +1,9 @@
+# Release 0.4.0 candidate — study platform
+
+Add portable, checksummed evaluation bundles with external hourly signals and retained engine-run identity. Public preflight delegates engine-owned capability checks; output validation separates thermal, delivery and assessment completeness. Existing in-memory and dictionary result interfaces remain readable.
+
+Candidate verification tooling builds and installs immutable wheel cohorts and records required scenario evidence. The study acceptance harness exercises paired annual energy and complete declared renovation impacts. Candidate status remains until installed and release gates pass.
+
 # Release 0.3.0 — 15 October 2026
 
 Catalogue selections and custom authored archetypes share Building.apply_archetype(), with explicit replace/fill choices, retained application reports and visible unresolved inputs. Record assembly, component-state selection and renovation handovers use the same shared definitions.

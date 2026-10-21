@@ -29,7 +29,7 @@ from .provenance import evaluation_identity
 from .requirements import output_requirements, preflight, validate_outputs
 from .results import EnergyResult, Evaluation, Results
 
-__version__ = "0.3.1"
+__version__ = "0.4.0"
 __all__ = [
     "configure_logging",
     "reset_logging",
