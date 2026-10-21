@@ -30,7 +30,24 @@ from packaging.utils import canonicalize_name
 SCENARIOS = {
     "installed-platform": "scripts/check_installed_platform.py",
     "study-platform": "scripts/check_study_platform.py",
+    "archetype-handoff": "scripts/check_archetype_handoff.py",
+    "workflow-handoff": "scripts/check_workflow_handoff.py",
 }
+
+
+def scenario_command(name, worker, source, directory, candidate, wheels):
+    """Call an existing installed scientific gate with its immutable evidence."""
+    command = [
+        worker,
+        "-I",
+        source / SCENARIOS[name],
+        "--directory",
+        directory,
+        "--require-wheels",
+    ]
+    if name != "installed-platform":
+        command.extend(["--compatibility-receipt", candidate, "--wheels", wheels])
+    return command
 
 
 def clean_environment():
@@ -61,14 +78,24 @@ def capture_cohort(sources, packages, registry, *, extras=None):
             raise ValueError(f"Unknown or inactive package: {name}")
         source = (Path(sources) / name).resolve(strict=True)
         if _git(source, "status", "--porcelain", "--untracked-files=all"):
-            raise ValueError(f"{name}: uncommitted inputs; commit or preserve them first")
+            raise ValueError(
+                f"{name}: uncommitted inputs; commit or preserve them first"
+            )
         revision = _git(source, "rev-parse", "HEAD")
         version, _, _, declared_extras = _metadata(source, revision, name)
-        selected_extras = list(dict.fromkeys([*policy.get("extras", []), *additions.get(name, [])]))
-        if any(canonicalize_name(extra) not in declared_extras for extra in selected_extras):
-            raise ValueError(f"{name}: requested extra is absent from committed metadata")
+        selected_extras = list(
+            dict.fromkeys([*policy.get("extras", []), *additions.get(name, [])])
+        )
+        if any(
+            canonicalize_name(extra) not in declared_extras for extra in selected_extras
+        ):
+            raise ValueError(
+                f"{name}: requested extra is absent from committed metadata"
+            )
         captured[name] = {
-            "source": str(source), "revision": revision, "version": version,
+            "source": str(source),
+            "revision": revision,
+            "version": version,
             "extras": selected_extras,
         }
     manifest = {"format": 1, "kind": "candidate", "packages": captured}
@@ -78,34 +105,57 @@ def capture_cohort(sources, packages, registry, *, extras=None):
 
 def validate_cohort(manifest):
     """Reject moving pins, changed checkouts and malformed candidate records."""
-    if (not isinstance(manifest, dict) or type(manifest.get("format")) is not int
-            or manifest["format"] != 1 or manifest.get("kind") != "candidate"
-            or not isinstance(manifest.get("packages"), dict) or not manifest["packages"]):
+    if (
+        not isinstance(manifest, dict)
+        or type(manifest.get("format")) is not int
+        or manifest["format"] != 1
+        or manifest.get("kind") != "candidate"
+        or not isinstance(manifest.get("packages"), dict)
+        or not manifest["packages"]
+    ):
         raise ValueError("Expected a nonempty format-1 candidate cohort")
     normalized_names = set()
     for name, entry in manifest["packages"].items():
-        if not isinstance(name, str) or not re.fullmatch(r"[A-Za-z0-9]+(?:[._-][A-Za-z0-9]+)*", name):
+        if not isinstance(name, str) or not re.fullmatch(
+            r"[A-Za-z0-9]+(?:[._-][A-Za-z0-9]+)*", name
+        ):
             raise ValueError("Invalid package name")
         normalized = canonicalize_name(name)
         if normalized in normalized_names:
             raise ValueError("Duplicate normalized package name")
         normalized_names.add(normalized)
-        if not isinstance(entry, dict) or not isinstance(entry.get("revision"), str) or not re.fullmatch(r"[0-9a-f]{40}", entry["revision"]):
-            raise ValueError(f"{name}: candidate revision must be a full immutable Git SHA")
-        if not isinstance(entry.get("source"), str) or not Path(entry["source"]).is_absolute():
+        if (
+            not isinstance(entry, dict)
+            or not isinstance(entry.get("revision"), str)
+            or not re.fullmatch(r"[0-9a-f]{40}", entry["revision"])
+        ):
+            raise ValueError(
+                f"{name}: candidate revision must be a full immutable Git SHA"
+            )
+        if (
+            not isinstance(entry.get("source"), str)
+            or not Path(entry["source"]).is_absolute()
+        ):
             raise ValueError(f"{name}: source must be an absolute checkout path")
         source = Path(entry["source"]).resolve(strict=True)
         if _git(source, "rev-parse", "HEAD") != entry["revision"]:
-            raise ValueError(f"{name}: checkout revision changed since candidate capture")
+            raise ValueError(
+                f"{name}: checkout revision changed since candidate capture"
+            )
         if _git(source, "status", "--porcelain", "--untracked-files=all"):
             raise ValueError(f"{name}: uncommitted changes since candidate capture")
         version, _, _, declared_extras = _metadata(source, entry["revision"], name)
         if entry.get("version") != version:
-            raise ValueError(f"{name}: candidate version differs from committed metadata")
+            raise ValueError(
+                f"{name}: candidate version differs from committed metadata"
+            )
         extras = entry.get("extras")
-        if (not isinstance(extras, list) or any(not isinstance(extra, str) for extra in extras)
-                or len({canonicalize_name(extra) for extra in extras}) != len(extras)
-                or any(canonicalize_name(extra) not in declared_extras for extra in extras)):
+        if (
+            not isinstance(extras, list)
+            or any(not isinstance(extra, str) for extra in extras)
+            or len({canonicalize_name(extra) for extra in extras}) != len(extras)
+            or any(canonicalize_name(extra) not in declared_extras for extra in extras)
+        ):
             raise ValueError(f"{name}: invalid or unavailable extras")
 
 
@@ -113,7 +163,9 @@ def wheel_identity(path, name, version):
     """Check packaged distribution metadata and hash the actual wheel bytes."""
     path = Path(path)
     with zipfile.ZipFile(path) as archive:
-        records = [item for item in archive.namelist() if item.endswith(".dist-info/METADATA")]
+        records = [
+            item for item in archive.namelist() if item.endswith(".dist-info/METADATA")
+        ]
         if len(records) != 1:
             raise ValueError(f"{path.name}: expected one distribution metadata file")
         metadata = Parser().parsestr(archive.read(records[0]).decode("utf-8"))
@@ -121,26 +173,40 @@ def wheel_identity(path, name, version):
         raise ValueError(f"{path.name}: wheel name differs from captured package")
     if metadata.get("Version") != version:
         raise ValueError(f"{path.name}: wheel version differs from captured package")
-    return {"filename": path.name, "version": version,
-            "sha256": hashlib.sha256(path.read_bytes()).hexdigest()}
+    return {
+        "filename": path.name,
+        "version": version,
+        "sha256": hashlib.sha256(path.read_bytes()).hexdigest(),
+    }
 
 
 def execute(command, *, directory, log):
     """Run one bounded command without shell interpolation; retain its output."""
     with Path(log).open("w", encoding="utf-8") as stream:
         result = subprocess.run(
-            [str(argument) for argument in command], cwd=directory,
-            env=clean_environment(), stdout=stream, stderr=subprocess.STDOUT,
-            timeout=1800, check=False,
+            [str(argument) for argument in command],
+            cwd=directory,
+            env=clean_environment(),
+            stdout=stream,
+            stderr=subprocess.STDOUT,
+            timeout=1800,
+            check=False,
         )
     if result.returncode:
         raise RuntimeError(f"Command failed ({result.returncode}); see {log}")
 
 
 def _archive(entry, directory):
-    payload = subprocess.check_output([
-        "git", "-C", entry["source"], "archive", "--format=tar", entry["revision"],
-    ])
+    payload = subprocess.check_output(
+        [
+            "git",
+            "-C",
+            entry["source"],
+            "archive",
+            "--format=tar",
+            entry["revision"],
+        ]
+    )
     directory.mkdir(parents=True)
     with tarfile.open(fileobj=io.BytesIO(payload)) as archive:
         archive.extractall(directory, filter="data")
@@ -149,24 +215,34 @@ def _archive(entry, directory):
 def _import_probe(packages):
     # Every imported owner must live inside this environment, with matching
     # distribution metadata. Isolated mode also excludes the scenario's cwd.
-    return "\n".join([
-        "import importlib, importlib.metadata, json, pathlib, sys",
-        f"expected = {repr({name: entry['version'] for name, entry in packages.items()})}",
-        "observed = {}",
-        "for name, version in expected.items():",
-        "    module = importlib.import_module(name)",
-        "    path = pathlib.Path(module.__file__).resolve()",
-        "    assert path.is_relative_to(pathlib.Path(sys.prefix).resolve()), (name, str(path))",
-        "    assert 'site-packages' in path.parts, (name, str(path))",
-        "    actual = importlib.metadata.version(name)",
-        "    assert actual == version, (name, actual, version)",
-        "    observed[name] = {'version': actual, 'import_path': str(path)}",
-        "print(json.dumps({'python': sys.version, 'packages': observed}, indent=2))",
-    ])
+    return "\n".join(
+        [
+            "import importlib, importlib.metadata, json, pathlib, sys",
+            f"expected = {repr({name: entry['version'] for name, entry in packages.items()})}",
+            "observed = {}",
+            "for name, version in expected.items():",
+            "    module = importlib.import_module(name)",
+            "    path = pathlib.Path(module.__file__).resolve()",
+            "    assert path.is_relative_to(pathlib.Path(sys.prefix).resolve()), (name, str(path))",
+            "    assert 'site-packages' in path.parts, (name, str(path))",
+            "    actual = importlib.metadata.version(name)",
+            "    assert actual == version, (name, actual, version)",
+            "    observed[name] = {'version': actual, 'import_path': str(path)}",
+            "print(json.dumps({'python': sys.version, 'packages': observed}, indent=2))",
+        ]
+    )
 
 
-def verify_cohort(manifest, directory, *, python=sys.executable, scenarios=(),
-                  requirements=None, dependency_wheels=None, no_index=False):
+def verify_cohort(
+    manifest,
+    directory,
+    *,
+    python=sys.executable,
+    scenarios=(),
+    requirements=None,
+    dependency_wheels=None,
+    no_index=False,
+):
     """Build archived sources, install all wheels together, and run selected gates.
 
     The caller owns a new output directory. Third-party requirements may come
@@ -188,18 +264,30 @@ def verify_cohort(manifest, directory, *, python=sys.executable, scenarios=(),
     wheels = directory / "wheels"
     wheels.mkdir()
     receipt = {
-        "format": 1, "kind": "candidate-verification", "status": "running",
-        "manifest_sha256": hashlib.sha256(json.dumps(manifest, sort_keys=True).encode()).hexdigest(),
-        "packages": manifest["packages"], "wheels": {}, "stages": [],
-        "scenarios": {name: {"required": True, "status": "not_run"} for name in scenarios},
+        "format": 1,
+        "kind": "candidate-verification",
+        "status": "running",
+        "manifest_sha256": hashlib.sha256(
+            json.dumps(manifest, sort_keys=True).encode()
+        ).hexdigest(),
+        "packages": manifest["packages"],
+        "wheels": {},
+        "stages": [],
+        "scenarios": {
+            name: {"required": True, "status": "not_run"} for name in scenarios
+        },
     }
     candidate = directory / "candidate.json"
     candidate.write_text(json.dumps(manifest, indent=2) + "\n")
 
     def run(label, command):
         log = logs / f"{label}.log"
-        stage = {"name": label, "command": [str(arg) for arg in command],
-                 "log": str(log), "status": "running"}
+        stage = {
+            "name": label,
+            "command": [str(arg) for arg in command],
+            "log": str(log),
+            "status": "running",
+        }
         receipt["stages"].append(stage)
         try:
             execute(command, directory=directory, log=log)
@@ -216,8 +304,22 @@ def verify_cohort(manifest, directory, *, python=sys.executable, scenarios=(),
             source = directory / "sources" / name
             _archive(entry, source)
             before = set(wheels.glob("*.whl"))
-            run(f"build-{name}", [python, "-I", "-m", "pip", "wheel", "--no-deps",
-                "--no-build-isolation", "--no-cache-dir", "--wheel-dir", wheels, source])
+            run(
+                f"build-{name}",
+                [
+                    python,
+                    "-I",
+                    "-m",
+                    "pip",
+                    "wheel",
+                    "--no-deps",
+                    "--no-build-isolation",
+                    "--no-cache-dir",
+                    "--wheel-dir",
+                    wheels,
+                    source,
+                ],
+            )
             produced = set(wheels.glob("*.whl")) - before
             if len(produced) != 1:
                 raise ValueError(f"{name}: expected one built candidate wheel")
@@ -227,17 +329,31 @@ def verify_cohort(manifest, directory, *, python=sys.executable, scenarios=(),
             built.append(str(wheel) + suffix)
         environment = directory / "environment"
         run("create-environment", [python, "-I", "-m", "venv", environment])
-        worker = environment / ("Scripts/python.exe" if os.name == "nt" else "bin/python")
+        worker = environment / (
+            "Scripts/python.exe" if os.name == "nt" else "bin/python"
+        )
         install = [worker, "-I", "-m", "pip", "install", "--find-links", wheels]
         if dependency_wheels is not None:
-            install.extend(["--find-links", Path(dependency_wheels).resolve(strict=True)])
+            install.extend(
+                ["--find-links", Path(dependency_wheels).resolve(strict=True)]
+            )
         if no_index:
             install.append("--no-index")
         if requirements is not None:
             install.extend(["-r", Path(requirements).resolve(strict=True)])
         run("install", [*install, *built])
         run("dependency-consistency", [worker, "-I", "-m", "pip", "check"])
-        probe = run("installed-imports", [worker, "-I", "-c", _import_probe(manifest["packages"])])
+        inventory = run(
+            "dependency-inventory", [worker, "-I", "-m", "pip", "freeze", "--all"]
+        )
+        receipt["dependency_inventory"] = {
+            "path": str(inventory.relative_to(directory)),
+            "sha256": hashlib.sha256(inventory.read_bytes()).hexdigest(),
+        }
+        probe = run(
+            "installed-imports",
+            [worker, "-I", "-c", _import_probe(manifest["packages"])],
+        )
         receipt["installed"] = json.loads(probe.read_text())
         for name in scenarios:
             receipt["scenarios"][name]["status"] = "running"
@@ -245,11 +361,17 @@ def verify_cohort(manifest, directory, *, python=sys.executable, scenarios=(),
             script = epsm / SCENARIOS[name]
             try:
                 if not script.is_file():
-                    raise ValueError(f"Required scenario is absent from the captured EPSM source: {name}")
-                command = [worker, "-I", script, "--directory",
-                           directory / "scenarios" / name, "--require-wheels"]
-                if name == "study-platform":
-                    command.extend(["--compatibility-receipt", candidate, "--wheels", wheels])
+                    raise ValueError(
+                        f"Required scenario is absent from the captured EPSM source: {name}"
+                    )
+                command = scenario_command(
+                    name,
+                    worker,
+                    epsm,
+                    directory / "scenarios" / name,
+                    candidate,
+                    wheels,
+                )
                 run(f"scenario-{name}", command)
             except Exception:
                 receipt["scenarios"][name]["status"] = "failed"
@@ -268,18 +390,33 @@ def verify_cohort(manifest, directory, *, python=sys.executable, scenarios=(),
 def main(argv=None):
     parser = argparse.ArgumentParser(description=__doc__)
     commands = parser.add_subparsers(dest="command", required=True)
-    capture = commands.add_parser("capture", help="Capture clean committed candidate sources")
+    capture = commands.add_parser(
+        "capture", help="Capture clean committed candidate sources"
+    )
     capture.add_argument("--sources", type=Path, required=True)
     capture.add_argument("--packages", nargs="+")
-    capture.add_argument("--extra", action="append", default=[], metavar="PACKAGE:EXTRA",
-                         help="Add a declared package extra without changing registry defaults")
-    capture.add_argument("--registry", type=Path, default=Path(__file__).resolve().parents[1] / "platform-registry.json")
+    capture.add_argument(
+        "--extra",
+        action="append",
+        default=[],
+        metavar="PACKAGE:EXTRA",
+        help="Add a declared package extra without changing registry defaults",
+    )
+    capture.add_argument(
+        "--registry",
+        type=Path,
+        default=Path(__file__).resolve().parents[1] / "platform-registry.json",
+    )
     capture.add_argument("--output", type=Path, required=True)
-    verify = commands.add_parser("verify", help="Build/install candidates and retain selected gate evidence")
+    verify = commands.add_parser(
+        "verify", help="Build/install candidates and retain selected gate evidence"
+    )
     verify.add_argument("--manifest", type=Path, required=True)
     verify.add_argument("--directory", type=Path, required=True)
     verify.add_argument("--python", default=sys.executable)
-    verify.add_argument("--scenario", action="append", choices=sorted(SCENARIOS), default=[])
+    verify.add_argument(
+        "--scenario", action="append", choices=sorted(SCENARIOS), default=[]
+    )
     verify.add_argument("--requirements", type=Path)
     verify.add_argument("--dependency-wheels", type=Path)
     verify.add_argument("--no-index", action="store_true")
@@ -287,8 +424,12 @@ def main(argv=None):
     try:
         if args.command == "capture":
             policy = _load_json(args.registry)
-            packages = args.packages or [name for name, entry in policy["packages"].items()
-                if entry.get("status") == "active" and entry.get("role", "scientific") == "scientific"]
+            packages = args.packages or [
+                name
+                for name, entry in policy["packages"].items()
+                if entry.get("status") == "active"
+                and entry.get("role", "scientific") == "scientific"
+            ]
             additions = {}
             for selection in args.extra:
                 parts = selection.split(":")
@@ -301,9 +442,15 @@ def main(argv=None):
                 stream.write(json.dumps(manifest, indent=2) + "\n")
             print(args.output)
         else:
-            verify_cohort(_load_json(args.manifest), args.directory, python=args.python,
-                scenarios=args.scenario, requirements=args.requirements,
-                dependency_wheels=args.dependency_wheels, no_index=args.no_index)
+            verify_cohort(
+                _load_json(args.manifest),
+                args.directory,
+                python=args.python,
+                scenarios=args.scenario,
+                requirements=args.requirements,
+                dependency_wheels=args.dependency_wheels,
+                no_index=args.no_index,
+            )
             print(args.directory / "receipt.json")
     except (ValueError, OSError, RuntimeError, subprocess.SubprocessError) as error:
         parser.exit(1, f"Candidate check failed: {error}\n")

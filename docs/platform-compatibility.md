@@ -142,7 +142,8 @@ scientific packages; `--packages` selects a smaller explicit group.
 Repeat `--extra PACKAGE:EXTRA` to add declared notebook or integration extras
 for that candidate without editing the registry. For example, full study checks
 can select `--extra epsm:examples --extra epsm_workflows:epc
---extra epsm_studies:workflows --extra epsm_studies:results`. Core's geometry and
+--extra epsm_studies:workflows --extra epsm_studies:results
+--extra smhi2epw:morphing`. Core's geometry and
 EPSM's `all` extras are already selected by the current registry.
 
 Install the metadata requirements and the packages' declared build backends in
@@ -165,6 +166,10 @@ lane. A development run on another interpreter is useful evidence for that
 interpreter only. `--scenario study-platform` selects the six-evaluation study
 acceptance script when that script exists at the captured EPSM revision. A
 selected missing script fails; it never becomes a passing or skipped gate.
+`--scenario archetype-handoff` and `--scenario workflow-handoff` call the existing
+installed authoring and callback-design gates with the same frozen source
+receipt and wheels. Repeat the option to select every required gate. The receipt
+also links a checksummed inventory of installed third-party distributions.
 Without `--scenario`, the check establishes wheel installation, dependency
 consistency and isolated owner imports only.
 
