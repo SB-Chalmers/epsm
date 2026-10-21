@@ -74,6 +74,11 @@ def main():
     parser.add_argument("--mode", choices=("pinned", "main"), required=True)
     parser.add_argument("--output", type=Path, required=True)
     parser.add_argument(
+        "--manifest",
+        type=Path,
+        help="Explicit candidate manifest; defaults to supported pins",
+    )
+    parser.add_argument(
         "--wheels", type=Path, help="Directory of actual built wheel artifacts"
     )
     parser.add_argument(
@@ -81,7 +86,8 @@ def main():
     )
     args = parser.parse_args()
     root = Path(__file__).resolve().parents[1]
-    manifest = json.loads((root / "compatibility.json").read_text())
+    selected_manifest = args.manifest or root / "compatibility.json"
+    manifest = json.loads(selected_manifest.read_text())
     result = collect_receipt(
         root,
         manifest,
@@ -89,6 +95,12 @@ def main():
         wheels=args.wheels,
         energyplus_exe=args.energyplus_exe,
     )
+    result["cohort"] = (
+        "candidate" if manifest.get("kind") == "candidate" else "supported"
+    )
+    result["manifest_sha256"] = hashlib.sha256(
+        selected_manifest.read_bytes()
+    ).hexdigest()
     args.output.parent.mkdir(parents=True, exist_ok=True)
     args.output.write_text(
         json.dumps(

@@ -220,6 +220,42 @@ for the affected code. After normal release merges, verify tagged sources and
 artifacts separately before promoting the supported manifest. The handbook's
 study readiness guide records the campaign acceptance criteria and ownership.
 
+## Check the same candidate in consumer CI
+
+EPSM, Workflows, Studies and RC accept an optional manual-workflow input named
+`candidate_manifest_revision`. It must be the full immutable EPSM commit that
+contains a separate `compatibility-candidate.json` record. Leaving the input empty
+keeps the ordinary supported-manifest route. The existing main-dependency
+experiment is separate and cannot be combined with candidate selection.
+
+Prepare the candidate record after owner feature commits are fixed. Use the
+captured package versions and exact revisions, mark `kind` as `candidate`, and
+use `self` for EPSM. Retain the unchanged Viewer display entry from the supported
+manifest so the display handoff can also run. Commit that candidate record in
+EPSM, then use the resulting EPSM SHA as the manual input in each consumer. This
+avoids both moving dependency branches and circular commit references.
+
+Run each workflow from the exact consumer source recorded by the candidate.
+The shared matrix generator checks its calling checkout and the selected EPSM
+manifest checkout before returning any dependency revisions. EPSM's own calling
+checkout must be the candidate-manifest commit resolved by `self`. A changed
+consumer requires a newly captured cohort; an old receipt cannot approve it.
+No candidate selection edits `compatibility.json` or triggers sibling jobs.
+
+Candidate matrix rows retain their `cohort` and manifest/consumer revisions.
+EPSM's compatibility and logging receipts read the explicitly selected manifest,
+while ordinary invocations continue using supported pins. Workflows includes its
+weather dependency. Studies keeps its dependency-light protocol checks and runs
+a separate coordinated wheel lane for result archives and the workflow facade.
+The new Studies lane needs the same explicit read-only private dependency keys
+as the other consumers; an ordinary repository token is insufficient.
+
+Hosted checks still need to be executed and reviewed at these identities before
+merging. A local candidate run is not a hosted passing status. Branch protection
+and maintainer review remain in force; selecting a candidate does not bypass
+either. After all development merges, capture and check their actual merged
+sources again before release promotion.
+
 A new main commit can differ from the supported release revision without
 changing its package version, for example when CI adopts this interface. The
 daily report records that drift; it never dispatches downstream suites or silently
