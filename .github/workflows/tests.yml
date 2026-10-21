@@ -3,6 +3,7 @@ name: EPSM supported package checks
 on:
   pull_request:
     branches: [dev, main]
+    types: [opened, synchronize, reopened, labeled, unlabeled]
   push:
     branches: [main]
   workflow_dispatch:
@@ -11,6 +12,13 @@ on:
         description: Check current dependency main branches on Python 3.13 instead of the pinned combination
         type: boolean
         default: false
+      candidate_manifest_revision:
+        description: Immutable EPSM SHA containing compatibility-candidate.json; empty uses supported pins
+        type: string
+        default: ''
+
+env:
+  CANDIDATE_REVISION: ${{ inputs.candidate_manifest_revision || (github.event_name == 'pull_request' && contains(github.event.pull_request.labels.*.name, 'platform-candidate') && (vars.EPSM_CANDIDATE_MANIFEST_SHA || 'missing-candidate-manifest-sha')) || '' }}
 
 permissions:
   contents: read
@@ -21,31 +29,62 @@ concurrency:
 
 jobs:
   combination:
+    if: github.event.action != 'labeled' && github.event.action != 'unlabeled' || github.event.label.name == 'platform-candidate'
     runs-on: ubuntu-latest
     timeout-minutes: 5
     outputs:
       matrix: ${{ steps.matrix.outputs.matrix }}
       display_matrix: ${{ steps.display.outputs.matrix }}
     steps:
+      - name: Require an immutable candidate selection
+        if: env.CANDIDATE_REVISION != ''
+        run: |
+          [[ "$CANDIDATE_REVISION" =~ ^[0-9a-f]{40}$ ]] || { echo 'Set EPSM_CANDIDATE_MANIFEST_SHA to the full checked EPSM SHA before adding platform-candidate'; exit 1; }
       - uses: actions/checkout@v4
+        with:
+          ref: ${{ env.CANDIDATE_REVISION != '' && (github.event.pull_request.head.sha || github.sha) || github.sha }}
+          fetch-depth: 0
       - uses: actions/setup-python@v5
         with:
           python-version: '3.11'
+      - uses: actions/checkout@v4
+        if: env.CANDIDATE_REVISION != ''
+        with:
+          ref: ${{ env.CANDIDATE_REVISION }}
+          path: .ci/candidate
+          sparse-checkout: |
+            /compatibility-candidate.json
+          sparse-checkout-cone-mode: false
+      - name: Check the prospective candidate merge without changing its source
+        if: env.CANDIDATE_REVISION != '' && github.event_name == 'pull_request'
+        env:
+          TARGET_BRANCH: ${{ github.base_ref }}
+        run: |
+          git merge-tree --write-tree "origin/$TARGET_BRANCH" HEAD
+          echo "Candidate cohort: $CANDIDATE_REVISION" >> "$GITHUB_STEP_SUMMARY"
+          echo "Candidate source: $(git rev-parse HEAD)" >> "$GITHUB_STEP_SUMMARY"
       - id: matrix
         env:
           MATRIX_MODE: ${{ inputs.development_dependencies && 'main' || 'pinned' }}
-        run: python scripts/compatibility_matrix.py --mode "$MATRIX_MODE" --manifest-revision "$(git rev-parse HEAD)" >> "$GITHUB_OUTPUT"
+          PLATFORM_MANIFEST: ${{ env.CANDIDATE_REVISION != '' && '.ci/candidate/compatibility-candidate.json' || 'compatibility.json' }}
+          PLATFORM_CHECKOUT: ${{ env.CANDIDATE_REVISION != '' && '.ci/candidate' || '.' }}
+        run: |
+          python scripts/compatibility_matrix.py --manifest "$PLATFORM_MANIFEST" \
+            --mode "$MATRIX_MODE" --manifest-revision "$(git -C "$PLATFORM_CHECKOUT" rev-parse HEAD)" \
+            --candidate-revision "$CANDIDATE_REVISION" --consumer-revision "$(git rev-parse HEAD)" >> "$GITHUB_OUTPUT"
 
 
       - id: display
         env:
           MATRIX_MODE: ${{ inputs.development_dependencies && 'main' || 'pinned' }}
+          PLATFORM_MANIFEST: ${{ env.CANDIDATE_REVISION != '' && '.ci/candidate/compatibility-candidate.json' || 'compatibility.json' }}
         run: |
           python - <<'PYTHON' >> "$GITHUB_OUTPUT"
           import json, os, subprocess
           from scripts.compatibility_matrix import build_matrix
           revision = subprocess.check_output(['git', 'rev-parse', 'HEAD'], text=True).strip()
-          matrix = build_matrix(json.load(open('compatibility.json')), mode=os.environ['MATRIX_MODE'], packages=['epsm_data', 'epsm_core', 'epsm_viewer'], manifest_revision=revision)
+          candidate = os.environ.get('CANDIDATE_REVISION')
+          matrix = build_matrix(json.load(open(os.environ['PLATFORM_MANIFEST'])), mode=os.environ['MATRIX_MODE'], packages=['epsm_data', 'epsm_core', 'epsm_viewer'], manifest_revision=candidate or revision, candidate_revision=candidate, consumer_revision=revision)
           matrix['include'] = [row for row in matrix['include'] if row['python'] == '3.13']
           print('matrix=' + json.dumps(matrix, separators=(',', ':')))
           PYTHON
@@ -54,12 +93,17 @@ jobs:
     name: platform (${{ matrix.python }}, ${{ matrix.mode }})
     needs: combination
     runs-on: ubuntu-24.04
-    timeout-minutes: 30
+    timeout-minutes: 45
+    env:
+      PLATFORM_MANIFEST: ${{ matrix.cohort == 'candidate' && 'compatibility-candidate.json' || 'compatibility.json' }}
     strategy:
       fail-fast: false
       matrix: ${{ fromJSON(needs.combination.outputs.matrix) }}
     steps:
       - uses: actions/checkout@v4
+        with:
+          ref: ${{ env.CANDIDATE_REVISION != '' && (github.event.pull_request.head.sha || github.sha) || github.sha }}
+          fetch-depth: 0
       - uses: actions/checkout@v4
         with:
           repository: SB-Chalmers/epsm_data
@@ -147,9 +191,9 @@ jobs:
           ruff check src/epsm/__init__.py src/epsm/building.py src/epsm/archetypes.py src/epsm/results.py tests examples scripts
           ruff format --check src/epsm/__init__.py src/epsm/building.py src/epsm/archetypes.py src/epsm/results.py tests examples scripts
       - name: Record the actual tested source revisions
-        run: python scripts/record_compatibility.py --mode '${{ matrix.mode }}' --wheels .ci/wheels --energyplus-exe "$ENERGYPLUS_EXE" --output build/compatibility-receipt.json
+        run: python scripts/record_compatibility.py --mode '${{ matrix.mode }}' --manifest "$PLATFORM_MANIFEST" --wheels .ci/wheels --energyplus-exe "$ENERGYPLUS_EXE" --output build/compatibility-receipt.json
       - name: Verify the installed logging cohort
-        run: python scripts/verify_logging_installation.py --mode '${{ matrix.mode }}'
+        run: python scripts/verify_logging_installation.py --mode '${{ matrix.mode }}' --manifest "$PLATFORM_MANIFEST"
       - name: Require installed handoffs and execute the platform suite
         env:
           EPSM_LOGGING_INTEGRATION: '1'
@@ -168,6 +212,12 @@ jobs:
             --directory build/workflow-handoff --wheels .ci/wheels \
             --compatibility-receipt build/compatibility-receipt.json \
             --energyplus-exe "$ENERGYPLUS_EXE"
+      - name: Require complete paired study and portable archive
+        run: |
+          python scripts/check_study_platform.py --require-wheels \
+            --directory build/study-platform --wheels .ci/wheels \
+            --compatibility-receipt build/compatibility-receipt.json \
+            --energyplus-exe "$ENERGYPLUS_EXE"
       - name: Run examples in fresh kernels
         run: python scripts/run_examples.py --integration --logging
       - name: Run LCA public annual renovation examples in fresh kernels
@@ -182,6 +232,7 @@ jobs:
             build/installed-handoff
             build/archetype-handoff
             build/workflow-handoff
+            build/study-platform
             build/executed-examples
             build/lca-executed-examples
 
@@ -203,10 +254,15 @@ jobs:
     needs: combination
     runs-on: ubuntu-latest
     timeout-minutes: 10
+    env:
+      PLATFORM_MANIFEST: ${{ matrix.cohort == 'candidate' && 'compatibility-candidate.json' || 'compatibility.json' }}
     strategy:
       matrix: ${{ fromJSON(needs.combination.outputs.display_matrix) }}
     steps:
       - uses: actions/checkout@v4
+        with:
+          ref: ${{ env.CANDIDATE_REVISION != '' && (github.event.pull_request.head.sha || github.sha) || github.sha }}
+          fetch-depth: 0
       - uses: actions/checkout@v4
         with:
           repository: SB-Chalmers/epsm_data
@@ -250,6 +306,7 @@ jobs:
       - name: Require installed Core to Python and JavaScript Viewer handoff
         run: |
           python scripts/check_viewer_handoff.py --mode '${{ matrix.mode }}' \
+            --manifest "$PLATFORM_MANIFEST" \
             --viewer-javascript-root .ci/epsm_viewer \
             --core-revision "$(git -C .ci/epsm_core rev-parse HEAD)" \
             --viewer-revision "$(git -C .ci/epsm_viewer rev-parse HEAD)" \

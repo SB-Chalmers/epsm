@@ -4,6 +4,7 @@
 import importlib.util
 import json
 import subprocess
+import sys
 from pathlib import Path
 
 import pytest
@@ -14,6 +15,45 @@ SPEC = importlib.util.spec_from_file_location(
 )
 MODULE = importlib.util.module_from_spec(SPEC)
 SPEC.loader.exec_module(MODULE)
+
+
+def test_cli_receipt_uses_the_explicit_candidate_without_replacing_supported_pins(
+    tmp_path, monkeypatch
+):
+    candidate = tmp_path / "candidate.json"
+    candidate.write_text(
+        json.dumps(
+            {
+                "kind": "candidate",
+                "packages": {"epsm": {"version": "0.4.0", "revision": "self"}},
+            }
+        )
+    )
+    output = tmp_path / "receipt.json"
+    observed = {}
+
+    def collect(root, manifest, **options):
+        observed.update(manifest)
+        return {"packages": manifest["packages"]}
+
+    monkeypatch.setattr(MODULE, "collect_receipt", collect)
+    monkeypatch.setattr(
+        sys,
+        "argv",
+        [
+            "receipt",
+            "--mode",
+            "pinned",
+            "--manifest",
+            str(candidate),
+            "--output",
+            str(output),
+        ],
+    )
+    MODULE.main()
+    result = json.loads(output.read_text())
+    assert observed["packages"]["epsm"]["version"] == "0.4.0"
+    assert result["cohort"] == "candidate" and len(result["manifest_sha256"]) == 64
 
 
 def repository(path):

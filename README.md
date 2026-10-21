@@ -1,8 +1,15 @@
 # EPSM
 
+Version **0.4.0** adds portable evaluation bundles and output preflight.
+
 EPSM connects a physical Core building, Data constructions, an energy engine and
 LCA. It keeps the building state, calculation choices, energy and climate results
 for each evaluation.
+
+Existing evaluations can be saved as [portable bundles](docs/evaluation-bundles.md)
+with external arrays and checksummed relative artifacts.
+Explicit [preflight and output checks](docs/preflight-and-outputs.md) help prepare
+study cases without running an engine.
 
 ```python
 from epsm import Building, Weather
@@ -172,16 +179,16 @@ reported separately; metadata consistency does not establish scientific integrat
 <!-- compatibility-table:start -->
 | Package | Version | Tested commit |
 | --- | --- | --- |
-| `epsm` | 0.3.1 | `self` |
-| `epsm_core` | 0.8.0 | `b197e092eb0423de5a9547873a0f596493ab7536` |
+| `epsm` | 0.4.0 | `self` |
+| `epsm_core` | 0.8.2 | `1ea867d849b808bc9f879f2fb740c54a51754295` |
 | `epsm_data` | 0.6.0 | `bc8449402b9e0dbe0ea85ff76c954cf36d209f86` |
 | `epsm_db` | 0.3.0 | `9e29a575f5495b76d5a8553bbe6e20dd4f0e1ff0` |
 | `epsm_lca` | 0.2.0 | `00141d0500e717b4f18a9d69e158f0af2aae1934` |
-| `epsm_rc` | 0.8.2 | `6464f7d832d5ff3093fa754c0dc4d0d2930450dc` |
-| `epsm_studies` | 0.3.0 | `16ed6bd0bd63cee588f6e7ad951d71f8f9543ecb` |
+| `epsm_rc` | 0.9.0 | `8837d3e8afd2d5be70172fd88d74598f1eba74ff` |
+| `epsm_studies` | 0.4.0 | `d38ffc053cc4e9f88cb86e15018bf6ce309a65a9` |
 | `epsm_viewer` | 0.1.0 | `f2c847b9cd44280b7cf21803acfefa6e49e78b1b` |
-| `epsm_workflows` | 0.3.1 | `c558edfeee9a8bf93aabe07ef3834e99aab20cce` |
-| `smhi2epw` | 1.2.0 | `f27d70c8fb665c13ca4263ebe6337f11e45cf73d` |
+| `epsm_workflows` | 0.4.0 | `433a8b6d461ad2016e6f8c046aeaeb16b2861787` |
+| `smhi2epw` | 1.3.0 | `6792b2a4d1bc6a7bdcd1bd77b35dd0ff704f2b29` |
 <!-- compatibility-table:end -->
 
 Core's explicit presets, ground inputs, thermal bridge choices, load reference

@@ -1,3 +1,22 @@
+# Release 0.4.0 — study platform
+
+Add portable, checksummed evaluation bundles with external hourly signals and retained engine-run identity. Public preflight delegates engine-owned capability checks; output validation separates thermal, delivery and assessment completeness. Existing in-memory and dictionary result interfaces remain readable.
+
+Both engine results now capture the actual resolved physical/weather/calendar
+identity at normalization. Conflicting raw or cached identities are rejected;
+legacy caches without this evidence are recomputed rather than relabelled.
+
+Preflight composes public Core/RC output discovery and rejects unsupported required
+names, resolutions, scopes, inactive channels and incompatible units before
+execution. Optional unavailable signals remain warnings. Core 0.8.2 supplies the
+new owner descriptor handoff; extra free-text EnergyPlus variables stay explicitly
+unverified rather than being advertised as guaranteed study outputs.
+
+Cohort verification tooling builds and installs immutable wheel combinations and
+records required scenario evidence. The study acceptance harness exercises paired
+annual energy and complete declared renovation impacts. Candidate verification
+and promotion of the supported release manifest remain separate operations.
+
 # Release 0.3.0 — 15 October 2026
 
 Catalogue selections and custom authored archetypes share Building.apply_archetype(), with explicit replace/fill choices, retained application reports and visible unresolved inputs. Record assembly, component-state selection and renovation handovers use the same shared definitions.

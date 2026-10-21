@@ -9,7 +9,14 @@ DEFAULT_PYTHON = ("3.11", "3.13")
 
 
 def build_matrix(
-    manifest, *, mode="pinned", consumer=None, packages=None, manifest_revision=None
+    manifest,
+    *,
+    mode="pinned",
+    consumer=None,
+    packages=None,
+    manifest_revision=None,
+    candidate_revision=None,
+    consumer_revision=None,
 ):
     """Select routine pinned lanes or one opt-in main lane without changing pins.
 
@@ -29,6 +36,28 @@ def build_matrix(
         r"[0-9a-f]{40}", manifest_revision
     ):
         raise ValueError("--manifest-revision must be the captured manifest Git SHA-40")
+    if candidate_revision:
+        if not re.fullmatch(r"[0-9a-f]{40}", candidate_revision):
+            raise ValueError(
+                "Candidate selection requires an immutable EPSM Git SHA-40"
+            )
+        if mode != "pinned":
+            raise ValueError("A candidate cohort requires pinned mode")
+        if candidate_revision != manifest_revision:
+            raise ValueError(
+                "Candidate manifest checkout differs from requested revision"
+            )
+        if manifest.get("kind") != "candidate":
+            raise ValueError(
+                "Explicit candidate selection requires a candidate manifest"
+            )
+        own = cohort.get(consumer or "epsm", {})
+        expected = own.get("revision") if isinstance(own, dict) else own
+        expected = candidate_revision if expected == "self" else expected
+        if consumer_revision != expected:
+            raise ValueError(
+                "Candidate consumer checkout differs from its captured revision"
+            )
     selected = (
         set(packages)
         if packages is not None
@@ -73,6 +102,8 @@ def build_matrix(
             raise ValueError("Main-dependency checks require Python 3.13 support")
         versions = ("3.13",)
     provenance = {"manifest_revision": manifest_revision} if manifest_revision else {}
+    if candidate_revision:
+        provenance.update(cohort="candidate", consumer_revision=consumer_revision)
     return {
         "include": [
             {"python": python, "mode": mode, **provenance, **refs}
@@ -101,6 +132,13 @@ def main():
     parser.add_argument(
         "--manifest-revision", help="Captured Git SHA of the EPSM manifest checkout"
     )
+    parser.add_argument(
+        "--candidate-revision",
+        help="Explicit immutable candidate manifest checkout SHA",
+    )
+    parser.add_argument(
+        "--consumer-revision", help="Actual checkout SHA of the consumer under test"
+    )
     args = parser.parse_args()
     try:
         matrix = build_matrix(
@@ -109,6 +147,8 @@ def main():
             consumer=args.consumer,
             packages=args.packages,
             manifest_revision=args.manifest_revision,
+            candidate_revision=args.candidate_revision,
+            consumer_revision=args.consumer_revision,
         )
     except (OSError, ValueError) as error:
         parser.error(str(error))
