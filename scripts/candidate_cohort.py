@@ -190,6 +190,8 @@ def verify_cohort(manifest, directory, *, python=sys.executable, scenarios=(),
         "packages": manifest["packages"], "wheels": {}, "stages": [],
         "scenarios": {name: {"required": True, "status": "not_run"} for name in scenarios},
     }
+    candidate = directory / "candidate.json"
+    candidate.write_text(json.dumps(manifest, indent=2) + "\n")
 
     def run(label, command):
         log = logs / f"{label}.log"
@@ -241,8 +243,11 @@ def verify_cohort(manifest, directory, *, python=sys.executable, scenarios=(),
             try:
                 if not script.is_file():
                     raise ValueError(f"Required scenario is absent from the captured EPSM source: {name}")
-                run(f"scenario-{name}", [worker, "-I", script, "--directory",
-                    directory / "scenarios" / name, "--require-wheels"])
+                command = [worker, "-I", script, "--directory",
+                           directory / "scenarios" / name, "--require-wheels"]
+                if name == "study-platform":
+                    command.extend(["--compatibility-receipt", candidate, "--wheels", wheels])
+                run(f"scenario-{name}", command)
             except Exception:
                 receipt["scenarios"][name]["status"] = "failed"
                 raise

@@ -163,6 +163,30 @@ selected missing script fails; it never becomes a passing or skipped gate.
 Without `--scenario`, the check establishes wheel installation, dependency
 consistency and isolated owner imports only.
 
+The study gate authors its baseline and two renovation alternatives with the
+shared teaching fixture, then calls the public Study interface to preview,
+prepare, execute and archive six paired evaluations. It requires hourly heating,
+annual delivered energy and complete declared LCA, checks both baseline and
+same-input engine comparisons, and verifies a relocated archive in a fresh
+process that rejects execution-package imports. It imposes no numerical
+agreement threshold between engines. Set `ENERGYPLUS_EXE` to the actual 24.2
+executable before selecting this gate. The candidate harness passes its source
+receipt and wheel directory automatically.
+
+To run that same gate directly inside an installed environment:
+
+```sh
+python scripts/check_study_platform.py --directory outputs/study-platform \
+  --energyplus-exe /path/to/energyplus \
+  --compatibility-receipt /path/to/evidence/candidate.json \
+  --wheels /path/to/evidence/wheels --require-wheels
+```
+
+Source-mode exploratory runs can omit `--require-wheels`; without a revision
+receipt their package source identities are explicitly unverified. Required
+prerequisite failures retain `study-compatibility-report.json`, and an existing
+acceptance directory is never overwritten.
+
 Capture refuses dirty sources and records each actual immutable SHA, version,
 local source location and selected extras. Verification checks that those sources
 still match, archives the captured commits into its new output directory, builds
