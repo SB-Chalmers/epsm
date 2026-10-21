@@ -19,6 +19,16 @@ Here `evaluation` is a previously calculated Evaluation. Its `energy_id` and
 the raw engine's content identity, `energy.run_id`, have distinct meanings. Older
 energy dictionaries without `run_id` remain readable; no identity is invented.
 
+Fresh simulation normalization captures `energy.diagnostics.physical_inputs_sha256`
+from the exact resolved Core spec supplied to the engine, together with its
+`weather_sha256`, `calendar_year` and original `building_snapshot_id`. Conflicting
+identity supplied by an engine raises an error. Both engines use the same
+boundary. The evaluation's `state_id` records the current captured state; a
+reused energy calculation retains the original engine snapshot identity.
+Legacy cache entries without physical/weather/calendar evidence are recomputed;
+conflicting cache identities fail explicitly. Existing saved evaluations remain
+readable, but missing provenance is never reconstructed by an archive reader.
+
 The stored format is `epsm-evaluation-bundle/1`, independently of the producer's
 package version. The directory contains:
 

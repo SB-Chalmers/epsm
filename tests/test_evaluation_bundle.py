@@ -131,7 +131,10 @@ def test_normalization_keeps_raw_engine_run_identity():
 
     spec = SimpleNamespace(
         delivery=SimpleNamespace(heating=None),
-        climate=SimpleNamespace(hours_in_year=8760),
+        climate=SimpleNamespace(
+            hours_in_year=8760, weather_sha256="b" * 64, calendar_year=2023
+        ),
+        physical_hash=lambda: "a" * 64,
     )
     raw = SimpleNamespace(
         scalars={},

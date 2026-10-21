@@ -2,6 +2,10 @@
 
 Add portable, checksummed evaluation bundles with external hourly signals and retained engine-run identity. Public preflight delegates engine-owned capability checks; output validation separates thermal, delivery and assessment completeness. Existing in-memory and dictionary result interfaces remain readable.
 
+Both engine results now capture the actual resolved physical/weather/calendar
+identity at normalization. Conflicting raw or cached identities are rejected;
+legacy caches without this evidence are recomputed rather than relabelled.
+
 Preflight composes public Core/RC output discovery and rejects unsupported required
 names, resolutions, scopes, inactive channels and incompatible units before
 execution. Optional unavailable signals remain warnings. Core 0.8.2 supplies the
