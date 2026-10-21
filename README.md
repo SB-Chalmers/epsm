@@ -1,5 +1,7 @@
 # EPSM
 
+Version **0.4.0** adds portable evaluation bundles and output preflight.
+
 EPSM connects a physical Core building, Data constructions, an energy engine and
 LCA. It keeps the building state, calculation choices, energy and climate results
 for each evaluation.
