@@ -233,6 +233,21 @@ contains a separate `compatibility-candidate.json` record. Leaving the input emp
 keeps the ordinary supported-manifest route. The existing main-dependency
 experiment is separate and cannot be combined with candidate selection.
 
+Campaign pull requests use the same checks through an explicit maintainer opt-in:
+set repository variable `EPSM_CANDIDATE_MANIFEST_SHA` to that immutable EPSM SHA,
+then add the `platform-candidate` PR label. Adding or removing that label starts
+the corresponding check selection; unrelated label events do not rerun the
+scientific matrix. A labelled PR without a valid variable fails clearly. This
+uses one manifest pointer, not another package-version table.
+
+Ordinary PRs continue using supported pins. Those older pins can be incompatible
+with a new feature's declared dependency bounds; an earlier failed stable run is
+not relabelled as a candidate success. The explicit labelled run must pass all
+existing check names at the recorded feature head before campaign review. It
+checks prospective merge conflicts against the current target branch using
+`git merge-tree` and tests the exact captured head. Testing all actual merged
+development commits remains a later, separate gate.
+
 Prepare the candidate record after owner feature commits are fixed. Use the
 captured package versions and exact revisions, mark `kind` as `candidate`, and
 use `self` for EPSM. Retain the unchanged Viewer display entry from the supported
@@ -260,6 +275,11 @@ merging. A local candidate run is not a hosted passing status. Branch protection
 and maintainer review remain in force; selecting a candidate does not bypass
 either. After all development merges, capture and check their actual merged
 sources again before release promotion.
+
+After the supported release manifest is promoted, remove campaign labels and
+clear `EPSM_CANDIDATE_MANIFEST_SHA` in each consumer. Required normal PR/main runs
+then use the new supported combination. A variable is configuration only: its
+presence does not establish any passing hosted check or weaken manual review.
 
 A new main commit can differ from the supported release revision without
 changing its package version, for example when CI adopts this interface. The

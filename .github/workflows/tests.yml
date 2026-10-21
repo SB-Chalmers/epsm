@@ -3,6 +3,7 @@ name: EPSM supported package checks
 on:
   pull_request:
     branches: [dev, main]
+    types: [opened, synchronize, reopened, labeled, unlabeled]
   push:
     branches: [main]
   workflow_dispatch:
@@ -16,6 +17,9 @@ on:
         type: string
         default: ''
 
+env:
+  CANDIDATE_REVISION: ${{ inputs.candidate_manifest_revision || (github.event_name == 'pull_request' && contains(github.event.pull_request.labels.*.name, 'platform-candidate') && (vars.EPSM_CANDIDATE_MANIFEST_SHA || 'missing-candidate-manifest-sha')) || '' }}
+
 permissions:
   contents: read
 
@@ -25,30 +29,45 @@ concurrency:
 
 jobs:
   combination:
+    if: github.event.action != 'labeled' && github.event.action != 'unlabeled' || github.event.label.name == 'platform-candidate'
     runs-on: ubuntu-latest
     timeout-minutes: 5
     outputs:
       matrix: ${{ steps.matrix.outputs.matrix }}
       display_matrix: ${{ steps.display.outputs.matrix }}
     steps:
+      - name: Require an immutable candidate selection
+        if: env.CANDIDATE_REVISION != ''
+        run: |
+          [[ "$CANDIDATE_REVISION" =~ ^[0-9a-f]{40}$ ]] || { echo 'Set EPSM_CANDIDATE_MANIFEST_SHA to the full checked EPSM SHA before adding platform-candidate'; exit 1; }
       - uses: actions/checkout@v4
+        with:
+          ref: ${{ env.CANDIDATE_REVISION != '' && (github.event.pull_request.head.sha || github.sha) || github.sha }}
+          fetch-depth: 0
       - uses: actions/setup-python@v5
         with:
           python-version: '3.11'
       - uses: actions/checkout@v4
-        if: inputs.candidate_manifest_revision != ''
+        if: env.CANDIDATE_REVISION != ''
         with:
-          ref: ${{ inputs.candidate_manifest_revision }}
+          ref: ${{ env.CANDIDATE_REVISION }}
           path: .ci/candidate
           sparse-checkout: |
             /compatibility-candidate.json
           sparse-checkout-cone-mode: false
+      - name: Check the prospective candidate merge without changing its source
+        if: env.CANDIDATE_REVISION != '' && github.event_name == 'pull_request'
+        env:
+          TARGET_BRANCH: ${{ github.base_ref }}
+        run: |
+          git merge-tree --write-tree "origin/$TARGET_BRANCH" HEAD
+          echo "Candidate cohort: $CANDIDATE_REVISION" >> "$GITHUB_STEP_SUMMARY"
+          echo "Candidate source: $(git rev-parse HEAD)" >> "$GITHUB_STEP_SUMMARY"
       - id: matrix
         env:
           MATRIX_MODE: ${{ inputs.development_dependencies && 'main' || 'pinned' }}
-          CANDIDATE_REVISION: ${{ inputs.candidate_manifest_revision }}
-          PLATFORM_MANIFEST: ${{ inputs.candidate_manifest_revision && '.ci/candidate/compatibility-candidate.json' || 'compatibility.json' }}
-          PLATFORM_CHECKOUT: ${{ inputs.candidate_manifest_revision && '.ci/candidate' || '.' }}
+          PLATFORM_MANIFEST: ${{ env.CANDIDATE_REVISION != '' && '.ci/candidate/compatibility-candidate.json' || 'compatibility.json' }}
+          PLATFORM_CHECKOUT: ${{ env.CANDIDATE_REVISION != '' && '.ci/candidate' || '.' }}
         run: |
           python scripts/compatibility_matrix.py --manifest "$PLATFORM_MANIFEST" \
             --mode "$MATRIX_MODE" --manifest-revision "$(git -C "$PLATFORM_CHECKOUT" rev-parse HEAD)" \
@@ -58,8 +77,7 @@ jobs:
       - id: display
         env:
           MATRIX_MODE: ${{ inputs.development_dependencies && 'main' || 'pinned' }}
-          CANDIDATE_REVISION: ${{ inputs.candidate_manifest_revision }}
-          PLATFORM_MANIFEST: ${{ inputs.candidate_manifest_revision && '.ci/candidate/compatibility-candidate.json' || 'compatibility.json' }}
+          PLATFORM_MANIFEST: ${{ env.CANDIDATE_REVISION != '' && '.ci/candidate/compatibility-candidate.json' || 'compatibility.json' }}
         run: |
           python - <<'PYTHON' >> "$GITHUB_OUTPUT"
           import json, os, subprocess
@@ -83,6 +101,9 @@ jobs:
       matrix: ${{ fromJSON(needs.combination.outputs.matrix) }}
     steps:
       - uses: actions/checkout@v4
+        with:
+          ref: ${{ env.CANDIDATE_REVISION != '' && (github.event.pull_request.head.sha || github.sha) || github.sha }}
+          fetch-depth: 0
       - uses: actions/checkout@v4
         with:
           repository: SB-Chalmers/epsm_data
@@ -237,6 +258,9 @@ jobs:
       matrix: ${{ fromJSON(needs.combination.outputs.display_matrix) }}
     steps:
       - uses: actions/checkout@v4
+        with:
+          ref: ${{ env.CANDIDATE_REVISION != '' && (github.event.pull_request.head.sha || github.sha) || github.sha }}
+          fetch-depth: 0
       - uses: actions/checkout@v4
         with:
           repository: SB-Chalmers/epsm_data
