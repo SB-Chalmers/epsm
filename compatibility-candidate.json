@@ -23,7 +23,7 @@
     },
     "epsm_rc": {
       "version": "0.9.0",
-      "revision": "af2817ce12d74792fa5d008a05b0fc4bbf19a39a",
+      "revision": "a34b626441bb90b23938520c9b5ffbb169bf140c",
       "role": "scientific"
     },
     "epsm_lca": {
@@ -38,17 +38,17 @@
     },
     "epsm_workflows": {
       "version": "0.4.0",
-      "revision": "3722933ca04d233e5be82694a635c52563396ebc",
+      "revision": "59943e986b7ca09c93a776572e157d3e986cea9d",
       "role": "scientific"
     },
     "epsm_studies": {
       "version": "0.4.0",
-      "revision": "56aa5e3fdfb16974951964ef85707157eaf5116e",
+      "revision": "5a3d07055f23bbaaf89829ffc0970cc256065df9",
       "role": "scientific"
     },
     "smhi2epw": {
       "version": "1.3.0",
-      "revision": "abc591e9e2efb54c3f484b4a907998034bf0bf7d",
+      "revision": "cc019cf57b36db62f5056ba10834378d1733380b",
       "role": "scientific"
     },
     "epsm_viewer": {
