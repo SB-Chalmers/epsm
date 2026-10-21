@@ -18,7 +18,7 @@
     },
     "epsm_core": {
       "version": "0.8.2",
-      "revision": "71e04ecccd2c431a45c8a72f03f7534d5f8774f1",
+      "revision": "34c5ac1633129cec20172d02967fdccbbc38c84d",
       "role": "scientific"
     },
     "epsm_rc": {
