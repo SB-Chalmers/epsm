@@ -1,15 +1,25 @@
 # The EPSM platform
 
 <picture>
-  <source media="(prefers-color-scheme: dark)" srcset="assets/brand/epsm-dark.png">
-  <img src="assets/brand/epsm.png" width="64" height="64" alt="EPSM platform — connected building model">
+  <source media="(prefers-color-scheme: dark)" srcset="assets/welcome/epsm-dark.png">
+  <img src="assets/welcome/epsm.png" width="160" height="160" alt="EPSM platform — connected building model">
 </picture>
 
-EPSM brings building evidence, physical models, energy simulation and climate
+Welcome to EPSM. The platform brings building evidence, physical models, energy simulation and climate
 assessment into one research workflow. Use the Python libraries for a single
 building or a repeatable experiment, and the web application to work visually.
 Each package has one job and keeps the inputs, assumptions and results available
 for inspection.
+
+## A building, from inputs to comparison
+
+![EPSM simulation platform overview](assets/welcome/Figure_03a_epsm_simulation_platform.png)
+
+Start with building inputs, choose an energy engine and inspect energy and climate
+results before comparing renovation choices. This is a conceptual overview;
+the comparison bars are schematic, not simulation results. The common purchased
+energy coverage is space heating and ventilation fans. Cooling and DHW demand
+are separate, and engine capabilities differ.
 
 ## Choose where to start
 
@@ -43,6 +53,18 @@ the symbol tells you which job a package owns. Names remain visible beside icons
 | <picture><source media="(prefers-color-scheme: dark)" srcset="assets/brand/epsm_viewer-dark.png"><img src="assets/brand/epsm_viewer.png" width="32" height="32" alt="Viewer — geometry inspection"></picture> | [Viewer](https://github.com/SB-Chalmers/epsm_viewer) | Inspect supplied building scenes in a browser or Python notebook, with selection and camera controls. |
 | <picture><source media="(prefers-color-scheme: dark)" srcset="assets/brand/epsm_studio-dark.png"><img src="assets/brand/epsm_studio.png" width="32" height="32" alt="Studio — visual workspace"></picture> | [Studio](https://github.com/SB-Chalmers/epsm_studio) | Work through application forms, projects, settings and requested jobs, with adapters to the scientific packages. |
 | <picture><source media="(prefers-color-scheme: dark)" srcset="assets/brand/epsm_development-dark.png"><img src="assets/brand/epsm_development.png" width="32" height="32" alt="Development — developer handbook"></picture> | [Development](https://github.com/SB-Chalmers/epsm_development) | Find shared engineering guidance, writing conventions, worked examples and contribution templates. |
+
+## The definitions behind the building
+
+![EPSM materials, layered constructions and archetype data model](assets/welcome/Figure_03_epsm_data_model.png)
+
+Data provides reusable construction and operating definitions with their sources.
+Core assigns them to physical geometry and calculates quantities. See the
+[Data catalogue](https://github.com/SB-Chalmers/epsm_data) to explore or author
+these inputs. Editable SVG versions of the
+[data model](assets/welcome/Figure_03_epsm_data_model.svg) and
+[simulation overview](assets/welcome/Figure_03a_epsm_simulation_platform.svg)
+are available for reports.
 
 ## How a calculation fits together
 
@@ -108,3 +130,25 @@ installation; consult its release documentation for publication evidence.
 The [design manual](https://github.com/SB-Chalmers/epsm_studio/blob/main/docs/design/README.md)
 defines the shared visual language without changing either application's
 scientific behaviour.
+
+## People and support
+
+Developed at Chalmers University of Technology as part of the EPSM research platform.
+
+**Funding**: Swedish Energy Agency (Project ID: P2024-04053)
+
+**Partners**:
+
+- Lindholmen Science Park AB
+- Sinom AB
+- Stiftelsen Chalmers Industriteknik
+
+**Team**:
+
+- **Lead Developer**: Sanjay Somanath
+- **Principal Investigator**: Alexander Hollberg
+- **Contributors**: Yinan Yu, Dag Wästberg
+
+<p align="center">
+  <img src="assets/welcome/logos.png" width="100%" alt="Chalmers University of Technology, Chalmers Industriteknik, Sinom, Lindholmen Science Park and Swedish Energy Agency logos">
+</p>

@@ -1,0 +1,40 @@
+{
+  "hash_algorithm": "sha256",
+  "files": [
+    {
+      "file": "epsm.png",
+      "source": "SB-Chalmers/epsm_studio/design/pocket-cad/icons/png/256/epsm.png",
+      "sha256": "d08b29e13ae1f494bbe1eaf171641c8d16d5ecf238c7f5f0b100fa989b8a97ae"
+    },
+    {
+      "file": "epsm-dark.png",
+      "source": "SB-Chalmers/epsm_studio/design/pocket-cad/icons/png/dark/256/epsm.png",
+      "sha256": "091f3a8e1f0ab3fea0b467ceb28f30581b0135875013651f08f19d0d2dbe7aad"
+    },
+    {
+      "file": "logos.png",
+      "source": "renovation_catalogue/WP1A/figures/logos.png (supplied by project lead)",
+      "sha256": "0fc8f632bfa3abc45c49dd80c0c9d824377ffdc5a2fac809173e3ed03e0eacf3"
+    },
+    {
+      "file": "Figure_03_epsm_data_model.png",
+      "source": "EPSM report figures supplied by project lead, 21 October 2026",
+      "sha256": "e3b922e54f8b86ff4fa0830e780193ed98f0d4da1373d7171dbcb01a676f4c3d"
+    },
+    {
+      "file": "Figure_03_epsm_data_model.svg",
+      "source": "EPSM report figures supplied by project lead, 21 October 2026",
+      "sha256": "d09074d10e44de1ee28665a98697a2cfc9031276bcd8f39bf719d48957cbe60f"
+    },
+    {
+      "file": "Figure_03a_epsm_simulation_platform.png",
+      "source": "EPSM report figures supplied by project lead, 21 October 2026",
+      "sha256": "f61d3f76f78632f408ad57cf8e34f41e314224aef95182fb86d7ab41c49881f7"
+    },
+    {
+      "file": "Figure_03a_epsm_simulation_platform.svg",
+      "source": "EPSM report figures supplied by project lead, 21 October 2026",
+      "sha256": "b6960f0c8675bf1aa0c94453e1d917703ac18ab5f902b818be76cee46989021d"
+    }
+  ]
+}
