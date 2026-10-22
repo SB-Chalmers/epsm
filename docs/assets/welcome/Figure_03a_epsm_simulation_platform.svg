@@ -1,0 +1,500 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="600mm" height="290.0mm" viewBox="0 0 2400 1160">
+<title>EPSM simulation platform</title>
+<desc>Updated conceptual diagram of the current EPSM platform. Text and drawings are editable vector objects.</desc>
+<defs><marker id="arrow" viewBox="0 0 10 10" refX="8.3" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#73818A"/></marker><marker id="arrow-blue" viewBox="0 0 10 10" refX="8.3" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#557E9D"/></marker></defs>
+<rect width="2400" height="100%" fill="white"/>
+<rect x="40" y="60" width="360" height="830" rx="20" fill="#F4F5F3" stroke="#DDE2E1" stroke-width="1.6"/>
+<rect x="40" y="60" width="360" height="84" rx="20" fill="#FFFFFF" stroke="#DDE2E1" stroke-width="1.6"/>
+<rect x="41" y="103" width="358" height="40" rx="0" fill="#FFFFFF" stroke="none" stroke-width="2"/>
+<line x1="60" y1="143" x2="380" y2="143" stroke="#CED6DA" stroke-width="1.4" stroke-linecap="round"/>
+<line x1="193" y1="72" x2="247" y2="72" stroke="#87939A" stroke-width="3" stroke-linecap="round"/>
+<text x="220" y="109" fill="#243342" font-family="Arial, Helvetica, sans-serif" font-size="31" font-weight="700" text-anchor="middle">
+<tspan x="220" dy="0">1  INPUTS</tspan>
+</text>
+<path d="M405,102 L422,102" fill="none" stroke="#87939A" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" marker-end="url(#arrow)"/>
+<rect x="430" y="60" width="360" height="830" rx="20" fill="#F4F5F3" stroke="#DDE2E1" stroke-width="1.6"/>
+<rect x="430" y="60" width="360" height="84" rx="20" fill="#FFFFFF" stroke="#DDE2E1" stroke-width="1.6"/>
+<rect x="431" y="103" width="358" height="40" rx="0" fill="#FFFFFF" stroke="none" stroke-width="2"/>
+<line x1="450" y1="143" x2="770" y2="143" stroke="#CED6DA" stroke-width="1.4" stroke-linecap="round"/>
+<line x1="583" y1="72" x2="637" y2="72" stroke="#D6B767" stroke-width="3" stroke-linecap="round"/>
+<text x="610" y="109" fill="#243342" font-family="Arial, Helvetica, sans-serif" font-size="31" font-weight="700" text-anchor="middle">
+<tspan x="610" dy="0">2  BUILDING</tspan>
+</text>
+<path d="M795,102 L812,102" fill="none" stroke="#87939A" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" marker-end="url(#arrow)"/>
+<rect x="820" y="60" width="360" height="830" rx="20" fill="#F4F5F3" stroke="#DDE2E1" stroke-width="1.6"/>
+<rect x="820" y="60" width="360" height="84" rx="20" fill="#FFFFFF" stroke="#DDE2E1" stroke-width="1.6"/>
+<rect x="821" y="103" width="358" height="40" rx="0" fill="#FFFFFF" stroke="none" stroke-width="2"/>
+<line x1="840" y1="143" x2="1160" y2="143" stroke="#CED6DA" stroke-width="1.4" stroke-linecap="round"/>
+<line x1="973" y1="72" x2="1027" y2="72" stroke="#557E9D" stroke-width="3" stroke-linecap="round"/>
+<text x="1000" y="109" fill="#243342" font-family="Arial, Helvetica, sans-serif" font-size="31" font-weight="700" text-anchor="middle">
+<tspan x="1000" dy="0">3  USE + AIRFLOW</tspan>
+</text>
+<path d="M1185,102 L1202,102" fill="none" stroke="#87939A" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" marker-end="url(#arrow)"/>
+<rect x="1210" y="60" width="360" height="830" rx="20" fill="#F4F5F3" stroke="#DDE2E1" stroke-width="1.6"/>
+<rect x="1210" y="60" width="360" height="84" rx="20" fill="#FFFFFF" stroke="#DDE2E1" stroke-width="1.6"/>
+<rect x="1211" y="103" width="358" height="40" rx="0" fill="#FFFFFF" stroke="none" stroke-width="2"/>
+<line x1="1230" y1="143" x2="1550" y2="143" stroke="#CED6DA" stroke-width="1.4" stroke-linecap="round"/>
+<line x1="1363" y1="72" x2="1417" y2="72" stroke="#557E9D" stroke-width="3" stroke-linecap="round"/>
+<text x="1390" y="109" fill="#243342" font-family="Arial, Helvetica, sans-serif" font-size="31" font-weight="700" text-anchor="middle">
+<tspan x="1390" dy="0">4  ENERGY MODELS</tspan>
+</text>
+<path d="M1575,102 L1592,102" fill="none" stroke="#87939A" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" marker-end="url(#arrow)"/>
+<rect x="1600" y="60" width="360" height="830" rx="20" fill="#F4F5F3" stroke="#DDE2E1" stroke-width="1.6"/>
+<rect x="1600" y="60" width="360" height="84" rx="20" fill="#FFFFFF" stroke="#DDE2E1" stroke-width="1.6"/>
+<rect x="1601" y="103" width="358" height="40" rx="0" fill="#FFFFFF" stroke="none" stroke-width="2"/>
+<line x1="1620" y1="143" x2="1940" y2="143" stroke="#CED6DA" stroke-width="1.4" stroke-linecap="round"/>
+<line x1="1753" y1="72" x2="1807" y2="72" stroke="#739385" stroke-width="3" stroke-linecap="round"/>
+<text x="1780" y="109" fill="#243342" font-family="Arial, Helvetica, sans-serif" font-size="29" font-weight="700" text-anchor="middle">
+<tspan x="1780" dy="0">5  ENERGY + CLIMATE</tspan>
+</text>
+<path d="M1965,102 L1982,102" fill="none" stroke="#87939A" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" marker-end="url(#arrow)"/>
+<rect x="1990" y="60" width="360" height="830" rx="20" fill="#F4F5F3" stroke="#DDE2E1" stroke-width="1.6"/>
+<rect x="1990" y="60" width="360" height="84" rx="20" fill="#FFFFFF" stroke="#DDE2E1" stroke-width="1.6"/>
+<rect x="1991" y="103" width="358" height="40" rx="0" fill="#FFFFFF" stroke="none" stroke-width="2"/>
+<line x1="2010" y1="143" x2="2330" y2="143" stroke="#CED6DA" stroke-width="1.4" stroke-linecap="round"/>
+<line x1="2143" y1="72" x2="2197" y2="72" stroke="#739385" stroke-width="3" stroke-linecap="round"/>
+<text x="2170" y="109" fill="#243342" font-family="Arial, Helvetica, sans-serif" font-size="31" font-weight="700" text-anchor="middle">
+<tspan x="2170" dy="0">6  COMPARISON</tspan>
+</text>
+<polygon points="109,231 292,211 315,317 234,326 242,365 131,378" fill="#DDE8EF" stroke="#243342" stroke-width="2.8" stroke-linejoin="round"/>
+<line x1="118" y1="402" x2="305" y2="383" stroke="#87939A" stroke-width="1.8" stroke-linecap="round"/>
+<line x1="119" y1="396" x2="119" y2="409" stroke="#87939A" stroke-width="1.8" stroke-linecap="round"/>
+<line x1="305" y1="377" x2="305" y2="390" stroke="#87939A" stroke-width="1.8" stroke-linecap="round"/>
+<text x="220" y="442" fill="#243342" font-family="Arial, Helvetica, sans-serif" font-size="28" font-weight="600" text-anchor="middle">
+<tspan x="220" dy="0">Footprint + storeys</tspan>
+</text>
+<line x1="118" y1="476" x2="322" y2="476" stroke="#87939A" stroke-width="4" stroke-linecap="round"/>
+<circle cx="256.72" cy="476" r="8" fill="#557E9D" stroke="#243342" stroke-width="1.5"/>
+<line x1="118" y1="502" x2="322" y2="502" stroke="#87939A" stroke-width="4" stroke-linecap="round"/>
+<circle cx="203.68" cy="502" r="8" fill="#557E9D" stroke="#243342" stroke-width="1.5"/>
+<g transform="translate(118,575) scale(0.98)">
+<polygon points="0,78 150,78 198,48.24 48,48.24" fill="#E1E5E6" stroke="#243342" stroke-width="2" stroke-linejoin="round"/>
+<polygon points="150,78 198,48.24 198,70.24000000000001 150,100" fill="#99A4A8" stroke="#243342" stroke-width="2" stroke-linejoin="round"/>
+<polygon points="0,78 150,78 150,100 0,100" fill="#CAD0D1" stroke="#243342" stroke-width="2" stroke-linejoin="round"/>
+<polygon points="0,52 150,52 198,22.240000000000002 48,22.240000000000002" fill="#F6EAC6" stroke="#243342" stroke-width="2" stroke-linejoin="round"/>
+<polygon points="150,52 198,22.240000000000002 198,44.24 150,74" fill="#BCA15B" stroke="#243342" stroke-width="2" stroke-linejoin="round"/>
+<polygon points="0,52 150,52 150,74 0,74" fill="#F4E8C4" stroke="#243342" stroke-width="2" stroke-linejoin="round"/>
+<polygon points="0,26 150,26 198,-3.759999999999998 48,-3.759999999999998" fill="#E9D4B5" stroke="#243342" stroke-width="2" stroke-linejoin="round"/>
+<polygon points="150,26 198,-3.759999999999998 198,18.240000000000002 150,48" fill="#B29568" stroke="#243342" stroke-width="2" stroke-linejoin="round"/>
+<polygon points="0,26 150,26 150,48 0,48" fill="#D4BA92" stroke="#243342" stroke-width="2" stroke-linejoin="round"/>
+<polygon points="0,0 150,0 198,-29.759999999999998 48,-29.759999999999998" fill="#F0F5F7" stroke="#243342" stroke-width="2" stroke-linejoin="round"/>
+<polygon points="150,0 198,-29.759999999999998 198,-7.759999999999998 150,22" fill="#8AA7B9" stroke="#243342" stroke-width="2" stroke-linejoin="round"/>
+<polygon points="0,0 150,0 150,22 0,22" fill="#DDE8EF" stroke="#243342" stroke-width="2" stroke-linejoin="round"/>
+</g>
+<text x="220" y="725" fill="#243342" font-family="Arial, Helvetica, sans-serif" font-size="28" font-weight="600" text-anchor="middle">
+<tspan x="220" dy="0">Constructions</tspan>
+</text>
+<g transform="translate(159,757) scale(0.68)">
+<circle cx="35" cy="35" r="25" fill="#F4E8C4" stroke="#243342" stroke-width="2"/>
+<line x1="68.0" y1="35.0" x2="79.0" y2="35.0" stroke="#D6B767" stroke-width="3" stroke-linecap="round"/>
+<line x1="58.33452377915607" y1="58.334523779156065" x2="66.11269837220809" y2="66.11269837220809" stroke="#D6B767" stroke-width="3" stroke-linecap="round"/>
+<line x1="35.0" y1="68.0" x2="35.0" y2="79.0" stroke="#D6B767" stroke-width="3" stroke-linecap="round"/>
+<line x1="11.665476220843935" y1="58.33452377915607" x2="3.8873016277919135" y2="66.11269837220809" stroke="#D6B767" stroke-width="3" stroke-linecap="round"/>
+<line x1="2.0" y1="35.00000000000001" x2="-9.0" y2="35.00000000000001" stroke="#D6B767" stroke-width="3" stroke-linecap="round"/>
+<line x1="11.665476220843928" y1="11.665476220843935" x2="3.887301627791903" y2="3.8873016277919135" stroke="#D6B767" stroke-width="3" stroke-linecap="round"/>
+<line x1="34.99999999999999" y1="2.0" x2="34.99999999999999" y2="-9.0" stroke="#D6B767" stroke-width="3" stroke-linecap="round"/>
+<line x1="58.33452377915606" y1="11.665476220843928" x2="66.11269837220809" y2="3.887301627791903" stroke="#D6B767" stroke-width="3" stroke-linecap="round"/>
+<path d="M30,91 C-7,91 -4,51 23,52 C33,20 77,23 83,49 C121,40 140,91 103,91 Z" fill="#DDE8EF" stroke="#243342" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M35,105 L31,121" fill="none" stroke="#557E9D" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M63,105 L59,121" fill="none" stroke="#557E9D" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M91,105 L87,121" fill="none" stroke="#557E9D" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+</g>
+<text x="220" y="868" fill="#243342" font-family="Arial, Helvetica, sans-serif" font-size="27" font-weight="600" text-anchor="middle">
+<tspan x="220" dy="0">Weather (EPW)</tspan>
+</text>
+<g transform="translate(518,259) scale(1.06)">
+<polygon points="0,0 150,0 215,-40.3 65,-40.3" fill="#D7E1E5" stroke="#243342" stroke-width="2" stroke-linejoin="round"/>
+<polygon points="150,0 215,-40.3 215,149.7 150,190" fill="#B7C6CC" stroke="#243342" stroke-width="2" stroke-linejoin="round"/>
+<polygon points="0,0 150,0 150,190 0,190" fill="#E5D9B8" stroke="#243342" stroke-width="2" stroke-linejoin="round"/>
+<rect x="14" y="18" width="23" height="25" rx="1" fill="#DDE8EF" stroke="#243342" stroke-width="1.8"/>
+<line x1="25" y1="19" x2="25" y2="42" stroke="#243342" stroke-width="1.3" stroke-linecap="round"/>
+<rect x="58" y="18" width="23" height="25" rx="1" fill="#DDE8EF" stroke="#243342" stroke-width="1.8"/>
+<line x1="69" y1="19" x2="69" y2="42" stroke="#243342" stroke-width="1.3" stroke-linecap="round"/>
+<rect x="102" y="18" width="23" height="25" rx="1" fill="#DDE8EF" stroke="#243342" stroke-width="1.8"/>
+<line x1="113" y1="19" x2="113" y2="42" stroke="#243342" stroke-width="1.3" stroke-linecap="round"/>
+<rect x="14" y="58" width="23" height="25" rx="1" fill="#DDE8EF" stroke="#243342" stroke-width="1.8"/>
+<line x1="25" y1="59" x2="25" y2="82" stroke="#243342" stroke-width="1.3" stroke-linecap="round"/>
+<rect x="58" y="58" width="23" height="25" rx="1" fill="#DDE8EF" stroke="#243342" stroke-width="1.8"/>
+<line x1="69" y1="59" x2="69" y2="82" stroke="#243342" stroke-width="1.3" stroke-linecap="round"/>
+<rect x="102" y="58" width="23" height="25" rx="1" fill="#DDE8EF" stroke="#243342" stroke-width="1.8"/>
+<line x1="113" y1="59" x2="113" y2="82" stroke="#243342" stroke-width="1.3" stroke-linecap="round"/>
+<rect x="14" y="98" width="23" height="25" rx="1" fill="#DDE8EF" stroke="#243342" stroke-width="1.8"/>
+<line x1="25" y1="99" x2="25" y2="122" stroke="#243342" stroke-width="1.3" stroke-linecap="round"/>
+<rect x="58" y="98" width="23" height="25" rx="1" fill="#DDE8EF" stroke="#243342" stroke-width="1.8"/>
+<line x1="69" y1="99" x2="69" y2="122" stroke="#243342" stroke-width="1.3" stroke-linecap="round"/>
+<rect x="102" y="98" width="23" height="25" rx="1" fill="#DDE8EF" stroke="#243342" stroke-width="1.8"/>
+<line x1="113" y1="99" x2="113" y2="122" stroke="#243342" stroke-width="1.3" stroke-linecap="round"/>
+<rect x="14" y="138" width="23" height="25" rx="1" fill="#DDE8EF" stroke="#243342" stroke-width="1.8"/>
+<line x1="25" y1="139" x2="25" y2="162" stroke="#243342" stroke-width="1.3" stroke-linecap="round"/>
+<rect x="58" y="138" width="23" height="25" rx="1" fill="#DDE8EF" stroke="#243342" stroke-width="1.8"/>
+<line x1="69" y1="139" x2="69" y2="162" stroke="#243342" stroke-width="1.3" stroke-linecap="round"/>
+<rect x="102" y="138" width="23" height="25" rx="1" fill="#DDE8EF" stroke="#243342" stroke-width="1.8"/>
+<line x1="113" y1="139" x2="113" y2="162" stroke="#243342" stroke-width="1.3" stroke-linecap="round"/>
+<rect x="64" y="161" width="26" height="29" rx="1" fill="#B49772" stroke="#243342" stroke-width="1.7"/>
+<polygon points="162,13.0 176,4.300000000000001 176,27.0 162,35.7" fill="#DDE8EF" stroke="#243342" stroke-width="1.5" stroke-linejoin="round"/>
+<polygon points="187,-2.5 201,-11.2 201,11.5 187,20.2" fill="#DDE8EF" stroke="#243342" stroke-width="1.5" stroke-linejoin="round"/>
+<polygon points="162,53.0 176,44.3 176,67.0 162,75.7" fill="#DDE8EF" stroke="#243342" stroke-width="1.5" stroke-linejoin="round"/>
+<polygon points="187,37.5 201,28.8 201,51.5 187,60.2" fill="#DDE8EF" stroke="#243342" stroke-width="1.5" stroke-linejoin="round"/>
+<polygon points="162,93.0 176,84.3 176,107.0 162,115.7" fill="#DDE8EF" stroke="#243342" stroke-width="1.5" stroke-linejoin="round"/>
+<polygon points="187,77.5 201,68.8 201,91.5 187,100.2" fill="#DDE8EF" stroke="#243342" stroke-width="1.5" stroke-linejoin="round"/>
+<polygon points="162,133.0 176,124.3 176,147.0 162,155.7" fill="#DDE8EF" stroke="#243342" stroke-width="1.5" stroke-linejoin="round"/>
+<polygon points="187,117.5 201,108.8 201,131.5 187,140.2" fill="#DDE8EF" stroke="#243342" stroke-width="1.5" stroke-linejoin="round"/>
+<line x1="-8" y1="191" x2="151" y2="191" stroke="#243342" stroke-width="2.2" stroke-linecap="round"/>
+</g>
+<polygon points="493,284 511,284 533,270.36 515,270.36" fill="#D8D5CD" stroke="#243342" stroke-width="2" stroke-linejoin="round"/>
+<polygon points="511,284 533,270.36 533,418.36 511,432" fill="#A4AFB5" stroke="#243342" stroke-width="2" stroke-linejoin="round"/>
+<polygon points="493,284 511,284 511,432 493,432" fill="#D8D5CD" stroke="#243342" stroke-width="2" stroke-linejoin="round"/>
+<polygon points="474,305 492,305 514,291.36 496,291.36" fill="#F4E8C4" stroke="#243342" stroke-width="2" stroke-linejoin="round"/>
+<polygon points="492,305 514,291.36 514,439.36 492,453" fill="#A4AFB5" stroke="#243342" stroke-width="2" stroke-linejoin="round"/>
+<polygon points="474,305 492,305 492,453 474,453" fill="#F4E8C4" stroke="#243342" stroke-width="2" stroke-linejoin="round"/>
+<polygon points="455,326 473,326 495,312.36 477,312.36" fill="#DDE8EF" stroke="#243342" stroke-width="2" stroke-linejoin="round"/>
+<polygon points="473,326 495,312.36 495,460.36 473,474" fill="#A4AFB5" stroke="#243342" stroke-width="2" stroke-linejoin="round"/>
+<polygon points="455,326 473,326 473,474 455,474" fill="#DDE8EF" stroke="#243342" stroke-width="2" stroke-linejoin="round"/>
+<polygon points="511,463 677,463 746,420.22 580,420.22" fill="#E7EFE8" stroke="#243342" stroke-width="2" stroke-linejoin="round"/>
+<polygon points="677,463 746,420.22 746,443.22 677,486" fill="#8DA798" stroke="#243342" stroke-width="2" stroke-linejoin="round"/>
+<polygon points="511,463 677,463 677,486 511,486" fill="#E1EBE4" stroke="#243342" stroke-width="2" stroke-linejoin="round"/>
+<text x="610" y="540" fill="#243342" font-family="Arial, Helvetica, sans-serif" font-size="26" font-weight="600" text-anchor="middle">
+<tspan x="610" dy="0">Envelope + thermal mass</tspan>
+</text>
+<path d="M610,561 L610,591" fill="none" stroke="#87939A" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" marker-end="url(#arrow)"/>
+<g transform="translate(490,621) scale(1.05)">
+<rect x="0" y="0" width="228" height="125" rx="0" fill="#DDE8EF" stroke="#243342" stroke-width="2"/>
+<rect x="41" y="32" width="145" height="62" rx="0" fill="#E1EBE4" stroke="#243342" stroke-width="1.8"/>
+<line x1="0" y1="0" x2="41" y2="32" stroke="#243342" stroke-width="1.3" stroke-linecap="round"/>
+<line x1="228" y1="0" x2="186" y2="32" stroke="#243342" stroke-width="1.3" stroke-linecap="round"/>
+<line x1="0" y1="125" x2="41" y2="94" stroke="#243342" stroke-width="1.3" stroke-linecap="round"/>
+<line x1="228" y1="125" x2="186" y2="94" stroke="#243342" stroke-width="1.3" stroke-linecap="round"/>
+</g>
+<text x="610" y="809" fill="#243342" font-family="Arial, Helvetica, sans-serif" font-size="28" font-weight="600" text-anchor="middle">
+<tspan x="610" dy="0">Thermal zones</tspan>
+</text>
+<text x="610" y="851" fill="#586775" font-family="Arial, Helvetica, sans-serif" font-size="22" font-weight="400" text-anchor="middle">
+<tspan x="610" dy="0">Whole / storey / perimeter-core</tspan>
+</text>
+<g transform="translate(914,210) scale(1.55)">
+<circle cx="16" cy="30" r="12" fill="#557E9D" stroke="#243342" stroke-width="1.5"/>
+<rect x="0" y="47" width="32" height="34" rx="13" fill="#557E9D" stroke="#243342" stroke-width="1.5"/>
+<circle cx="55" cy="13" r="12" fill="#739385" stroke="#243342" stroke-width="1.5"/>
+<rect x="39" y="30" width="32" height="34" rx="13" fill="#739385" stroke="#243342" stroke-width="1.5"/>
+<circle cx="95" cy="30" r="12" fill="#D6B767" stroke="#243342" stroke-width="1.5"/>
+<rect x="79" y="47" width="32" height="34" rx="13" fill="#D6B767" stroke="#243342" stroke-width="1.5"/>
+</g>
+<line x1="881" y1="395" x2="1119" y2="395" stroke="#87939A" stroke-width="1.5" stroke-linecap="round"/>
+<line x1="881" y1="342" x2="881" y2="395" stroke="#87939A" stroke-width="1.5" stroke-linecap="round"/>
+<path d="M881,384.4 L909.56,384.4 L909.56,357.9 L945.26,357.9 L945.26,371.15 L1035.7,371.15 L1035.7,347.3 L1088.06,347.3 L1088.06,384.4 L1119,384.4" fill="none" stroke="#557E9D" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+<text x="1000" y="442" fill="#243342" font-family="Arial, Helvetica, sans-serif" font-size="29" font-weight="600" text-anchor="middle">
+<tspan x="1000" dy="0">Use profiles</tspan>
+</text>
+<g transform="translate(895,485) scale(0.83)">
+<path d="M26,72 C26,57 7,49 7,30 C7,-6 66,-6 66,30 C66,49 48,57 48,72 Z" fill="#F4E8C4" stroke="#243342" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M29,69 L29,49 L22,37 M45,69 L45,49 L52,37" fill="none" stroke="#D6B767" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+<line x1="26" y1="75" x2="48" y2="75" stroke="#243342" stroke-width="3" stroke-linecap="round"/>
+<line x1="26" y1="83" x2="48" y2="83" stroke="#243342" stroke-width="3" stroke-linecap="round"/>
+<path d="M30,88 Q37,97 44,88" fill="none" stroke="#243342" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+<line x1="36" y1="-13" x2="36" y2="-22" stroke="#D6B767" stroke-width="2.5" stroke-linecap="round"/>
+<line x1="-7" y1="11" x2="-15" y2="6" stroke="#D6B767" stroke-width="2.5" stroke-linecap="round"/>
+<line x1="80" y1="11" x2="88" y2="6" stroke="#D6B767" stroke-width="2.5" stroke-linecap="round"/>
+<line x1="-10" y1="39" x2="-20" y2="39" stroke="#D6B767" stroke-width="2.5" stroke-linecap="round"/>
+<line x1="82" y1="39" x2="92" y2="39" stroke="#D6B767" stroke-width="2.5" stroke-linecap="round"/>
+</g>
+<g transform="translate(1049,478) scale(0.87)">
+<path d="M7,86 L7,20 C7,-10 57,-10 57,20 L57,26" fill="none" stroke="#243342" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M37,39 C37,18 77,18 77,39 Z" fill="#DDE8EF" stroke="#243342" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M43,50 L41,60" fill="none" stroke="#557E9D" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M57,53 L55,63" fill="none" stroke="#557E9D" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M71,50 L69,60" fill="none" stroke="#557E9D" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M44,75 L42,85" fill="none" stroke="#557E9D" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M58,79 L56,89" fill="none" stroke="#557E9D" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M72,75 L70,85" fill="none" stroke="#557E9D" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+</g>
+<text x="927" y="609" fill="#243342" font-family="Arial, Helvetica, sans-serif" font-size="25" font-weight="600" text-anchor="middle">
+<tspan x="927" dy="0">Gains</tspan>
+</text>
+<text x="1080" y="609" fill="#243342" font-family="Arial, Helvetica, sans-serif" font-size="25" font-weight="600" text-anchor="middle">
+<tspan x="1080" dy="0">DHW</tspan>
+</text>
+<line x1="847" y1="638" x2="1153" y2="638" stroke="#CED6DA" stroke-width="1.5" stroke-linecap="round"/>
+<g transform="translate(859,684) scale(0.83)">
+<path d="M0,22 L72,22 C96,22 95,0 80,0 C69,0 65,8 66,12" fill="none" stroke="#557E9D" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M-8,43 L99,43 C126,43 125,14 108,14" fill="none" stroke="#557E9D" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M8,64 L67,64 C91,64 91,87 76,87 C66,87 62,80 64,74" fill="none" stroke="#557E9D" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
+</g>
+<g transform="translate(1039,669) scale(0.9)">
+<rect x="0" y="0" width="100" height="100" rx="12" fill="#FFFFFF" stroke="#243342" stroke-width="2.5"/>
+<circle cx="50" cy="50" r="39" fill="#DDE8EF" stroke="#243342" stroke-width="2"/>
+<g transform="rotate(0 50 50)">
+<path d="M50,46 C39,38 27,16 41,17 C57,17 69,29 57,43 Z" fill="#557E9D" stroke="#557E9D" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+</g>
+<g transform="rotate(90 50 50)">
+<path d="M50,46 C39,38 27,16 41,17 C57,17 69,29 57,43 Z" fill="#557E9D" stroke="#557E9D" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+</g>
+<g transform="rotate(180 50 50)">
+<path d="M50,46 C39,38 27,16 41,17 C57,17 69,29 57,43 Z" fill="#557E9D" stroke="#557E9D" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+</g>
+<g transform="rotate(270 50 50)">
+<path d="M50,46 C39,38 27,16 41,17 C57,17 69,29 57,43 Z" fill="#557E9D" stroke="#557E9D" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+</g>
+<circle cx="50" cy="50" r="9" fill="#FFFFFF" stroke="#243342" stroke-width="2"/>
+</g>
+<text x="911" y="794" fill="#243342" font-family="Arial, Helvetica, sans-serif" font-size="25" font-weight="600" text-anchor="middle">
+<tspan x="911" dy="0">Leakage</tspan>
+</text>
+<text x="1084" y="794" fill="#243342" font-family="Arial, Helvetica, sans-serif" font-size="25" font-weight="600" text-anchor="middle">
+<tspan x="1084" dy="0">Ventilation</tspan>
+</text>
+<rect x="849" y="827" width="68" height="39" rx="19" fill="#F4E8C4" stroke="none" stroke-width="2"/>
+<text x="883.0" y="854" fill="#243342" font-family="Arial, Helvetica, sans-serif" font-size="25" font-weight="600" text-anchor="middle">
+<tspan x="883.0" dy="0">S</tspan>
+</text>
+<rect x="927" y="827" width="68" height="39" rx="19" fill="#F4E8C4" stroke="none" stroke-width="2"/>
+<text x="961.0" y="854" fill="#243342" font-family="Arial, Helvetica, sans-serif" font-size="25" font-weight="600" text-anchor="middle">
+<tspan x="961.0" dy="0">F</tspan>
+</text>
+<rect x="1005" y="827" width="68" height="39" rx="19" fill="#DDE8EF" stroke="none" stroke-width="2"/>
+<text x="1039.0" y="854" fill="#243342" font-family="Arial, Helvetica, sans-serif" font-size="25" font-weight="600" text-anchor="middle">
+<tspan x="1039.0" dy="0">FT</tspan>
+</text>
+<rect x="1083" y="827" width="68" height="39" rx="19" fill="#E1EBE4" stroke="none" stroke-width="2"/>
+<text x="1117.0" y="854" fill="#243342" font-family="Arial, Helvetica, sans-serif" font-size="25" font-weight="600" text-anchor="middle">
+<tspan x="1117.0" dy="0">FTX</tspan>
+</text>
+<rect x="1244" y="183" width="292" height="239" rx="14" fill="#FFFFFF" stroke="#557E9D" stroke-width="2"/>
+<g transform="translate(1351,213) scale(1.48)">
+<path d="M0,62 L0,17 L29,0 L58,17 L58,62 Z" fill="none" stroke="#243342" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M34,13 L18,35 L30,35 L23,53 L43,29 L31,29 Z" fill="#557E9D" stroke="#557E9D" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"/>
+</g>
+<text x="1390" y="381" fill="#243342" font-family="Arial, Helvetica, sans-serif" font-size="32" font-weight="700" text-anchor="middle">
+<tspan x="1390" dy="0">EnergyPlus</tspan>
+</text>
+<text x="1390" y="463" fill="#586775" font-family="Arial, Helvetica, sans-serif" font-size="22" font-weight="600" text-anchor="middle">
+<tspan x="1390" dy="0">OR</tspan>
+</text>
+<rect x="1244" y="494" width="292" height="240" rx="14" fill="#FFFFFF" stroke="#557E9D" stroke-width="2"/>
+<g transform="translate(1314,519) scale(1.28)">
+<path d="M0,35 L19,35 L26,20 L39,50 L52,20 L65,50 L78,20 L86,35 L106,35" fill="none" stroke="#557E9D" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+<line x1="106" y1="35" x2="106" y2="69" stroke="#557E9D" stroke-width="2.4" stroke-linecap="round"/>
+<line x1="91" y1="69" x2="121" y2="69" stroke="#243342" stroke-width="3" stroke-linecap="round"/>
+<line x1="91" y1="80" x2="121" y2="80" stroke="#243342" stroke-width="3" stroke-linecap="round"/>
+<line x1="106" y1="80" x2="106" y2="101" stroke="#557E9D" stroke-width="2.4" stroke-linecap="round"/>
+<path d="M106,101 L0,101 L0,35" fill="none" stroke="#557E9D" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/>
+</g>
+<text x="1390" y="700" fill="#243342" font-family="Arial, Helvetica, sans-serif" font-size="32" font-weight="700" text-anchor="middle">
+<tspan x="1390" dy="0">RC model</tspan>
+</text>
+<path d="M1291,422 L1291,443 L1224,443 L1224,783 L1390,783 L1390,807" fill="none" stroke="#557E9D" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" marker-end="url(#arrow-blue)"/>
+<path d="M1390,734 L1390,807" fill="none" stroke="#557E9D" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" marker-end="url(#arrow-blue)"/>
+<rect x="1242" y="817" width="296" height="51" rx="12" fill="#DDE8EF" stroke="none" stroke-width="2"/>
+<text x="1390" y="851" fill="#243342" font-family="Arial, Helvetica, sans-serif" font-size="28" font-weight="600" text-anchor="middle">
+<tspan x="1390" dy="0">Thermal demand</tspan>
+</text>
+<rect x="1624" y="183" width="312" height="438" rx="14" fill="#FFFFFF" stroke="#CED6DA" stroke-width="1.6"/>
+<g transform="translate(1656,227) scale(0.88)">
+<line x1="-5" y1="76" x2="106" y2="76" stroke="#243342" stroke-width="2.5" stroke-linecap="round"/>
+<rect x="0" y="19" width="13" height="70" rx="5" fill="#F2E4DF" stroke="#243342" stroke-width="2"/>
+<rect x="18" y="19" width="13" height="70" rx="5" fill="#F2E4DF" stroke="#243342" stroke-width="2"/>
+<rect x="36" y="19" width="13" height="70" rx="5" fill="#F2E4DF" stroke="#243342" stroke-width="2"/>
+<rect x="54" y="19" width="13" height="70" rx="5" fill="#F2E4DF" stroke="#243342" stroke-width="2"/>
+<rect x="72" y="19" width="13" height="70" rx="5" fill="#F2E4DF" stroke="#243342" stroke-width="2"/>
+<rect x="90" y="19" width="13" height="70" rx="5" fill="#F2E4DF" stroke="#243342" stroke-width="2"/>
+<line x1="7" y1="89" x2="7" y2="101" stroke="#243342" stroke-width="2.5" stroke-linecap="round"/>
+<line x1="95" y1="89" x2="95" y2="101" stroke="#243342" stroke-width="2.5" stroke-linecap="round"/>
+<path d="M22,8 C8,-3 33,-10 22,-23 M52,8 C38,-3 63,-10 52,-23 M82,8 C68,-3 93,-10 82,-23" fill="none" stroke="#AA5F52" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"/>
+</g>
+<g transform="translate(1823,216) scale(0.82)">
+<rect x="0" y="0" width="100" height="100" rx="12" fill="#FFFFFF" stroke="#243342" stroke-width="2.5"/>
+<circle cx="50" cy="50" r="39" fill="#DDE8EF" stroke="#243342" stroke-width="2"/>
+<g transform="rotate(0 50 50)">
+<path d="M50,46 C39,38 27,16 41,17 C57,17 69,29 57,43 Z" fill="#557E9D" stroke="#557E9D" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+</g>
+<g transform="rotate(90 50 50)">
+<path d="M50,46 C39,38 27,16 41,17 C57,17 69,29 57,43 Z" fill="#557E9D" stroke="#557E9D" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+</g>
+<g transform="rotate(180 50 50)">
+<path d="M50,46 C39,38 27,16 41,17 C57,17 69,29 57,43 Z" fill="#557E9D" stroke="#557E9D" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+</g>
+<g transform="rotate(270 50 50)">
+<path d="M50,46 C39,38 27,16 41,17 C57,17 69,29 57,43 Z" fill="#557E9D" stroke="#557E9D" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+</g>
+<circle cx="50" cy="50" r="9" fill="#FFFFFF" stroke="#243342" stroke-width="2"/>
+</g>
+<text x="1780" y="357" fill="#243342" font-family="Arial, Helvetica, sans-serif" font-size="28" font-weight="600" text-anchor="middle">
+<tspan x="1780" dy="0">Delivery + fans</tspan>
+</text>
+<path d="M1780,373 L1780,401" fill="none" stroke="#557E9D" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" marker-end="url(#arrow-blue)"/>
+<g transform="translate(1687,414) scale(0.74)">
+<path d="M38,0 L5,53 L31,53 L21,91 L68,32 L43,32 L55,0 Z" fill="#D6B767" stroke="#243342" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"/>
+</g>
+<g transform="translate(1824,421) scale(0.78)">
+<path d="M10,75 C-9,54 30,41 10,20 C2,11 5,5 10,0" fill="none" stroke="#AA5F52" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M34,75 C15,54 54,41 34,20 C26,11 29,5 34,0" fill="none" stroke="#AA5F52" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M58,75 C39,54 78,41 58,20 C50,11 53,5 58,0" fill="none" stroke="#AA5F52" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
+</g>
+<text x="1780" y="527" fill="#557E9D" font-family="Arial, Helvetica, sans-serif" font-size="27" font-weight="600" text-anchor="middle">
+<tspan x="1780" dy="0">Carrier energy</tspan>
+</text>
+<path d="M1780,541 L1780,563" fill="none" stroke="#557E9D" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" marker-end="url(#arrow-blue)"/>
+<text x="1780" y="600" fill="#739385" font-family="Arial, Helvetica, sans-serif" font-size="28" font-weight="600" text-anchor="middle">
+<tspan x="1780" dy="0">Operational CO₂e</tspan>
+</text>
+<rect x="1624" y="664" width="312" height="204" rx="14" fill="#FFFFFF" stroke="#739385" stroke-width="1.8"/>
+<g transform="translate(1643,710) scale(0.6)">
+<polygon points="0,78 150,78 198,48.24 48,48.24" fill="#E1E5E6" stroke="#243342" stroke-width="2" stroke-linejoin="round"/>
+<polygon points="150,78 198,48.24 198,70.24000000000001 150,100" fill="#99A4A8" stroke="#243342" stroke-width="2" stroke-linejoin="round"/>
+<polygon points="0,78 150,78 150,100 0,100" fill="#CAD0D1" stroke="#243342" stroke-width="2" stroke-linejoin="round"/>
+<polygon points="0,52 150,52 198,22.240000000000002 48,22.240000000000002" fill="#F6EAC6" stroke="#243342" stroke-width="2" stroke-linejoin="round"/>
+<polygon points="150,52 198,22.240000000000002 198,44.24 150,74" fill="#BCA15B" stroke="#243342" stroke-width="2" stroke-linejoin="round"/>
+<polygon points="0,52 150,52 150,74 0,74" fill="#F4E8C4" stroke="#243342" stroke-width="2" stroke-linejoin="round"/>
+<polygon points="0,26 150,26 198,-3.759999999999998 48,-3.759999999999998" fill="#E9D4B5" stroke="#243342" stroke-width="2" stroke-linejoin="round"/>
+<polygon points="150,26 198,-3.759999999999998 198,18.240000000000002 150,48" fill="#B29568" stroke="#243342" stroke-width="2" stroke-linejoin="round"/>
+<polygon points="0,26 150,26 150,48 0,48" fill="#D4BA92" stroke="#243342" stroke-width="2" stroke-linejoin="round"/>
+<polygon points="0,0 150,0 198,-29.759999999999998 48,-29.759999999999998" fill="#F0F5F7" stroke="#243342" stroke-width="2" stroke-linejoin="round"/>
+<polygon points="150,0 198,-29.759999999999998 198,-7.759999999999998 150,22" fill="#8AA7B9" stroke="#243342" stroke-width="2" stroke-linejoin="round"/>
+<polygon points="0,0 150,0 150,22 0,22" fill="#DDE8EF" stroke="#243342" stroke-width="2" stroke-linejoin="round"/>
+</g>
+<path d="M1776,745 L1822,745" fill="none" stroke="#739385" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" marker-end="url(#arrow)"/>
+<g transform="translate(1854,697) scale(0.8)">
+<rect x="0" y="0" width="72" height="88" rx="5" fill="#FFFFFF" stroke="#243342" stroke-width="2"/>
+<path d="M48,0 L48,23 L72,23" fill="none" stroke="#243342" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+<polygon points="48,0 72,23 48,23" fill="#F4F5F3" stroke="#243342" stroke-width="2" stroke-linejoin="round"/>
+<text x="36" y="55" fill="#243342" font-family="Arial, Helvetica, sans-serif" font-size="25" font-weight="700" text-anchor="middle">
+<tspan x="36" dy="0">CO₂e</tspan>
+</text>
+<line x1="14" y1="70" x2="57" y2="70" stroke="#557E9D" stroke-width="3" stroke-linecap="round"/>
+</g>
+<text x="1780" y="837" fill="#739385" font-family="Arial, Helvetica, sans-serif" font-size="28" font-weight="600" text-anchor="middle">
+<tspan x="1780" dy="0">Material CO₂e</tspan>
+</text>
+<g transform="translate(2024,231) scale(0.53)">
+<polygon points="0,0 150,0 215,-40.3 65,-40.3" fill="#D7E1E5" stroke="#243342" stroke-width="2" stroke-linejoin="round"/>
+<polygon points="150,0 215,-40.3 215,149.7 150,190" fill="#B7C6CC" stroke="#243342" stroke-width="2" stroke-linejoin="round"/>
+<polygon points="0,0 150,0 150,190 0,190" fill="#E5D9B8" stroke="#243342" stroke-width="2" stroke-linejoin="round"/>
+<rect x="14" y="18" width="23" height="25" rx="1" fill="#DDE8EF" stroke="#243342" stroke-width="1.8"/>
+<line x1="25" y1="19" x2="25" y2="42" stroke="#243342" stroke-width="1.3" stroke-linecap="round"/>
+<rect x="58" y="18" width="23" height="25" rx="1" fill="#DDE8EF" stroke="#243342" stroke-width="1.8"/>
+<line x1="69" y1="19" x2="69" y2="42" stroke="#243342" stroke-width="1.3" stroke-linecap="round"/>
+<rect x="102" y="18" width="23" height="25" rx="1" fill="#DDE8EF" stroke="#243342" stroke-width="1.8"/>
+<line x1="113" y1="19" x2="113" y2="42" stroke="#243342" stroke-width="1.3" stroke-linecap="round"/>
+<rect x="14" y="58" width="23" height="25" rx="1" fill="#DDE8EF" stroke="#243342" stroke-width="1.8"/>
+<line x1="25" y1="59" x2="25" y2="82" stroke="#243342" stroke-width="1.3" stroke-linecap="round"/>
+<rect x="58" y="58" width="23" height="25" rx="1" fill="#DDE8EF" stroke="#243342" stroke-width="1.8"/>
+<line x1="69" y1="59" x2="69" y2="82" stroke="#243342" stroke-width="1.3" stroke-linecap="round"/>
+<rect x="102" y="58" width="23" height="25" rx="1" fill="#DDE8EF" stroke="#243342" stroke-width="1.8"/>
+<line x1="113" y1="59" x2="113" y2="82" stroke="#243342" stroke-width="1.3" stroke-linecap="round"/>
+<rect x="14" y="98" width="23" height="25" rx="1" fill="#DDE8EF" stroke="#243342" stroke-width="1.8"/>
+<line x1="25" y1="99" x2="25" y2="122" stroke="#243342" stroke-width="1.3" stroke-linecap="round"/>
+<rect x="58" y="98" width="23" height="25" rx="1" fill="#DDE8EF" stroke="#243342" stroke-width="1.8"/>
+<line x1="69" y1="99" x2="69" y2="122" stroke="#243342" stroke-width="1.3" stroke-linecap="round"/>
+<rect x="102" y="98" width="23" height="25" rx="1" fill="#DDE8EF" stroke="#243342" stroke-width="1.8"/>
+<line x1="113" y1="99" x2="113" y2="122" stroke="#243342" stroke-width="1.3" stroke-linecap="round"/>
+<rect x="14" y="138" width="23" height="25" rx="1" fill="#DDE8EF" stroke="#243342" stroke-width="1.8"/>
+<line x1="25" y1="139" x2="25" y2="162" stroke="#243342" stroke-width="1.3" stroke-linecap="round"/>
+<rect x="58" y="138" width="23" height="25" rx="1" fill="#DDE8EF" stroke="#243342" stroke-width="1.8"/>
+<line x1="69" y1="139" x2="69" y2="162" stroke="#243342" stroke-width="1.3" stroke-linecap="round"/>
+<rect x="102" y="138" width="23" height="25" rx="1" fill="#DDE8EF" stroke="#243342" stroke-width="1.8"/>
+<line x1="113" y1="139" x2="113" y2="162" stroke="#243342" stroke-width="1.3" stroke-linecap="round"/>
+<rect x="64" y="161" width="26" height="29" rx="1" fill="#B49772" stroke="#243342" stroke-width="1.7"/>
+<polygon points="162,13.0 176,4.300000000000001 176,27.0 162,35.7" fill="#DDE8EF" stroke="#243342" stroke-width="1.5" stroke-linejoin="round"/>
+<polygon points="187,-2.5 201,-11.2 201,11.5 187,20.2" fill="#DDE8EF" stroke="#243342" stroke-width="1.5" stroke-linejoin="round"/>
+<polygon points="162,53.0 176,44.3 176,67.0 162,75.7" fill="#DDE8EF" stroke="#243342" stroke-width="1.5" stroke-linejoin="round"/>
+<polygon points="187,37.5 201,28.8 201,51.5 187,60.2" fill="#DDE8EF" stroke="#243342" stroke-width="1.5" stroke-linejoin="round"/>
+<polygon points="162,93.0 176,84.3 176,107.0 162,115.7" fill="#DDE8EF" stroke="#243342" stroke-width="1.5" stroke-linejoin="round"/>
+<polygon points="187,77.5 201,68.8 201,91.5 187,100.2" fill="#DDE8EF" stroke="#243342" stroke-width="1.5" stroke-linejoin="round"/>
+<polygon points="162,133.0 176,124.3 176,147.0 162,155.7" fill="#DDE8EF" stroke="#243342" stroke-width="1.5" stroke-linejoin="round"/>
+<polygon points="187,117.5 201,108.8 201,131.5 187,140.2" fill="#DDE8EF" stroke="#243342" stroke-width="1.5" stroke-linejoin="round"/>
+<line x1="-8" y1="191" x2="151" y2="191" stroke="#243342" stroke-width="2.2" stroke-linecap="round"/>
+</g>
+<path d="M2152,278 L2195,278" fill="none" stroke="#87939A" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" marker-end="url(#arrow)"/>
+<g transform="translate(2210,231) scale(0.53)">
+<polygon points="0,0 150,0 215,-40.3 65,-40.3" fill="#D7E1E5" stroke="#243342" stroke-width="2" stroke-linejoin="round"/>
+<polygon points="150,0 215,-40.3 215,149.7 150,190" fill="#B7C6CC" stroke="#243342" stroke-width="2" stroke-linejoin="round"/>
+<polygon points="0,0 150,0 150,190 0,190" fill="#E1EBE4" stroke="#243342" stroke-width="2" stroke-linejoin="round"/>
+<rect x="14" y="18" width="23" height="25" rx="1" fill="#DDE8EF" stroke="#243342" stroke-width="1.8"/>
+<line x1="25" y1="19" x2="25" y2="42" stroke="#243342" stroke-width="1.3" stroke-linecap="round"/>
+<rect x="58" y="18" width="23" height="25" rx="1" fill="#DDE8EF" stroke="#243342" stroke-width="1.8"/>
+<line x1="69" y1="19" x2="69" y2="42" stroke="#243342" stroke-width="1.3" stroke-linecap="round"/>
+<rect x="102" y="18" width="23" height="25" rx="1" fill="#DDE8EF" stroke="#243342" stroke-width="1.8"/>
+<line x1="113" y1="19" x2="113" y2="42" stroke="#243342" stroke-width="1.3" stroke-linecap="round"/>
+<rect x="14" y="58" width="23" height="25" rx="1" fill="#DDE8EF" stroke="#243342" stroke-width="1.8"/>
+<line x1="25" y1="59" x2="25" y2="82" stroke="#243342" stroke-width="1.3" stroke-linecap="round"/>
+<rect x="58" y="58" width="23" height="25" rx="1" fill="#DDE8EF" stroke="#243342" stroke-width="1.8"/>
+<line x1="69" y1="59" x2="69" y2="82" stroke="#243342" stroke-width="1.3" stroke-linecap="round"/>
+<rect x="102" y="58" width="23" height="25" rx="1" fill="#DDE8EF" stroke="#243342" stroke-width="1.8"/>
+<line x1="113" y1="59" x2="113" y2="82" stroke="#243342" stroke-width="1.3" stroke-linecap="round"/>
+<rect x="14" y="98" width="23" height="25" rx="1" fill="#DDE8EF" stroke="#243342" stroke-width="1.8"/>
+<line x1="25" y1="99" x2="25" y2="122" stroke="#243342" stroke-width="1.3" stroke-linecap="round"/>
+<rect x="58" y="98" width="23" height="25" rx="1" fill="#DDE8EF" stroke="#243342" stroke-width="1.8"/>
+<line x1="69" y1="99" x2="69" y2="122" stroke="#243342" stroke-width="1.3" stroke-linecap="round"/>
+<rect x="102" y="98" width="23" height="25" rx="1" fill="#DDE8EF" stroke="#243342" stroke-width="1.8"/>
+<line x1="113" y1="99" x2="113" y2="122" stroke="#243342" stroke-width="1.3" stroke-linecap="round"/>
+<rect x="14" y="138" width="23" height="25" rx="1" fill="#DDE8EF" stroke="#243342" stroke-width="1.8"/>
+<line x1="25" y1="139" x2="25" y2="162" stroke="#243342" stroke-width="1.3" stroke-linecap="round"/>
+<rect x="58" y="138" width="23" height="25" rx="1" fill="#DDE8EF" stroke="#243342" stroke-width="1.8"/>
+<line x1="69" y1="139" x2="69" y2="162" stroke="#243342" stroke-width="1.3" stroke-linecap="round"/>
+<rect x="102" y="138" width="23" height="25" rx="1" fill="#DDE8EF" stroke="#243342" stroke-width="1.8"/>
+<line x1="113" y1="139" x2="113" y2="162" stroke="#243342" stroke-width="1.3" stroke-linecap="round"/>
+<rect x="64" y="161" width="26" height="29" rx="1" fill="#B49772" stroke="#243342" stroke-width="1.7"/>
+<polygon points="162,13.0 176,4.300000000000001 176,27.0 162,35.7" fill="#DDE8EF" stroke="#243342" stroke-width="1.5" stroke-linejoin="round"/>
+<polygon points="187,-2.5 201,-11.2 201,11.5 187,20.2" fill="#DDE8EF" stroke="#243342" stroke-width="1.5" stroke-linejoin="round"/>
+<polygon points="162,53.0 176,44.3 176,67.0 162,75.7" fill="#DDE8EF" stroke="#243342" stroke-width="1.5" stroke-linejoin="round"/>
+<polygon points="187,37.5 201,28.8 201,51.5 187,60.2" fill="#DDE8EF" stroke="#243342" stroke-width="1.5" stroke-linejoin="round"/>
+<polygon points="162,93.0 176,84.3 176,107.0 162,115.7" fill="#DDE8EF" stroke="#243342" stroke-width="1.5" stroke-linejoin="round"/>
+<polygon points="187,77.5 201,68.8 201,91.5 187,100.2" fill="#DDE8EF" stroke="#243342" stroke-width="1.5" stroke-linejoin="round"/>
+<polygon points="162,133.0 176,124.3 176,147.0 162,155.7" fill="#DDE8EF" stroke="#243342" stroke-width="1.5" stroke-linejoin="round"/>
+<polygon points="187,117.5 201,108.8 201,131.5 187,140.2" fill="#DDE8EF" stroke="#243342" stroke-width="1.5" stroke-linejoin="round"/>
+<line x1="-8" y1="191" x2="151" y2="191" stroke="#243342" stroke-width="2.2" stroke-linecap="round"/>
+</g>
+<text x="2079" y="379" fill="#243342" font-family="Arial, Helvetica, sans-serif" font-size="25" font-weight="600" text-anchor="middle">
+<tspan x="2079" dy="0">Baseline</tspan>
+</text>
+<text x="2263" y="379" fill="#243342" font-family="Arial, Helvetica, sans-serif" font-size="25" font-weight="600" text-anchor="middle">
+<tspan x="2263" dy="0">Renovated</tspan>
+</text>
+<rect x="2014" y="431" width="312" height="249" rx="12" fill="#FFFFFF" stroke="#243342" stroke-width="2.5"/>
+<rect x="2026" y="444" width="288" height="217" rx="6" fill="#F9FAF9" stroke="none" stroke-width="2"/>
+<text x="2100" y="483" fill="#243342" font-family="Arial, Helvetica, sans-serif" font-size="24" font-weight="600" text-anchor="middle">
+<tspan x="2100" dy="0">Energy</tspan>
+</text>
+<text x="2241" y="483" fill="#243342" font-family="Arial, Helvetica, sans-serif" font-size="24" font-weight="600" text-anchor="middle">
+<tspan x="2241" dy="0">Climate</tspan>
+</text>
+<line x1="2046" y1="624" x2="2153" y2="624" stroke="#87939A" stroke-width="1.4" stroke-linecap="round"/>
+<rect x="2066" y="532" width="26" height="92" rx="2" fill="#557E9D" stroke="none" stroke-width="2"/>
+<rect x="2106" y="562" width="26" height="62" rx="2" fill="#739385" stroke="none" stroke-width="2"/>
+<line x1="2189" y1="624" x2="2296" y2="624" stroke="#87939A" stroke-width="1.4" stroke-linecap="round"/>
+<rect x="2208" y="525" width="26" height="84" rx="2" fill="#557E9D" stroke="none" stroke-width="2"/>
+<rect x="2208" y="609" width="26" height="15" rx="1" fill="#D6B767" stroke="none" stroke-width="2"/>
+<rect x="2249" y="546" width="26" height="48" rx="2" fill="#739385" stroke="none" stroke-width="2"/>
+<rect x="2249" y="594" width="26" height="30" rx="1" fill="#D6B767" stroke="none" stroke-width="2"/>
+<path d="M2143,680 L2143,706 L2198,706 L2198,680" fill="#FFFFFF" stroke="#243342" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+<line x1="2115" y1="709" x2="2225" y2="709" stroke="#243342" stroke-width="3" stroke-linecap="round"/>
+<text x="2170" y="747" fill="#586775" font-family="Arial, Helvetica, sans-serif" font-size="21" font-weight="400" text-anchor="middle">
+<tspan x="2170" dy="0">Schematic comparison</tspan>
+</text>
+<g transform="translate(2136,774) scale(0.71)">
+<rect x="0" y="9" width="67" height="79" rx="5" fill="#FFFFFF" stroke="#CED6DA" stroke-width="2"/>
+<rect x="11" y="0" width="67" height="79" rx="5" fill="#FFFFFF" stroke="#243342" stroke-width="2"/>
+<line x1="24" y1="18" x2="65" y2="18" stroke="#87939A" stroke-width="2.5" stroke-linecap="round"/>
+<line x1="24" y1="31" x2="54" y2="31" stroke="#87939A" stroke-width="2.5" stroke-linecap="round"/>
+<line x1="24" y1="44" x2="48" y2="44" stroke="#87939A" stroke-width="2.5" stroke-linecap="round"/>
+<circle cx="68" cy="68" r="22" fill="#E1EBE4" stroke="#243342" stroke-width="2"/>
+<path d="M57,68 L65,76 L80,59" fill="none" stroke="#739385" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
+</g>
+<text x="2170" y="868" fill="#243342" font-family="Arial, Helvetica, sans-serif" font-size="27" font-weight="600" text-anchor="middle">
+<tspan x="2170" dy="0">Saved evaluations</tspan>
+</text>
+<path d="M610,890 L610,947 L1780,947 L1780,877" fill="none" stroke="#739385" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" marker-end="url(#arrow)"/>
+<rect x="927" y="922" width="412" height="47" rx="0" fill="#FFFFFF" stroke="none" stroke-width="2"/>
+<text x="1133" y="955" fill="#739385" font-family="Arial, Helvetica, sans-serif" font-size="27" font-weight="600" text-anchor="middle">
+<tspan x="1133" dy="0">Material quantities</tspan>
+</text>
+<text x="1200" y="1012" fill="#586775" font-family="Arial, Helvetica, sans-serif" font-size="24" font-weight="400" text-anchor="middle">
+<tspan x="1200" dy="0">Common purchased energy: space heating + ventilation fans. Cooling / DHW demand separate; engine capabilities differ.</tspan>
+</text>
+<text x="1200" y="1050" fill="#586775" font-family="Arial, Helvetica, sans-serif" font-size="24" font-weight="400" text-anchor="middle">
+<tspan x="1200" dy="0">CO₂e assessment uses sourced factors and an explicit assessment period.</tspan>
+</text>
+<line x1="40" y1="1086" x2="2360" y2="1086" stroke="#CED6DA" stroke-width="1.5" stroke-linecap="round"/>
+<text x="1200" y="1128" fill="#243342" font-family="Arial, Helvetica, sans-serif" font-size="36" font-weight="600" text-anchor="middle">
+<tspan x="1200" dy="0">EPSM simulation platform</tspan>
+</text>
+</svg>

@@ -1,0 +1,439 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="600mm" height="290.0mm" viewBox="0 0 2400 1160">
+<title>EPSM data model</title>
+<desc>Updated conceptual diagram of the current EPSM platform. Text and drawings are editable vector objects.</desc>
+<defs><marker id="arrow" viewBox="0 0 10 10" refX="8.3" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#73818A"/></marker><marker id="arrow-blue" viewBox="0 0 10 10" refX="8.3" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#557E9D"/></marker></defs>
+<rect width="2400" height="100%" fill="white"/>
+<text x="40" y="49" fill="#586775" font-family="Arial, Helvetica, sans-serif" font-size="24" font-weight="600" text-anchor="start">
+<tspan x="40" dy="0">REUSABLE CONSTRUCTION AND OPERATING DEFINITIONS</tspan>
+</text>
+<rect x="40" y="86" width="360" height="760" rx="20" fill="#F4F5F3" stroke="#DDE2E1" stroke-width="1.6"/>
+<rect x="40" y="86" width="360" height="84" rx="20" fill="#FFFFFF" stroke="#DDE2E1" stroke-width="1.6"/>
+<rect x="41" y="129" width="358" height="40" rx="0" fill="#FFFFFF" stroke="none" stroke-width="2"/>
+<line x1="60" y1="169" x2="380" y2="169" stroke="#CED6DA" stroke-width="1.4" stroke-linecap="round"/>
+<line x1="193" y1="98" x2="247" y2="98" stroke="#87939A" stroke-width="3" stroke-linecap="round"/>
+<text x="220" y="135" fill="#243342" font-family="Arial, Helvetica, sans-serif" font-size="31" font-weight="700" text-anchor="middle">
+<tspan x="220" dy="0">CURATED SOURCES</tspan>
+</text>
+<path d="M405,128 L422,128" fill="none" stroke="#87939A" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" marker-end="url(#arrow)"/>
+<rect x="430" y="86" width="360" height="760" rx="20" fill="#F4F5F3" stroke="#DDE2E1" stroke-width="1.6"/>
+<rect x="430" y="86" width="360" height="84" rx="20" fill="#FFFFFF" stroke="#DDE2E1" stroke-width="1.6"/>
+<rect x="431" y="129" width="358" height="40" rx="0" fill="#FFFFFF" stroke="none" stroke-width="2"/>
+<line x1="450" y1="169" x2="770" y2="169" stroke="#CED6DA" stroke-width="1.4" stroke-linecap="round"/>
+<line x1="583" y1="98" x2="637" y2="98" stroke="#D6B767" stroke-width="3" stroke-linecap="round"/>
+<text x="610" y="135" fill="#243342" font-family="Arial, Helvetica, sans-serif" font-size="31" font-weight="700" text-anchor="middle">
+<tspan x="610" dy="0">MATERIALS</tspan>
+</text>
+<path d="M795,128 L812,128" fill="none" stroke="#87939A" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" marker-end="url(#arrow)"/>
+<rect x="820" y="86" width="360" height="760" rx="20" fill="#F4F5F3" stroke="#DDE2E1" stroke-width="1.6"/>
+<rect x="820" y="86" width="360" height="84" rx="20" fill="#FFFFFF" stroke="#DDE2E1" stroke-width="1.6"/>
+<rect x="821" y="129" width="358" height="40" rx="0" fill="#FFFFFF" stroke="none" stroke-width="2"/>
+<line x1="840" y1="169" x2="1160" y2="169" stroke="#CED6DA" stroke-width="1.4" stroke-linecap="round"/>
+<line x1="973" y1="98" x2="1027" y2="98" stroke="#D6B767" stroke-width="3" stroke-linecap="round"/>
+<text x="1000" y="135" fill="#243342" font-family="Arial, Helvetica, sans-serif" font-size="31" font-weight="700" text-anchor="middle">
+<tspan x="1000" dy="0">LAYERS</tspan>
+</text>
+<path d="M1185,128 L1202,128" fill="none" stroke="#87939A" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" marker-end="url(#arrow)"/>
+<rect x="1210" y="86" width="360" height="760" rx="20" fill="#F4F5F3" stroke="#DDE2E1" stroke-width="1.6"/>
+<rect x="1210" y="86" width="360" height="84" rx="20" fill="#FFFFFF" stroke="#DDE2E1" stroke-width="1.6"/>
+<rect x="1211" y="129" width="358" height="40" rx="0" fill="#FFFFFF" stroke="none" stroke-width="2"/>
+<line x1="1230" y1="169" x2="1550" y2="169" stroke="#CED6DA" stroke-width="1.4" stroke-linecap="round"/>
+<line x1="1363" y1="98" x2="1417" y2="98" stroke="#557E9D" stroke-width="3" stroke-linecap="round"/>
+<text x="1390" y="135" fill="#243342" font-family="Arial, Helvetica, sans-serif" font-size="31" font-weight="700" text-anchor="middle">
+<tspan x="1390" dy="0">COMPONENTS</tspan>
+</text>
+<path d="M1575,128 L1592,128" fill="none" stroke="#87939A" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" marker-end="url(#arrow)"/>
+<rect x="1600" y="86" width="360" height="760" rx="20" fill="#F4F5F3" stroke="#DDE2E1" stroke-width="1.6"/>
+<rect x="1600" y="86" width="360" height="84" rx="20" fill="#FFFFFF" stroke="#DDE2E1" stroke-width="1.6"/>
+<rect x="1601" y="129" width="358" height="40" rx="0" fill="#FFFFFF" stroke="none" stroke-width="2"/>
+<line x1="1620" y1="169" x2="1940" y2="169" stroke="#CED6DA" stroke-width="1.4" stroke-linecap="round"/>
+<line x1="1753" y1="98" x2="1807" y2="98" stroke="#557E9D" stroke-width="3" stroke-linecap="round"/>
+<text x="1780" y="135" fill="#243342" font-family="Arial, Helvetica, sans-serif" font-size="31" font-weight="700" text-anchor="middle">
+<tspan x="1780" dy="0">ELEMENTS</tspan>
+</text>
+<path d="M1965,128 L1982,128" fill="none" stroke="#87939A" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" marker-end="url(#arrow)"/>
+<rect x="1990" y="86" width="360" height="760" rx="20" fill="#F4F5F3" stroke="#DDE2E1" stroke-width="1.6"/>
+<rect x="1990" y="86" width="360" height="84" rx="20" fill="#FFFFFF" stroke="#DDE2E1" stroke-width="1.6"/>
+<rect x="1991" y="129" width="358" height="40" rx="0" fill="#FFFFFF" stroke="none" stroke-width="2"/>
+<line x1="2010" y1="169" x2="2330" y2="169" stroke="#CED6DA" stroke-width="1.4" stroke-linecap="round"/>
+<line x1="2143" y1="98" x2="2197" y2="98" stroke="#739385" stroke-width="3" stroke-linecap="round"/>
+<text x="2170" y="135" fill="#243342" font-family="Arial, Helvetica, sans-serif" font-size="31" font-weight="700" text-anchor="middle">
+<tspan x="2170" dy="0">BUILDING ARCHETYPE</tspan>
+</text>
+<rect x="64" y="196" width="312" height="228" rx="12" fill="#FFFFFF" stroke="#CED6DA" stroke-width="1.4"/>
+<g transform="translate(85,219) scale(0.92)">
+<rect x="17" y="0" width="18" height="64" rx="9" fill="#FFFFFF" stroke="#243342" stroke-width="2"/>
+<circle cx="26" cy="64" r="18" fill="#FFFFFF" stroke="#243342" stroke-width="2"/>
+<path d="M26,20 L26,64" fill="none" stroke="#AA5F52" stroke-width="7" stroke-linecap="round" stroke-linejoin="round"/>
+<circle cx="26" cy="64" r="10" fill="#AA5F52" stroke="none" stroke-width="2"/>
+<line x1="40" y1="12" x2="50" y2="12" stroke="#243342" stroke-width="2" stroke-linecap="round"/>
+<line x1="40" y1="25" x2="50" y2="25" stroke="#243342" stroke-width="2" stroke-linecap="round"/>
+<line x1="40" y1="38" x2="50" y2="38" stroke="#243342" stroke-width="2" stroke-linecap="round"/>
+</g>
+<text x="164" y="244" fill="#243342" font-family="Arial, Helvetica, sans-serif" font-size="25" font-weight="600" text-anchor="start">
+<tspan x="164" dy="0">Thermal + optical</tspan>
+</text>
+<text x="164" y="278" fill="#243342" font-family="Arial, Helvetica, sans-serif" font-size="25" font-weight="600" text-anchor="start">
+<tspan x="164" dy="0">properties</tspan>
+</text>
+<text x="84" y="336" fill="#243342" font-family="Arial, Helvetica, sans-serif" font-size="25" font-weight="400" text-anchor="start">
+<tspan x="84" dy="0">Honeybee-compatible</tspan>
+</text>
+<text x="84" y="372" fill="#586775" font-family="Arial, Helvetica, sans-serif" font-size="25" font-weight="400" text-anchor="start">
+<tspan x="84" dy="0">custom definitions</tspan>
+</text>
+<rect x="64" y="446" width="312" height="228" rx="12" fill="#FFFFFF" stroke="#CED6DA" stroke-width="1.4"/>
+<g transform="translate(88,469) scale(0.87)">
+<rect x="0" y="0" width="72" height="88" rx="5" fill="#FFFFFF" stroke="#243342" stroke-width="2"/>
+<path d="M48,0 L48,23 L72,23" fill="none" stroke="#243342" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+<polygon points="48,0 72,23 48,23" fill="#F4F5F3" stroke="#243342" stroke-width="2" stroke-linejoin="round"/>
+<text x="36" y="55" fill="#243342" font-family="Arial, Helvetica, sans-serif" font-size="25" font-weight="700" text-anchor="middle">
+<tspan x="36" dy="0">CO₂</tspan>
+</text>
+<line x1="14" y1="70" x2="57" y2="70" stroke="#557E9D" stroke-width="3" stroke-linecap="round"/>
+</g>
+<text x="170" y="502" fill="#243342" font-family="Arial, Helvetica, sans-serif" font-size="27" font-weight="600" text-anchor="start">
+<tspan x="170" dy="0">Boverket</tspan>
+</text>
+<text x="170" y="537" fill="#243342" font-family="Arial, Helvetica, sans-serif" font-size="25" font-weight="600" text-anchor="start">
+<tspan x="170" dy="0">climate factors</tspan>
+</text>
+<text x="84" y="605" fill="#243342" font-family="Arial, Helvetica, sans-serif" font-size="25" font-weight="400" text-anchor="start">
+<tspan x="84" dy="0">Generic resource data</tspan>
+</text>
+<text x="84" y="641" fill="#586775" font-family="Arial, Helvetica, sans-serif" font-size="25" font-weight="400" text-anchor="start">
+<tspan x="84" dy="0">Curated source records</tspan>
+</text>
+<text x="220" y="734" fill="#586775" font-family="Arial, Helvetica, sans-serif" font-size="25" font-weight="600" text-anchor="middle">
+<tspan x="220" dy="0">Bundled, offline inputs</tspan>
+</text>
+<text x="220" y="778" fill="#586775" font-family="Arial, Helvetica, sans-serif" font-size="24" font-weight="400" text-anchor="middle">
+<tspan x="220" dy="0">Source references retained</tspan>
+</text>
+<polygon points="465,233 563,233 588,217.5 490,217.5" fill="#E7CABC" stroke="#243342" stroke-width="2" stroke-linejoin="round"/>
+<polygon points="563,233 588,217.5 588,275.5 563,291" fill="#B58D79" stroke="#243342" stroke-width="2" stroke-linejoin="round"/>
+<polygon points="465,233 563,233 563,291 465,291" fill="#D8B39F" stroke="#243342" stroke-width="2" stroke-linejoin="round"/>
+<line x1="465" y1="262" x2="563" y2="262" stroke="#F7EDE6" stroke-width="3" stroke-linecap="round"/>
+<line x1="503" y1="233" x2="503" y2="262" stroke="#F7EDE6" stroke-width="3" stroke-linecap="round"/>
+<line x1="531" y1="262" x2="531" y2="291" stroke="#F7EDE6" stroke-width="3" stroke-linecap="round"/>
+<text x="521" y="336" fill="#243342" font-family="Arial, Helvetica, sans-serif" font-size="24" font-weight="400" text-anchor="middle">
+<tspan x="521" dy="0">Masonry</tspan>
+</text>
+<polygon points="629,233 727,233 752,217.5 654,217.5" fill="#E9D8B7" stroke="#243342" stroke-width="2" stroke-linejoin="round"/>
+<polygon points="727,233 752,217.5 752,275.5 727,291" fill="#BA9B69" stroke="#243342" stroke-width="2" stroke-linejoin="round"/>
+<polygon points="629,233 727,233 727,291 629,291" fill="#D8BF93" stroke="#243342" stroke-width="2" stroke-linejoin="round"/>
+<path d="M637,244 C656,237 691,252 719,243" fill="none" stroke="#B79866" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M637,255 C656,248 691,263 719,254" fill="none" stroke="#B79866" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M637,266 C656,259 691,274 719,265" fill="none" stroke="#B79866" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M637,277 C656,270 691,285 719,276" fill="none" stroke="#B79866" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/>
+<text x="685" y="336" fill="#243342" font-family="Arial, Helvetica, sans-serif" font-size="24" font-weight="400" text-anchor="middle">
+<tspan x="685" dy="0">Timber</tspan>
+</text>
+<polygon points="465,387 563,387 588,371.5 490,371.5" fill="#F8EBC4" stroke="#243342" stroke-width="2" stroke-linejoin="round"/>
+<polygon points="563,387 588,371.5 588,429.5 563,445" fill="#C7B474" stroke="#243342" stroke-width="2" stroke-linejoin="round"/>
+<polygon points="465,387 563,387 563,445 465,445" fill="#F4E8C4" stroke="#243342" stroke-width="2" stroke-linejoin="round"/>
+<circle cx="473" cy="395" r="1.3" fill="#B6A26A" stroke="none" stroke-width="2"/>
+<circle cx="486" cy="395" r="1.3" fill="#B6A26A" stroke="none" stroke-width="2"/>
+<circle cx="499" cy="395" r="1.3" fill="#B6A26A" stroke="none" stroke-width="2"/>
+<circle cx="512" cy="395" r="1.3" fill="#B6A26A" stroke="none" stroke-width="2"/>
+<circle cx="525" cy="395" r="1.3" fill="#B6A26A" stroke="none" stroke-width="2"/>
+<circle cx="538" cy="395" r="1.3" fill="#B6A26A" stroke="none" stroke-width="2"/>
+<circle cx="551" cy="395" r="1.3" fill="#B6A26A" stroke="none" stroke-width="2"/>
+<circle cx="477" cy="408" r="1.3" fill="#B6A26A" stroke="none" stroke-width="2"/>
+<circle cx="490" cy="408" r="1.3" fill="#B6A26A" stroke="none" stroke-width="2"/>
+<circle cx="503" cy="408" r="1.3" fill="#B6A26A" stroke="none" stroke-width="2"/>
+<circle cx="516" cy="408" r="1.3" fill="#B6A26A" stroke="none" stroke-width="2"/>
+<circle cx="529" cy="408" r="1.3" fill="#B6A26A" stroke="none" stroke-width="2"/>
+<circle cx="542" cy="408" r="1.3" fill="#B6A26A" stroke="none" stroke-width="2"/>
+<circle cx="555" cy="408" r="1.3" fill="#B6A26A" stroke="none" stroke-width="2"/>
+<circle cx="473" cy="421" r="1.3" fill="#B6A26A" stroke="none" stroke-width="2"/>
+<circle cx="486" cy="421" r="1.3" fill="#B6A26A" stroke="none" stroke-width="2"/>
+<circle cx="499" cy="421" r="1.3" fill="#B6A26A" stroke="none" stroke-width="2"/>
+<circle cx="512" cy="421" r="1.3" fill="#B6A26A" stroke="none" stroke-width="2"/>
+<circle cx="525" cy="421" r="1.3" fill="#B6A26A" stroke="none" stroke-width="2"/>
+<circle cx="538" cy="421" r="1.3" fill="#B6A26A" stroke="none" stroke-width="2"/>
+<circle cx="551" cy="421" r="1.3" fill="#B6A26A" stroke="none" stroke-width="2"/>
+<circle cx="477" cy="434" r="1.3" fill="#B6A26A" stroke="none" stroke-width="2"/>
+<circle cx="490" cy="434" r="1.3" fill="#B6A26A" stroke="none" stroke-width="2"/>
+<circle cx="503" cy="434" r="1.3" fill="#B6A26A" stroke="none" stroke-width="2"/>
+<circle cx="516" cy="434" r="1.3" fill="#B6A26A" stroke="none" stroke-width="2"/>
+<circle cx="529" cy="434" r="1.3" fill="#B6A26A" stroke="none" stroke-width="2"/>
+<circle cx="542" cy="434" r="1.3" fill="#B6A26A" stroke="none" stroke-width="2"/>
+<circle cx="555" cy="434" r="1.3" fill="#B6A26A" stroke="none" stroke-width="2"/>
+<text x="521" y="490" fill="#243342" font-family="Arial, Helvetica, sans-serif" font-size="24" font-weight="400" text-anchor="middle">
+<tspan x="521" dy="0">Insulation</tspan>
+</text>
+<polygon points="629,387 727,387 752,371.5 654,371.5" fill="#E3E6E4" stroke="#243342" stroke-width="2" stroke-linejoin="round"/>
+<polygon points="727,387 752,371.5 752,429.5 727,445" fill="#9FA8A6" stroke="#243342" stroke-width="2" stroke-linejoin="round"/>
+<polygon points="629,387 727,387 727,445 629,445" fill="#CED2D0" stroke="#243342" stroke-width="2" stroke-linejoin="round"/>
+<circle cx="641" cy="400" r="2" fill="#A5AFAC" stroke="none" stroke-width="2"/>
+<circle cx="662" cy="432" r="2" fill="#A5AFAC" stroke="none" stroke-width="2"/>
+<circle cx="699" cy="404" r="2" fill="#A5AFAC" stroke="none" stroke-width="2"/>
+<circle cx="711" cy="427" r="2" fill="#A5AFAC" stroke="none" stroke-width="2"/>
+<circle cx="679" cy="416" r="2" fill="#A5AFAC" stroke="none" stroke-width="2"/>
+<circle cx="647" cy="438" r="2" fill="#A5AFAC" stroke="none" stroke-width="2"/>
+<text x="685" y="490" fill="#243342" font-family="Arial, Helvetica, sans-serif" font-size="24" font-weight="400" text-anchor="middle">
+<tspan x="685" dy="0">Concrete</tspan>
+</text>
+<text x="610" y="568" fill="#243342" font-family="Arial, Helvetica, sans-serif" font-size="29" font-weight="600" text-anchor="middle">
+<tspan x="610" dy="0">Opaque materials</tspan>
+</text>
+<text x="610" y="615" fill="#243342" font-family="Arial, Helvetica, sans-serif" font-size="25" font-weight="400" text-anchor="middle">
+<tspan x="610" dy="0">Conductivity · Density</tspan>
+</text>
+<text x="610" y="652" fill="#243342" font-family="Arial, Helvetica, sans-serif" font-size="25" font-weight="400" text-anchor="middle">
+<tspan x="610" dy="0">Heat capacity</tspan>
+</text>
+<rect x="456" y="697" width="308" height="105" rx="10" fill="#FFFFFF" stroke="#CED6DA" stroke-width="1.4"/>
+<text x="610" y="737" fill="#243342" font-family="Arial, Helvetica, sans-serif" font-size="25" font-weight="600" text-anchor="middle">
+<tspan x="610" dy="0">Environmental factors</tspan>
+</text>
+<text x="610" y="775" fill="#586775" font-family="Arial, Helvetica, sans-serif" font-size="24" font-weight="400" text-anchor="middle">
+<tspan x="610" dy="0">when available</tspan>
+</text>
+<text x="1000" y="218" fill="#243342" font-family="Arial, Helvetica, sans-serif" font-size="25" font-weight="600" text-anchor="middle">
+<tspan x="1000" dy="0">HOMOGENEOUS</tspan>
+</text>
+<polygon points="899,267 1065,267 1106,241.58 940,241.58" fill="#F7EDCC" stroke="#243342" stroke-width="2" stroke-linejoin="round"/>
+<polygon points="1065,267 1106,241.58 1106,311.58 1065,337" fill="#C2A35F" stroke="#243342" stroke-width="2" stroke-linejoin="round"/>
+<polygon points="899,267 1065,267 1065,337 899,337" fill="#F4E8C4" stroke="#243342" stroke-width="2" stroke-linejoin="round"/>
+<circle cx="909" cy="278" r="1.7" fill="#C0A970" stroke="none" stroke-width="2"/>
+<circle cx="909" cy="298" r="1.7" fill="#C0A970" stroke="none" stroke-width="2"/>
+<circle cx="909" cy="318" r="1.7" fill="#C0A970" stroke="none" stroke-width="2"/>
+<circle cx="924" cy="278" r="1.7" fill="#C0A970" stroke="none" stroke-width="2"/>
+<circle cx="924" cy="298" r="1.7" fill="#C0A970" stroke="none" stroke-width="2"/>
+<circle cx="924" cy="318" r="1.7" fill="#C0A970" stroke="none" stroke-width="2"/>
+<circle cx="939" cy="278" r="1.7" fill="#C0A970" stroke="none" stroke-width="2"/>
+<circle cx="939" cy="298" r="1.7" fill="#C0A970" stroke="none" stroke-width="2"/>
+<circle cx="939" cy="318" r="1.7" fill="#C0A970" stroke="none" stroke-width="2"/>
+<circle cx="954" cy="278" r="1.7" fill="#C0A970" stroke="none" stroke-width="2"/>
+<circle cx="954" cy="298" r="1.7" fill="#C0A970" stroke="none" stroke-width="2"/>
+<circle cx="954" cy="318" r="1.7" fill="#C0A970" stroke="none" stroke-width="2"/>
+<circle cx="969" cy="278" r="1.7" fill="#C0A970" stroke="none" stroke-width="2"/>
+<circle cx="969" cy="298" r="1.7" fill="#C0A970" stroke="none" stroke-width="2"/>
+<circle cx="969" cy="318" r="1.7" fill="#C0A970" stroke="none" stroke-width="2"/>
+<circle cx="984" cy="278" r="1.7" fill="#C0A970" stroke="none" stroke-width="2"/>
+<circle cx="984" cy="298" r="1.7" fill="#C0A970" stroke="none" stroke-width="2"/>
+<circle cx="984" cy="318" r="1.7" fill="#C0A970" stroke="none" stroke-width="2"/>
+<circle cx="999" cy="278" r="1.7" fill="#C0A970" stroke="none" stroke-width="2"/>
+<circle cx="999" cy="298" r="1.7" fill="#C0A970" stroke="none" stroke-width="2"/>
+<circle cx="999" cy="318" r="1.7" fill="#C0A970" stroke="none" stroke-width="2"/>
+<circle cx="1014" cy="278" r="1.7" fill="#C0A970" stroke="none" stroke-width="2"/>
+<circle cx="1014" cy="298" r="1.7" fill="#C0A970" stroke="none" stroke-width="2"/>
+<circle cx="1014" cy="318" r="1.7" fill="#C0A970" stroke="none" stroke-width="2"/>
+<circle cx="1029" cy="278" r="1.7" fill="#C0A970" stroke="none" stroke-width="2"/>
+<circle cx="1029" cy="298" r="1.7" fill="#C0A970" stroke="none" stroke-width="2"/>
+<circle cx="1029" cy="318" r="1.7" fill="#C0A970" stroke="none" stroke-width="2"/>
+<circle cx="1044" cy="278" r="1.7" fill="#C0A970" stroke="none" stroke-width="2"/>
+<circle cx="1044" cy="298" r="1.7" fill="#C0A970" stroke="none" stroke-width="2"/>
+<circle cx="1044" cy="318" r="1.7" fill="#C0A970" stroke="none" stroke-width="2"/>
+<text x="1000" y="390" fill="#243342" font-family="Arial, Helvetica, sans-serif" font-size="27" font-weight="400" text-anchor="middle">
+<tspan x="1000" dy="0">One material</tspan>
+</text>
+<text x="1000" y="431" fill="#586775" font-family="Arial, Helvetica, sans-serif" font-size="23" font-weight="400" text-anchor="middle">
+<tspan x="1000" dy="0">R = thickness / conductivity</tspan>
+</text>
+<line x1="855" y1="470" x2="1145" y2="470" stroke="#CED6DA" stroke-width="1.5" stroke-linecap="round"/>
+<text x="1000" y="519" fill="#243342" font-family="Arial, Helvetica, sans-serif" font-size="25" font-weight="600" text-anchor="middle">
+<tspan x="1000" dy="0">COMPOSITE</tspan>
+</text>
+<polygon points="899,567 1065,567 1106,541.58 940,541.58" fill="#F7EDCC" stroke="#243342" stroke-width="2" stroke-linejoin="round"/>
+<polygon points="1065,567 1106,541.58 1106,611.58 1065,637" fill="#C2A35F" stroke="#243342" stroke-width="2" stroke-linejoin="round"/>
+<polygon points="899,567 1065,567 1065,637 899,637" fill="#F4E8C4" stroke="#243342" stroke-width="2" stroke-linejoin="round"/>
+<polygon points="899,567 915,567 956,541.58 940,541.58" fill="#DDC59D" stroke="#243342" stroke-width="1.3" stroke-linejoin="round"/>
+<rect x="899" y="567" width="16" height="70" rx="0" fill="#C1A275" stroke="#243342" stroke-width="1.2"/>
+<polygon points="972,567 988,567 1029,541.58 1013,541.58" fill="#DDC59D" stroke="#243342" stroke-width="1.3" stroke-linejoin="round"/>
+<rect x="972" y="567" width="16" height="70" rx="0" fill="#C1A275" stroke="#243342" stroke-width="1.2"/>
+<polygon points="1049,567 1065,567 1106,541.58 1090,541.58" fill="#DDC59D" stroke="#243342" stroke-width="1.3" stroke-linejoin="round"/>
+<rect x="1049" y="567" width="16" height="70" rx="0" fill="#C1A275" stroke="#243342" stroke-width="1.2"/>
+<text x="1000" y="690" fill="#243342" font-family="Arial, Helvetica, sans-serif" font-size="25" font-weight="400" text-anchor="middle">
+<tspan x="1000" dy="0">Parallel material shares</tspan>
+</text>
+<text x="1000" y="732" fill="#586775" font-family="Arial, Helvetica, sans-serif" font-size="24" font-weight="400" text-anchor="middle">
+<tspan x="1000" dy="0">e.g. studs + insulation</tspan>
+</text>
+<text x="1000" y="788" fill="#586775" font-family="Arial, Helvetica, sans-serif" font-size="23" font-weight="600" text-anchor="middle">
+<tspan x="1000" dy="0">Equivalent layer resistance</tspan>
+</text>
+<g transform="translate(1276,248) scale(1.13)">
+<polygon points="0,78 150,78 198,48.24 48,48.24" fill="#E1E5E6" stroke="#243342" stroke-width="2" stroke-linejoin="round"/>
+<polygon points="150,78 198,48.24 198,70.24000000000001 150,100" fill="#99A4A8" stroke="#243342" stroke-width="2" stroke-linejoin="round"/>
+<polygon points="0,78 150,78 150,100 0,100" fill="#CAD0D1" stroke="#243342" stroke-width="2" stroke-linejoin="round"/>
+<polygon points="0,52 150,52 198,22.240000000000002 48,22.240000000000002" fill="#F6EAC6" stroke="#243342" stroke-width="2" stroke-linejoin="round"/>
+<polygon points="150,52 198,22.240000000000002 198,44.24 150,74" fill="#BCA15B" stroke="#243342" stroke-width="2" stroke-linejoin="round"/>
+<polygon points="0,52 150,52 150,74 0,74" fill="#F4E8C4" stroke="#243342" stroke-width="2" stroke-linejoin="round"/>
+<polygon points="0,26 150,26 198,-3.759999999999998 48,-3.759999999999998" fill="#E9D4B5" stroke="#243342" stroke-width="2" stroke-linejoin="round"/>
+<polygon points="150,26 198,-3.759999999999998 198,18.240000000000002 150,48" fill="#B29568" stroke="#243342" stroke-width="2" stroke-linejoin="round"/>
+<polygon points="0,26 150,26 150,48 0,48" fill="#D4BA92" stroke="#243342" stroke-width="2" stroke-linejoin="round"/>
+<polygon points="0,0 150,0 198,-29.759999999999998 48,-29.759999999999998" fill="#F0F5F7" stroke="#243342" stroke-width="2" stroke-linejoin="round"/>
+<polygon points="150,0 198,-29.759999999999998 198,-7.759999999999998 150,22" fill="#8AA7B9" stroke="#243342" stroke-width="2" stroke-linejoin="round"/>
+<polygon points="0,0 150,0 150,22 0,22" fill="#DDE8EF" stroke="#243342" stroke-width="2" stroke-linejoin="round"/>
+</g>
+<text x="1390" y="439" fill="#243342" font-family="Arial, Helvetica, sans-serif" font-size="27" font-weight="600" text-anchor="middle">
+<tspan x="1390" dy="0">Ordered layer stacks</tspan>
+</text>
+<text x="1390" y="478" fill="#586775" font-family="Arial, Helvetica, sans-serif" font-size="25" font-weight="400" text-anchor="middle">
+<tspan x="1390" dy="0">Outside → inside</tspan>
+</text>
+<text x="1390" y="544" fill="#586775" font-family="Arial, Helvetica, sans-serif" font-size="23" font-weight="600" text-anchor="middle">
+<tspan x="1390" dy="0">SHEARING CLASSIFICATION</tspan>
+</text>
+<rect x="1283" y="567" width="20" height="20" rx="3" fill="#557E9D" stroke="none" stroke-width="2"/>
+<text x="1321" y="586" fill="#243342" font-family="Arial, Helvetica, sans-serif" font-size="26" font-weight="400" text-anchor="start">
+<tspan x="1321" dy="0">Skin</tspan>
+</text>
+<rect x="1283" y="609" width="20" height="20" rx="3" fill="#D6B767" stroke="none" stroke-width="2"/>
+<text x="1321" y="628" fill="#243342" font-family="Arial, Helvetica, sans-serif" font-size="26" font-weight="400" text-anchor="start">
+<tspan x="1321" dy="0">Structure</tspan>
+</text>
+<rect x="1283" y="651" width="20" height="20" rx="3" fill="#739385" stroke="none" stroke-width="2"/>
+<text x="1321" y="670" fill="#243342" font-family="Arial, Helvetica, sans-serif" font-size="26" font-weight="400" text-anchor="start">
+<tspan x="1321" dy="0">Space</tspan>
+</text>
+<rect x="1283" y="693" width="20" height="20" rx="3" fill="#87939A" stroke="none" stroke-width="2"/>
+<text x="1321" y="712" fill="#243342" font-family="Arial, Helvetica, sans-serif" font-size="26" font-weight="400" text-anchor="start">
+<tspan x="1321" dy="0">Services</tspan>
+</text>
+<rect x="1283" y="735" width="20" height="20" rx="3" fill="#AA5F52" stroke="none" stroke-width="2"/>
+<text x="1321" y="754" fill="#243342" font-family="Arial, Helvetica, sans-serif" font-size="26" font-weight="400" text-anchor="start">
+<tspan x="1321" dy="0">Stuff</tspan>
+</text>
+<g transform="translate(1650,218) scale(0.6)">
+<polygon points="24,0 114,0 146,-19.84 56,-19.84" fill="#EAE7DF" stroke="#243342" stroke-width="2" stroke-linejoin="round"/>
+<polygon points="114,0 146,-19.84 146,128.16 114,148" fill="#B9B5A9" stroke="#243342" stroke-width="2" stroke-linejoin="round"/>
+<polygon points="24,0 114,0 114,148 24,148" fill="#D8D5CD" stroke="#243342" stroke-width="2" stroke-linejoin="round"/>
+<polygon points="4,22 94,22 118,7.120000000000001 28,7.120000000000001" fill="#F6EAC6" stroke="#243342" stroke-width="2" stroke-linejoin="round"/>
+<polygon points="94,22 118,7.120000000000001 118,155.12 94,170" fill="#C8AC63" stroke="#243342" stroke-width="2" stroke-linejoin="round"/>
+<polygon points="4,22 94,22 94,170 4,170" fill="#F4E8C4" stroke="#243342" stroke-width="2" stroke-linejoin="round"/>
+<rect x="14" y="28" width="12" height="138" rx="1" fill="#C3A274" stroke="#243342" stroke-width="1.3"/>
+<rect x="69" y="28" width="12" height="138" rx="1" fill="#C3A274" stroke="#243342" stroke-width="1.3"/>
+<polygon points="-18,45 72,45 87,35.7 -3,35.7" fill="#ECF2F5" stroke="#243342" stroke-width="2" stroke-linejoin="round"/>
+<polygon points="72,45 87,35.7 87,183.7 72,193" fill="#8AA7B9" stroke="#243342" stroke-width="2" stroke-linejoin="round"/>
+<polygon points="-18,45 72,45 72,193 -18,193" fill="#DDE8EF" stroke="#243342" stroke-width="2" stroke-linejoin="round"/>
+</g>
+<text x="1766" y="258" fill="#243342" font-family="Arial, Helvetica, sans-serif" font-size="28" font-weight="600" text-anchor="start">
+<tspan x="1766" dy="0">Walls</tspan>
+</text>
+<text x="1766" y="294" fill="#586775" font-family="Arial, Helvetica, sans-serif" font-size="23" font-weight="400" text-anchor="start">
+<tspan x="1766" dy="0">Exterior / interior</tspan>
+</text>
+<g transform="translate(1631,413) scale(0.52)">
+<polygon points="0,78 150,78 198,48.24 48,48.24" fill="#E1E5E6" stroke="#243342" stroke-width="2" stroke-linejoin="round"/>
+<polygon points="150,78 198,48.24 198,70.24000000000001 150,100" fill="#99A4A8" stroke="#243342" stroke-width="2" stroke-linejoin="round"/>
+<polygon points="0,78 150,78 150,100 0,100" fill="#CAD0D1" stroke="#243342" stroke-width="2" stroke-linejoin="round"/>
+<polygon points="0,52 150,52 198,22.240000000000002 48,22.240000000000002" fill="#F6EAC6" stroke="#243342" stroke-width="2" stroke-linejoin="round"/>
+<polygon points="150,52 198,22.240000000000002 198,44.24 150,74" fill="#BCA15B" stroke="#243342" stroke-width="2" stroke-linejoin="round"/>
+<polygon points="0,52 150,52 150,74 0,74" fill="#F4E8C4" stroke="#243342" stroke-width="2" stroke-linejoin="round"/>
+<polygon points="0,26 150,26 198,-3.759999999999998 48,-3.759999999999998" fill="#E9D4B5" stroke="#243342" stroke-width="2" stroke-linejoin="round"/>
+<polygon points="150,26 198,-3.759999999999998 198,18.240000000000002 150,48" fill="#B29568" stroke="#243342" stroke-width="2" stroke-linejoin="round"/>
+<polygon points="0,26 150,26 150,48 0,48" fill="#D4BA92" stroke="#243342" stroke-width="2" stroke-linejoin="round"/>
+<polygon points="0,0 150,0 198,-29.759999999999998 48,-29.759999999999998" fill="#F0F5F7" stroke="#243342" stroke-width="2" stroke-linejoin="round"/>
+<polygon points="150,0 198,-29.759999999999998 198,-7.759999999999998 150,22" fill="#8AA7B9" stroke="#243342" stroke-width="2" stroke-linejoin="round"/>
+<polygon points="0,0 150,0 150,22 0,22" fill="#DDE8EF" stroke="#243342" stroke-width="2" stroke-linejoin="round"/>
+</g>
+<text x="1766" y="427" fill="#243342" font-family="Arial, Helvetica, sans-serif" font-size="28" font-weight="600" text-anchor="start">
+<tspan x="1766" dy="0">Roof + floors</tspan>
+</text>
+<text x="1766" y="465" fill="#586775" font-family="Arial, Helvetica, sans-serif" font-size="23" font-weight="400" text-anchor="start">
+<tspan x="1766" dy="0">Ground / basement</tspan>
+</text>
+<line x1="1628" y1="516" x2="1932" y2="516" stroke="#CED6DA" stroke-width="1.5" stroke-linecap="round"/>
+<rect x="1623" y="550" width="314" height="253" rx="12" fill="#FFFFFF" stroke="#557E9D" stroke-width="1.7"/>
+<rect x="1731" y="571" width="97" height="98" rx="2" fill="#FFFFFF" stroke="#243342" stroke-width="2.2"/>
+<rect x="1739" y="579" width="81" height="82" rx="0" fill="#DDE8EF" stroke="#557E9D" stroke-width="1.6"/>
+<line x1="1779.5" y1="579" x2="1779.5" y2="661" stroke="#243342" stroke-width="3" stroke-linecap="round"/>
+<line x1="1748" y1="645" x2="1768" y2="590" stroke="#FFFFFF" stroke-width="3" stroke-linecap="round"/>
+<line x1="1786" y1="652" x2="1804" y2="603" stroke="#FFFFFF" stroke-width="3" stroke-linecap="round"/>
+<text x="1780" y="715" fill="#243342" font-family="Arial, Helvetica, sans-serif" font-size="27" font-weight="600" text-anchor="middle">
+<tspan x="1780" dy="0">Windows</tspan>
+</text>
+<text x="1780" y="753" fill="#243342" font-family="Arial, Helvetica, sans-serif" font-size="25" font-weight="400" text-anchor="middle">
+<tspan x="1780" dy="0">U-value · SHGC · VT</tspan>
+</text>
+<text x="1780" y="788" fill="#586775" font-family="Arial, Helvetica, sans-serif" font-size="22" font-weight="400" text-anchor="middle">
+<tspan x="1780" dy="0">Whole-window definitions</tspan>
+</text>
+<g transform="translate(2084,242) scale(0.79)">
+<polygon points="0,0 150,0 215,-40.3 65,-40.3" fill="#D7E1E5" stroke="#243342" stroke-width="2" stroke-linejoin="round"/>
+<polygon points="150,0 215,-40.3 215,149.7 150,190" fill="#B7C6CC" stroke="#243342" stroke-width="2" stroke-linejoin="round"/>
+<polygon points="0,0 150,0 150,190 0,190" fill="#E5D9B8" stroke="#243342" stroke-width="2" stroke-linejoin="round"/>
+<rect x="14" y="18" width="23" height="25" rx="1" fill="#DDE8EF" stroke="#243342" stroke-width="1.8"/>
+<line x1="25" y1="19" x2="25" y2="42" stroke="#243342" stroke-width="1.3" stroke-linecap="round"/>
+<rect x="58" y="18" width="23" height="25" rx="1" fill="#DDE8EF" stroke="#243342" stroke-width="1.8"/>
+<line x1="69" y1="19" x2="69" y2="42" stroke="#243342" stroke-width="1.3" stroke-linecap="round"/>
+<rect x="102" y="18" width="23" height="25" rx="1" fill="#DDE8EF" stroke="#243342" stroke-width="1.8"/>
+<line x1="113" y1="19" x2="113" y2="42" stroke="#243342" stroke-width="1.3" stroke-linecap="round"/>
+<rect x="14" y="58" width="23" height="25" rx="1" fill="#DDE8EF" stroke="#243342" stroke-width="1.8"/>
+<line x1="25" y1="59" x2="25" y2="82" stroke="#243342" stroke-width="1.3" stroke-linecap="round"/>
+<rect x="58" y="58" width="23" height="25" rx="1" fill="#DDE8EF" stroke="#243342" stroke-width="1.8"/>
+<line x1="69" y1="59" x2="69" y2="82" stroke="#243342" stroke-width="1.3" stroke-linecap="round"/>
+<rect x="102" y="58" width="23" height="25" rx="1" fill="#DDE8EF" stroke="#243342" stroke-width="1.8"/>
+<line x1="113" y1="59" x2="113" y2="82" stroke="#243342" stroke-width="1.3" stroke-linecap="round"/>
+<rect x="14" y="98" width="23" height="25" rx="1" fill="#DDE8EF" stroke="#243342" stroke-width="1.8"/>
+<line x1="25" y1="99" x2="25" y2="122" stroke="#243342" stroke-width="1.3" stroke-linecap="round"/>
+<rect x="58" y="98" width="23" height="25" rx="1" fill="#DDE8EF" stroke="#243342" stroke-width="1.8"/>
+<line x1="69" y1="99" x2="69" y2="122" stroke="#243342" stroke-width="1.3" stroke-linecap="round"/>
+<rect x="102" y="98" width="23" height="25" rx="1" fill="#DDE8EF" stroke="#243342" stroke-width="1.8"/>
+<line x1="113" y1="99" x2="113" y2="122" stroke="#243342" stroke-width="1.3" stroke-linecap="round"/>
+<rect x="14" y="138" width="23" height="25" rx="1" fill="#DDE8EF" stroke="#243342" stroke-width="1.8"/>
+<line x1="25" y1="139" x2="25" y2="162" stroke="#243342" stroke-width="1.3" stroke-linecap="round"/>
+<rect x="58" y="138" width="23" height="25" rx="1" fill="#DDE8EF" stroke="#243342" stroke-width="1.8"/>
+<line x1="69" y1="139" x2="69" y2="162" stroke="#243342" stroke-width="1.3" stroke-linecap="round"/>
+<rect x="102" y="138" width="23" height="25" rx="1" fill="#DDE8EF" stroke="#243342" stroke-width="1.8"/>
+<line x1="113" y1="139" x2="113" y2="162" stroke="#243342" stroke-width="1.3" stroke-linecap="round"/>
+<rect x="64" y="161" width="26" height="29" rx="1" fill="#B49772" stroke="#243342" stroke-width="1.7"/>
+<polygon points="162,13.0 176,4.300000000000001 176,27.0 162,35.7" fill="#DDE8EF" stroke="#243342" stroke-width="1.5" stroke-linejoin="round"/>
+<polygon points="187,-2.5 201,-11.2 201,11.5 187,20.2" fill="#DDE8EF" stroke="#243342" stroke-width="1.5" stroke-linejoin="round"/>
+<polygon points="162,53.0 176,44.3 176,67.0 162,75.7" fill="#DDE8EF" stroke="#243342" stroke-width="1.5" stroke-linejoin="round"/>
+<polygon points="187,37.5 201,28.8 201,51.5 187,60.2" fill="#DDE8EF" stroke="#243342" stroke-width="1.5" stroke-linejoin="round"/>
+<polygon points="162,93.0 176,84.3 176,107.0 162,115.7" fill="#DDE8EF" stroke="#243342" stroke-width="1.5" stroke-linejoin="round"/>
+<polygon points="187,77.5 201,68.8 201,91.5 187,100.2" fill="#DDE8EF" stroke="#243342" stroke-width="1.5" stroke-linejoin="round"/>
+<polygon points="162,133.0 176,124.3 176,147.0 162,155.7" fill="#DDE8EF" stroke="#243342" stroke-width="1.5" stroke-linejoin="round"/>
+<polygon points="187,117.5 201,108.8 201,131.5 187,140.2" fill="#DDE8EF" stroke="#243342" stroke-width="1.5" stroke-linejoin="round"/>
+<line x1="-8" y1="191" x2="151" y2="191" stroke="#243342" stroke-width="2.2" stroke-linecap="round"/>
+</g>
+<text x="2170" y="452" fill="#243342" font-family="Arial, Helvetica, sans-serif" font-size="29" font-weight="600" text-anchor="middle">
+<tspan x="2170" dy="0">Construction set</tspan>
+</text>
+<text x="2170" y="493" fill="#586775" font-family="Arial, Helvetica, sans-serif" font-size="24" font-weight="400" text-anchor="middle">
+<tspan x="2170" dy="0">Element definitions by role</tspan>
+</text>
+<rect x="2015" y="545" width="310" height="257" rx="12" fill="#FFFFFF" stroke="#CED6DA" stroke-width="1.5"/>
+<text x="2170" y="588" fill="#586775" font-family="Arial, Helvetica, sans-serif" font-size="23" font-weight="600" text-anchor="middle">
+<tspan x="2170" dy="0">SUPPORTING DEFINITIONS</tspan>
+</text>
+<circle cx="2037" cy="632" r="4" fill="#739385" stroke="none" stroke-width="2"/>
+<text x="2055" y="640" fill="#243342" font-family="Arial, Helvetica, sans-serif" font-size="25" font-weight="400" text-anchor="start">
+<tspan x="2055" dy="0">Operating profile</tspan>
+</text>
+<circle cx="2037" cy="682" r="4" fill="#739385" stroke="none" stroke-width="2"/>
+<text x="2055" y="690" fill="#243342" font-family="Arial, Helvetica, sans-serif" font-size="25" font-weight="400" text-anchor="start">
+<tspan x="2055" dy="0">HVAC template</tspan>
+</text>
+<circle cx="2037" cy="732" r="4" fill="#739385" stroke="none" stroke-width="2"/>
+<text x="2055" y="740" fill="#243342" font-family="Arial, Helvetica, sans-serif" font-size="25" font-weight="400" text-anchor="start">
+<tspan x="2055" dy="0">Envelope performance</tspan>
+</text>
+<path d="M220,846 L220,894 L1780,894 L1780,811" fill="none" stroke="#557E9D" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" marker-end="url(#arrow-blue)"/>
+<rect x="600" y="872" width="1070" height="43" rx="0" fill="#FFFFFF" stroke="none" stroke-width="2"/>
+<text x="1135" y="903" fill="#557E9D" font-family="Arial, Helvetica, sans-serif" font-size="25" font-weight="500" text-anchor="middle">
+<tspan x="1135" dy="0">Thermal + optical sources → whole-window properties</tspan>
+</text>
+<rect x="40" y="944" width="2320" height="107" rx="15" fill="#EEF2EE" stroke="#D4DFD8" stroke-width="1.5"/>
+<text x="72" y="985" fill="#739385" font-family="Arial, Helvetica, sans-serif" font-size="25" font-weight="600" text-anchor="start">
+<tspan x="72" dy="0">Reusable definitions</tspan>
+</text>
+<text x="72" y="1024" fill="#586775" font-family="Arial, Helvetica, sans-serif" font-size="25" font-weight="400" text-anchor="start">
+<tspan x="72" dy="0">Operating profiles, HVAC templates and envelope assumptions accompany the construction set.</tspan>
+</text>
+<path d="M1583,990 L1670,990" fill="none" stroke="#739385" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" marker-end="url(#arrow)"/>
+<text x="1700" y="983" fill="#243342" font-family="Arial, Helvetica, sans-serif" font-size="26" font-weight="700" text-anchor="start">
+<tspan x="1700" dy="0">APPLY TO A PHYSICAL BUILDING</tspan>
+</text>
+<text x="1700" y="1023" fill="#586775" font-family="Arial, Helvetica, sans-serif" font-size="24" font-weight="400" text-anchor="start">
+<tspan x="1700" dy="0">EPSM / Core supplies geometry and quantities</tspan>
+</text>
+<line x1="40" y1="1086" x2="2360" y2="1086" stroke="#CED6DA" stroke-width="1.5" stroke-linecap="round"/>
+<text x="1200" y="1128" fill="#243342" font-family="Arial, Helvetica, sans-serif" font-size="36" font-weight="600" text-anchor="middle">
+<tspan x="1200" dy="0">EPSM data model</tspan>
+</text>
+</svg>

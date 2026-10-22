@@ -1,10 +1,29 @@
-# epsm
+# EPSM
+
+<!-- EPSM introduction: Pocket CAD -->
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="docs/assets/welcome/epsm-dark.png">
+  <img src="docs/assets/welcome/epsm.png" width="160" height="160" alt="EPSM — The platform: an open building cell with one active inner wall.">
+</picture>
+
+Welcome to EPSM, a research platform for exploring buildings and renovation
+choices. Build a physical model, choose an energy engine and compare energy use
+and climate impact through one Python interface. Each evaluation keeps its
+inputs, assumptions and results available for inspection.
+
+**[Explore the EPSM platform →](docs/platform.md)**
+<!-- /EPSM introduction -->
 
 [![CI](https://img.shields.io/badge/CI-GitHub_Actions-2088FF?logo=githubactions&logoColor=white)](https://github.com/SB-Chalmers/epsm/actions/workflows/ci.yml) [![Releases](https://img.shields.io/badge/releases-GitHub-181717?logo=github&logoColor=white)](https://github.com/SB-Chalmers/epsm/releases) [![Issues](https://img.shields.io/badge/issues-GitHub-181717?logo=github&logoColor=white)](https://github.com/SB-Chalmers/epsm/issues)
 
-Build, simulate and compare buildings and renovation options through one Python
-interface. EPSM connects physical building models, energy engines and lifecycle
-climate assessment, retaining the inputs and results of each evaluation.
+## From building inputs to renovation choices
+
+![EPSM simulation platform: building inputs, physical model, energy engines, energy and climate assessment, and renovation comparison](docs/assets/welcome/Figure_03a_epsm_simulation_platform.png)
+
+Follow one building from its inputs to an energy and climate comparison.
+The figure is conceptual; comparison bars are schematic. See the
+[platform guide](docs/platform.md) for package roles, the construction data model
+and each engine's scope.
 
 <a id="install-and-examples"></a>
 
@@ -73,3 +92,25 @@ commits. See the [detailed guide](docs/guide.md#tested-package-combination) for 
 ## License
 
 [MIT](LICENSE).
+
+## People and support
+
+Developed at Chalmers University of Technology as part of the EPSM research platform.
+
+**Funding**: Swedish Energy Agency (Project ID: P2024-04053)
+
+**Partners**:
+
+- Lindholmen Science Park AB
+- Sinom AB
+- Stiftelsen Chalmers Industriteknik
+
+**Team**:
+
+- **Lead Developer**: Sanjay Somanath
+- **Principal Investigator**: Alexander Hollberg
+- **Contributors**: Yinan Yu, Dag Wästberg
+
+<p align="center">
+  <img src="docs/assets/welcome/logos.png" width="100%" alt="Chalmers University of Technology, Chalmers Industriteknik, Sinom, Lindholmen Science Park and Swedish Energy Agency logos">
+</p>
