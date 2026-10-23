@@ -172,11 +172,22 @@ def test_record_without_archetype_remains_unassigned():
         )
 
 
-# Expected from the original catalogue_release.core_inputs route, after verifying
-# every raw fingerprint; normalize only float representation as for programmes.
-HANDOFF_BASELINES = json.loads(
+# Captured from the original Data handovers before canonicalizing IDs and names.
+# Preserve all physical layer/glazing fields and numeric role metrics; curation
+# metadata and generated material names do not determine the physical model.
+_HANDOFF_FIXTURE = json.loads(
     (Path(__file__).parent / "fixtures/archetype-consumer-baseline.json").read_text()
 )
+HANDOFF_BASELINES = _HANDOFF_FIXTURE["configurations"]
+
+
+def construction_physics(record):
+    """Retain every physical construction value while ignoring display identity."""
+    result = json.loads(json.dumps(record))
+    if "layers" in result:
+        for layer in result["layers"]:
+            layer["material"].pop("name", None)
+    return normalized_physical_values(result)
 
 
 @pytest.mark.parametrize("key", HANDOFF_BASELINES)
@@ -237,20 +248,29 @@ def test_nominal_handoff_uses_common_authoring_without_calibration_dependency(
     assert len(exported) == 1
     assert exported[0][0] is selected[0][2] is result["archetype"]
     assert exported[0][1] is described[0][2]
-    payload = {
-        name: result[name].model_dump(mode="json") for name in ("envelope", "glazing")
-    }
-    payload.update(
-        core=result["nominal_bundle"]["core"], roles=result["nominal_bundle"]["roles"]
-    )
-    assert (
-        hashlib.sha256(
-            json.dumps(
-                normalized_physical_values(payload), sort_keys=True, allow_nan=False
-            ).encode()
-        ).hexdigest()
-        == HANDOFF_BASELINES[key]
-    )
+    expected = HANDOFF_BASELINES[key]
+    actual = result["nominal_bundle"]
+    assert {
+        role: construction_physics(record) for role, record in actual["core"].items()
+    } == normalized_physical_values(expected["core"])
+    assert {
+        role: {field: normalized_physical_values(record[field]) for field in metrics}
+        for role, metrics in expected["roles"].items()
+        for record in (actual["roles"][role],)
+    } == normalized_physical_values(expected["roles"])
+    top_role = "TOP_FLOOR" if "TOP_FLOOR" in expected["core"] else "ROOF"
+    for field, role in {
+        "wall": "EXT_WALL", "top": top_role, "ground": "GROUND_FLOOR",
+        "intermediate_floor": "INTERMEDIATE_FLOOR", "basement_wall": "BASEMENT_WALL",
+    }.items():
+        assert construction_physics(
+            getattr(result["envelope"], field).model_dump(mode="json")
+        ) == normalized_physical_values(expected["core"][role])
+    assert construction_physics(
+        result["envelope"].weather_shell.model_dump(mode="json")
+    ) == normalized_physical_values(_HANDOFF_FIXTURE["weather_shell"])
+    for field, value in expected["core"]["WINDOW"].items():
+        assert getattr(result["glazing"], field) == value
 
 
 def test_independent_component_evidence_builds_portable_archetype_without_cross_changes():
@@ -499,7 +519,7 @@ def test_catalogue_selection_keeps_caller_case_context(caplog):
     events = [
         record
         for record in caplog.records
-        if record.name == "epsm_data.catalogue"
+        if record.name == "epsm_data.library"
         and getattr(record, "epsm_event", "") == "catalogue.select.started"
     ]
     assert events
