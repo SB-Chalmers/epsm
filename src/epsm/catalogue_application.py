@@ -1,17 +1,18 @@
-"""Evidence-led composition of matrix components for an actual building.
-
-References: EPSM Data LoD2 v1.3 evidence/claims and release.core_inputs.
-The packaged matrix is a frozen construction library, not a set of fitted EPC
-predictions. Component states are selected from independent building evidence;
-heating observations and prediction residuals are never inputs to this resolver.
-Nominal ground constructions are handed to Core; soil/boundaries remain explicit.
-"""
+"""Select frozen LoD2 constructions and apply independent building choices."""
 
 from __future__ import annotations
 
+import json
+import math
 from copy import deepcopy
+from uuid import NAMESPACE_URL, uuid5
 
-from epsm_data import ArchetypeKey, ConstructionSet, EnvelopePerformance
+from epsm_data import (
+    ArchetypeKey,
+    ConstructionSet,
+    EnvelopePerformance,
+    export_nominal_constructions,
+)
 from epsm_data.domain import BuildingElement as Role
 
 from epsm._logging import operation as logged_operation
@@ -27,13 +28,57 @@ COMPONENT_FIELDS = {
 }
 
 
+def _positive(name, value):
+    if (isinstance(value, bool) or not isinstance(value, (int, float))
+            or not math.isfinite(value) or value <= 0):
+        raise ValueError(f"{name} must be finite and positive")
+
+
+def _airflow(envelope, metadata, reference_area, conditioned_volume):
+    """Keep area rates native and convert an explicit source-volume convention."""
+    if (reference_area is None) != (conditioned_volume is None):
+        raise ValueError("Supply both TABULA reference area and conditioned volume")
+    if reference_area is not None:
+        _positive("tabula_reference_area_m2", reference_area)
+        _positive("conditioned_volume_m3", conditioned_volume)
+    if envelope is None:
+        return None, None, None
+    area_rate = envelope.infiltration_l_s_m2
+    if area_rate is not None:
+        return ({"envelope_infiltration_ach": 0.0,
+                 "envelope_infiltration_l_s_m2": area_rate}, None, area_rate)
+    ach = envelope.infiltration_ach
+    if ach is None:
+        return None, None, None
+    if envelope.infiltration_reference_basis == "conditioned_volume":
+        return {"envelope_infiltration_ach": ach}, None, None
+    if reference_area is None:
+        return None, None, None
+    height = metadata.get("reference_height_m")
+    _positive("catalogue reference_height_m", height)
+    reference_volume = reference_area * height
+    flow_m3_h = ach * reference_volume
+    handoff = {
+        "source_ach": ach,
+        "reference_area_m2": reference_area,
+        "reference_height_m": height,
+        "reference_volume_m3": reference_volume,
+        "conditioned_volume_m3": conditioned_volume,
+        "additional_flow_m3_s": flow_m3_h / 3600,
+        "additional_flow_l_s_per_reference_m2": ach * height / 3.6,
+        "core_envelope_infiltration_ach": flow_m3_h / conditioned_volume,
+    }
+    return ({"envelope_infiltration_ach": handoff["core_envelope_infiltration_ach"]},
+            handoff, None)
+
+
 @logged_operation("catalogue.resolve")
 def resolve_building_archetype(
     *,
     category,
     construction_year,
     climate_zone,
-    ventilation,
+    ventilation=None,
     default_state=None,
     component_states=None,
     component_sources=None,
@@ -41,209 +86,183 @@ def resolve_building_archetype(
     catalogue=None,
     tabula_reference_area_m2=None,
     conditioned_volume_m3=None,
+    weather_shell=None,
 ):
-    """Select a matrix parent and independently evidenced component states.
+    """Select shared physical definitions and independently chosen components.
 
-    Parameters
-    ----------
-    category : str
-        single_family, multi_family, office, school or generic.
-    construction_year : int
-        Known construction year mapped through the catalogue's declared seven eras.
-    climate_zone, ventilation : str
-        Explicit catalogue classifications; no location or HVAC inference occurs.
-    default_state : str
-        Shared fallback existing/standard/advanced, recorded as an assumption.
-        Existing means original-era fabric, not evidence that no renovation occurred.
-    component_states, component_sources : dict or None
-        Maps wall, roof, window, ground, basement_wall, intermediate_floor or
-        airtightness to states and independent source descriptions. A source is
-        required for every component selection. Replacing a window does not
-        silently modify airtightness or any opaque construction.
+    The catalogue has four building types, seven eras and three climate zones.
+    Eras SE.01–SE.06 have existing/standard/advanced variants; SE.07 has one.
+    ``ventilation`` is retained in the assignment audit for existing callers;
+    it neither selects a catalogue slot nor installs an HVAC system.
 
-    tabula_reference_area_m2, conditioned_volume_m3 : float or None
-        Supply both to preserve TABULA's reference-volume airflow in Core. The
-        reference area needs an explicit documented mapping; 2.5 m is TABULA's
-        calculation height, not the building's measured clear height. Without
-        these inputs, infiltration_ach retains the source-reference ACH and must
-        not be passed directly to Core with a different volume.
+    ``component_states`` selects wall, roof, window, ground, basement_wall,
+    intermediate_floor or airtightness independently. Each choice requires an
+    explicit ``component_sources`` description. Defaults remain assumptions
+    about the building, rather than observations of its renovation history.
 
-    MF area-based defaults expose core_airflow_inputs for native Core handoff;
-    set Core load reference area to Atemp. infiltration_ach remains a legacy
-    representation; use core_airflow_inputs rather than passing it directly.
-
-    Returns
-    -------
-    dict
-        Native Core fabric, independent infiltration, classification/assignment
-        audit and unresolved building requirements. Never a complete BuildingSpec
-        or an assertion of building-level accuracy. Input datasets are not mutated.
+    TABULA-volume ACH is converted only when both reference area and conditioned
+    volume are supplied, using the catalogue's recorded reference height. Native
+    area rates keep their declared reference basis. Use core_airflow_inputs when
+    constructing Core airflow, and choose its load-reference area explicitly.
     """
     cat = _catalogue_view(catalogue, detailed)
-    data = cat.detailed
     era = cat.era_for_year(construction_year)
     if era == "SE.07":
         if default_state is not None:
             raise ValueError("SE.07 has no renovation states; use default_state=None")
     elif default_state is None:
         default_state = "existing"
-    key = ArchetypeKey(category, era, climate_zone, default_state, ventilation)
-    parent_slot = cat.get_slot(key)  # validates every classification and state
-    candidates = [
-        aid
-        for aid, definition in data.archetypes.items()
-        if definition.get("catalogue_assignment", "canonical") == "canonical"
-        and definition["category"] == category
-        and definition["era"] == era
-    ]
-    if len(candidates) != 1:
-        raise ValueError(
-            f"Expected one canonical matrix parent for {category}/{era}; found {candidates}"
-        )
-    aid = candidates[0]
-    states = dict(component_states or {})
-    sources = dict(component_sources or {})
-    if set(states) - (set(COMPONENT_FIELDS) | {"window", "airtightness"}):
+    key = ArchetypeKey(category, era, climate_zone, default_state)
+    parent_slot = cat.get_slot(key)
+    aid = parent_slot.archetype_id
+    states, sources = dict(component_states or {}), dict(component_sources or {})
+    selectable = set(COMPONENT_FIELDS) | {"window", "airtightness"}
+    if set(states) - selectable:
         raise ValueError("Unknown component-state role")
     if set(sources) != set(states) or any(
-        not isinstance(s, str) or not s.strip() for s in sources.values()
+        not isinstance(source, str) or not source.strip() for source in sources.values()
     ):
-        raise ValueError(
-            "Each component selection needs one nonempty independent source"
-        )
-    native = core_inputs(aid, default_state, detailed=data, catalogue=cat)
+        raise ValueError("Each component selection needs one nonempty independent source")
+    native = core_inputs(aid, default_state, catalogue=cat, weather_shell=weather_shell)
     cache = {default_state: native}
-    assignments = {}
-    envelope_updates = {}
+    assignments, envelope_updates = {}, {}
     glazing = native["glazing"]
-    infiltration = parent_slot.infiltration
+    roof_topology = native["roof_topology"]
+    envelope_definition = native["archetype"].envelope_performance
+    infiltration_metadata = cat.nominal_metadata(aid, state=default_state)
     for role, state in sorted(states.items()):
-        slot = cat.get_slot(
-            ArchetypeKey(category, era, climate_zone, state, ventilation)
-        )
+        # Validate states against the era without introducing extra catalogue axes.
+        cat.get_slot(ArchetypeKey(category, era, climate_zone, state))
         if state not in cache:
-            cache[state] = core_inputs(aid, state, detailed=data, catalogue=cat)
+            cache[state] = core_inputs(aid, state, catalogue=cat, weather_shell=weather_shell)
         selected = cache[state]
         if role == "window":
             glazing = selected["glazing"]
         elif role == "airtightness":
-            infiltration = slot.infiltration
+            envelope_definition = selected["archetype"].envelope_performance
+            infiltration_metadata = cat.nominal_metadata(aid, state=state)
         else:
             envelope_updates[COMPONENT_FIELDS[role]] = getattr(
                 selected["envelope"], COMPONENT_FIELDS[role]
             )
+            if role == "roof":
+                roof_topology = selected["roof_topology"]
         assignments[role] = {
-            "state": state,
-            "source": sources[role],
+            "state": state, "source": sources[role],
             "status": "evidence_selected_catalogue_representative",
         }
-    for role in set(COMPONENT_FIELDS) | {"window", "airtightness"}:
-        assignments.setdefault(
-            role,
-            {"state": default_state, "source": "matrix fallback", "status": "assumed"},
-        )
-    # TABULA equation (7), printed pp.12–13; see packaged airflow_review.json.
-    # Do not multiply a source-reference ACH by arbitrary model geometry volume.
-    if (tabula_reference_area_m2 is None) != (conditioned_volume_m3 is None):
-        raise ValueError("Supply both TABULA reference area and conditioned volume")
-    airflow_handoff = None
-    if tabula_reference_area_m2 is not None:
-        from epsm_data.airflow import infiltration_handoff
-
-        airflow_handoff = infiltration_handoff(
-            infiltration,
-            reference_area_m2=tabula_reference_area_m2,
-            conditioned_volume_m3=conditioned_volume_m3,
-        )
-    # EPSM MF review 2026-10-04: native q is per Atemp, independently of
-    # Core zone volume. Legacy TABULA categories still need volume conversion.
-    basis = (infiltration.evidence or {}).get("airflow_basis", {})
-    area_rate = basis.get("additional_flow_l_s_per_reference_m2")
-    if (infiltration.evidence or {}).get("basis_stale"):
-        area_rate = None
-    core_airflow_inputs = (
-        {"envelope_infiltration_ach": 0.0, "envelope_infiltration_l_s_m2": area_rate}
-        if area_rate is not None
-        else {
-            "envelope_infiltration_ach": airflow_handoff[
-                "core_envelope_infiltration_ach"
-            ]
-        }
-        if airflow_handoff
-        else None
+    for role in sorted(selectable):
+        assignments.setdefault(role, {
+            "state": default_state, "source": "catalogue fallback", "status": "assumed",
+        })
+    core_airflow_inputs, airflow_handoff, area_rate = _airflow(
+        envelope_definition, infiltration_metadata,
+        tabula_reference_area_m2, conditioned_volume_m3,
     )
-    # One physical model carries independently selected roles. Catalogue state
-    # selection does not infer a sequential renovation or an installed system.
-    role_names = {"wall": Role.EXT_WALL, "roof": Role.TOP_FLOOR,
-                  "ground": Role.GROUND_FLOOR, "basement_wall": Role.BASEMENT_WALL,
-                  "intermediate_floor": Role.INTERMEDIATE_FLOOR, "window": Role.WINDOW}
-    elements = dict(native["archetype"].construction_set.elements)
+    source_ach = envelope_definition.infiltration_ach if envelope_definition else None
+    role_names = {
+        "wall": Role.EXT_WALL, "roof": Role.TOP_FLOOR,
+        "ground": Role.GROUND_FLOOR, "basement_wall": Role.BASEMENT_WALL,
+        "intermediate_floor": Role.INTERMEDIATE_FLOOR, "window": Role.WINDOW,
+    }
+    reference = native["archetype"]
+    elements = dict(reference.construction_set.elements)
     role_names["roof"] = Role.TOP_FLOOR if Role.TOP_FLOOR in elements else Role.ROOF
     for role, state in states.items():
         if role in role_names:
-            elements[role_names[role]] = cache[state]["archetype"].construction_set.elements[role_names[role]]
-    reference = native["archetype"]
-    envelope_definition = reference.envelope_performance
-    if "airtightness" in states:
-        envelope_definition = cache[states["airtightness"]]["archetype"].envelope_performance
-    if airflow_handoff is not None and area_rate is None:
+            elements[role_names[role]] = cache[state]["archetype"].construction_set.elements[
+                role_names[role]
+            ]
+    if airflow_handoff is not None:
         envelope_definition = EnvelopePerformance(
             infiltration_ach=airflow_handoff["core_envelope_infiltration_ach"],
             infiltration_reference_basis="conditioned_volume",
+            thermal_bridge_uplift_fraction=envelope_definition.thermal_bridge_uplift_fraction,
             source_references=envelope_definition.source_references,
-            notes=envelope_definition.notes + ("Explicit TABULA reference-area to conditioned-volume conversion: " + str(airflow_handoff),))
-    construction_set = (reference.construction_set
-        if elements == reference.construction_set.elements else ConstructionSet(elements=elements))
+            notes=envelope_definition.notes + (
+                "Explicit catalogue reference-volume to conditioned-volume conversion: "
+                + str(airflow_handoff),
+            ),
+        )
+    construction_set = reference.construction_set
+    if elements != construction_set.elements:
+        physical_roles = {role.value: element.to_dict() for role, element in elements.items()}
+        construction_set = ConstructionSet(
+            version_id=uuid5(NAMESPACE_URL, "epsm:composed:" + json.dumps(
+                physical_roles, sort_keys=True, allow_nan=False,
+            )), elements=elements,
+        )
     archetype = reference.with_changes(
         construction_set=construction_set,
         envelope_performance=envelope_definition,
         source_references=tuple(dict.fromkeys(
-            ref for selected in cache.values() for ref in selected["archetype"].source_references)) + tuple(
-            role + ": " + source for role, source in sorted(sources.items())),
+            ref for selected in cache.values() for ref in selected["archetype"].source_references
+        )) + tuple(role + ": " + source for role, source in sorted(sources.items())),
         notes=tuple(dict.fromkeys(
-            note for selected in cache.values() for note in selected["archetype"].notes)) + tuple(
-            f"Component {role}: state={assignment['state']}; source={assignment['source']}; status={assignment['status']}"
-            for role, assignment in sorted(assignments.items())))
+            note for selected in cache.values() for note in selected["archetype"].notes
+        )) + tuple(
+            f"Component {role}: state={assignment['state']}; source={assignment['source']}; "
+            f"status={assignment['status']}"
+            for role, assignment in sorted(assignments.items())
+        ),
+    )
+    composed_metadata = cat.nominal_metadata(aid, state=default_state)
+    composed_metadata["roof_topology"] = roof_topology
+    for selected in cache.values():
+        composed_metadata["material_references"].update(
+            selected["nominal_bundle"]["material_references"]
+        )
+    # Keep the selected window's link when other roles come from other states.
+    # Otherwise multiple window references would make the whole-window mapping
+    # ambiguous even though the actual window choice is explicit.
+    refs = composed_metadata["material_references"]
+    for identifier, ref in list(refs.items()):
+        if (ref.get("kind") in {"simple_window", "window"}
+                or identifier.startswith(("window_", "window:"))):
+            del refs[identifier]
+    for identifier, ref in cat.nominal_metadata(
+        aid, state=states.get("window", default_state)
+    )["material_references"].items():
+        if (ref.get("kind") in {"simple_window", "window"}
+                or identifier.startswith(("window_", "window:"))):
+            refs[identifier] = ref
+    for role, state in states.items():
+        if role in role_names:
+            role_name = role_names[role].value
+            details = cat.nominal_metadata(aid, state=state).get("boundary_details", {})
+            composed_metadata.setdefault("boundary_details", {})[role_name] = deepcopy(
+                details.get(role_name, {})
+            )
     return {
         "archetype": archetype,
         "envelope": native["envelope"].updated(**envelope_updates),
         "glazing": glazing,
-        "roof_topology": native["roof_topology"],
-        "infiltration_ach": (
-            airflow_handoff["core_envelope_infiltration_ach"]
-            if airflow_handoff
-            else infiltration.value
-        ),
+        "roof_topology": roof_topology,
+        "nominal_bundle": export_nominal_constructions(archetype, metadata=composed_metadata),
+        "infiltration_ach": (core_airflow_inputs["envelope_infiltration_ach"]
+                             if core_airflow_inputs is not None else source_ach),
         "infiltration_l_s_m2": area_rate,
         "core_airflow_inputs": core_airflow_inputs,
-        "infiltration_source_ach": infiltration.value,
+        "infiltration_source_ach": source_ach,
         "airflow_handoff": airflow_handoff,
-        "infiltration_reference_basis": "atemp_area_rate"
-        if area_rate is not None
-        else "core_conditioned_volume"
-        if airflow_handoff
+        "infiltration_reference_basis": "atemp_area_rate" if area_rate is not None
+        else "core_conditioned_volume" if core_airflow_inputs is not None
         else "tabula_reference_volume_conversion_required",
         "assignment": {
-            "archetype_id": aid,
-            "category": category,
-            "era": era,
-            "climate_zone": climate_zone,
-            "ventilation": ventilation,
+            "archetype_id": aid, "category": category, "era": era,
+            "climate_zone": climate_zone, "ventilation": ventilation,
             "components": assignments,
         },
         "component_nominal_bundles": {
-            s: deepcopy(b["nominal_bundle"]) for s, b in cache.items()
+            state: deepcopy(selected["nominal_bundle"]) for state, selected in cache.items()
         },
         "requirements": dict(
             native["requirements"],
-            operation="Select a versioned Core use profile or documented building operation",
-            geometry="Verify physical extent, footprint, storeys, Atemp and exposed walls",
-            ventilation="Explicit mechanical/natural flow, schedule and recovery; exhaust pressure coupling remains unresolved",
-            infiltration="Use core_airflow_inputs. MF area rates require explicit Atemp as Core load reference area; other categories require reviewed source-volume conversion. Office/school are residential proxies.",
-            thermal_bridges="Review inclusion in source constructions before applying uplift",
-            climate="Measurement-compatible year/weather and an audited climate-zone mapping",
-            energy_boundary="Match ideal thermal demand to the observed delivered-energy field",
-            state="Fallback existing is not evidence of an unrenovated building",
-            empirical_validation="pending; component composition is not an EPC calibration",
+            operation="Select a Core use profile or documented building operation",
+            geometry="Supply physical extent, footprint, storeys, Atemp and exposed walls",
+            ventilation="Supply installed ventilation flow, schedule and heat recovery",
+            infiltration="Use core_airflow_inputs with the declared area or volume basis",
+            climate="Select weather independently of the catalogue climate-zone assignment",
+            state="Default existing is an assumed construction choice",
         ),
     }
