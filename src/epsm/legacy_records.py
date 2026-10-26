@@ -23,7 +23,7 @@ from sweden_ubem.weather import WeatherReference
 @dataclass(frozen=True)
 class ModelPolicy:
     name: str = "ubem_v1"
-    version: str = "3"
+    version: str = "4"
     minimum_programme_blend_share: float = 0.05
     typical_floor_height_m: float = 3.0
     minimum_full_floor_height_m: float = 2.0
@@ -42,6 +42,9 @@ class ModelPolicy:
     fuel_efficiency: float = 0.9
     calendar_year: int = 2023
     catalogue_climate_zone: str = "SE.Zone3"
+    # Version 4: catalogue ventilation templates and facade window ratios. False
+    # restores version 3's type defaults below (one WWR and one FTX recovery).
+    catalogue_templates: bool = True
     wwr_by_type: dict = field(
         default_factory=lambda: {
             "single_family": 0.2,
@@ -532,11 +535,68 @@ def _geometry(record, policy, receipt, overrides):
     return geometry
 
 
+def _ventilation_template(record, policy, receipt, ventilation, era, state, override):
+    """Airflow-only system inputs: the catalogue template, or version 3's policy completion."""
+    if not policy.catalogue_templates:
+        return None
+    from epsm_data.templates import ventilation_template_id, ventilation_templates
+
+    reported = override or receipt.fields["ventilation"]["model_state"] == "reported_raw_mapping"
+    identifier = ventilation_template_id(record.type.value, era, state, ventilation if reported else None)
+    airflow = dict(ventilation_templates()[identifier].values["airflow"])
+    receipt.identities["ventilation_template"] = identifier
+    _field(
+        receipt,
+        "ventilation_template",
+        identifier,
+        "assumed",
+        f"Catalogue ventilation template {identifier} for the "
+        + ("observed system" if reported else "era default")
+        + (f" under {state} renovation" if state not in (None, "existing") else ""),
+    )
+    return airflow
+
+
+def _compass_sector(azimuth_deg):
+    """Facade sector of an outward normal, clockwise from north: N 315-45, E 45-135, S, W."""
+    a = azimuth_deg % 360
+    return "N" if a >= 315 or a < 45 else "E" if a < 135 else "S" if a < 225 else "W"
+
+
+def _facade(record, geometry, glazing, policy, receipt, override):
+    from epsm_core import FacadeOverride, FacadeSpec
+
+    if override is not None or not policy.catalogue_templates:
+        wwr = override if override is not None else policy.wwr_by_type[record.type.value]
+        _field(receipt, "wwr", wwr, "assumed", f"Type-policy WWR {wwr}; not measured glazing")
+        return FacadeSpec(default_wwr=wwr, glazing=glazing)
+    from epsm_data.templates import facade_assumptions
+
+    table = facade_assumptions(record.type.value)
+    by_orientation = table["wwr_by_orientation"]
+    overrides = tuple(
+        FacadeOverride(facade_id=facade.facade_id, wwr=by_orientation[_compass_sector(facade.azimuth_deg)])
+        for facade in geometry.facades()
+        if by_orientation[_compass_sector(facade.azimuth_deg)] != table["default_wwr"]
+    )
+    _field(
+        receipt,
+        "wwr",
+        table["default_wwr"],
+        "assumed",
+        f"Catalogue facade WWR ({table['tier']}): default {table['default_wwr']}, "
+        + "N/E/S/W " + "/".join(str(by_orientation[k]) for k in "NESW")
+        + "; not measured glazing",
+    )
+    return FacadeSpec(default_wwr=table["default_wwr"], glazing=glazing, overrides=overrides)
+
+
 def _operation(
     name,
     year,
     *,
-    ventilation,
+    airflow_template=None,
+    ventilation=None,
     infiltration,
     geometry,
     area,
@@ -590,13 +650,22 @@ def _operation(
         receipt.quality.append(
             f"{name} operational programme uses a generic fallback; review before interpreting demand error"
         )
+    # The template sets the system and its heat recovery; the operating profile keeps
+    # the occupied flow rates and natural ventilation keeps the normal-use timetable.
+    # A bare ``ventilation`` system keeps version 3's policy completion.
+    if airflow_template is None:
+        airflow_template = {
+            "topology": ventilation,
+            "sensible_recovery_effectiveness": policy.ftx_recovery if ventilation == "FTX" else 0,
+        }
+    topology = airflow_template["topology"]
     air = normal_use_airflow(
-        ventilation=ventilation, infiltration=infiltration, flow_l_s_m2=flow,
+        ventilation=topology, infiltration=infiltration, flow_l_s_m2=flow,
         fraction=fraction, reference_area_m2=area,
         conditioned_volume_m3=geometry.conditioned_volume_m3,
-        recovery_effectiveness=policy.ftx_recovery,
+        recovery_effectiveness=airflow_template.get("sensible_recovery_effectiveness", 0),
     )
-    if ventilation == "S":
+    if topology == "S":
         receipt.assumptions.append(
             "Natural ventilation uses the source normal-use outdoor-air timetable "
             "as an equivalent-flow assumption, not a pressure-driven airflow model"
@@ -704,7 +773,6 @@ class EPSMBuilding:
                 raise ValueError("EPC temporal conflict requires review")
             from epsm_core import (
                 BuildingSpec,
-                FacadeSpec,
                 FoundationSpec,
                 ProgramBlend,
                 ProgramComponent,
@@ -797,6 +865,15 @@ class EPSMBuilding:
                 tabula_reference_area_m2=area,
                 conditioned_volume_m3=geometry.conditioned_volume_m3,
             )
+            airflow_template = _ventilation_template(
+                record,
+                policy,
+                receipt,
+                ventilation,
+                fabric["assignment"]["era"],
+                renovation_state,
+                overrides.get("ventilation"),
+            )
             if fabric["infiltration_reference_basis"] == "core_conditioned_volume":
                 receipt.assumptions.append(
                     "TABULA reference area assumed equal operational load reference; infiltration converted to physical volume"
@@ -830,6 +907,7 @@ class EPSMBuilding:
                 name: _operation(
                     name,
                     climate.calendar_year,
+                    airflow_template=airflow_template,
                     ventilation=ventilation,
                     infiltration=fabric["core_airflow_inputs"],
                     geometry=geometry,
@@ -845,6 +923,7 @@ class EPSMBuilding:
             control_use, _, _ = _operation(
                 primary,
                 climate.calendar_year,
+                airflow_template=airflow_template,
                 ventilation=ventilation,
                 infiltration=fabric["core_airflow_inputs"],
                 geometry=geometry,
@@ -913,8 +992,7 @@ class EPSMBuilding:
                 receipt.assumptions.append(
                     f"Assumed attic outdoor exchange {policy.attic_outdoor_air_ach} ACH"
                 )
-            wwr = overrides.get("wwr", policy.wwr_by_type[record.type.value])
-            _field(receipt, "wwr", wwr, "assumed", f"Type-policy WWR {wwr}; not measured glazing")
+            facade = _facade(record, geometry, fabric["glazing"], policy, receipt, overrides.get("wwr"))
             receipt.identities["physical_conditioned_floor_area_m2"] = (
                 geometry.conditioned_floor_area_m2
             )
@@ -961,14 +1039,16 @@ class EPSMBuilding:
                 SourceRecord(
                     field_path="facade.default_wwr",
                     status="assumed",
-                    source=f"{policy.name}/{policy.version}",
+                    source=f"epsm_data facade_assumptions; {policy.name}/{policy.version}"
+                    if policy.catalogue_templates and "wwr" not in overrides
+                    else f"{policy.name}/{policy.version}",
                 ),
             ]
             spec = BuildingSpec(
                 identifier=record.building_id,
                 geometry=geometry,
                 load_reference_area_m2=area,
-                facade=FacadeSpec(default_wwr=wwr, glazing=fabric["glazing"]),
+                facade=facade,
                 envelope=fabric["envelope"].updated(
                     foundation=FoundationSpec(),
                     ground_temperature=None,

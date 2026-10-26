@@ -559,6 +559,37 @@ def test_legacy_record_handoff_reads_gis_lake_evidence():
             )
 
 
+def test_legacy_record_handoff_uses_catalogue_ventilation_and_facade_templates():
+    pytest.importorskip("sweden_ubem")
+    from importlib.resources import files
+
+    from sweden_ubem.weather import WeatherReference
+
+    from epsm.legacy_records import EPSMBuilding, ModelPolicy
+
+    weather = WeatherReference.from_epw(
+        files("epsm_rc") / "data/epw/goteborg.epw", calendar_year=2023
+    )
+    record = _legacy_record()  # 1977 multifamily, no reported ventilation
+    existing, receipt = EPSMBuilding.from_record(record, weather=weather, preflight=False)
+    assert receipt.identities["ventilation_template"] == "epsm.ventilation.F"
+    assert existing.spec.airflow.topology == "F"
+    assert existing.spec.facade.default_wwr == 0.24
+    assert {o.wwr for o in existing.spec.facade.overrides} <= {0.22, 0.23, 0.28}
+    assert existing.spec.facade.overrides
+    advanced, receipt = EPSMBuilding.from_record(
+        record, weather=weather, preflight=False, overrides={"renovation_state": "advanced"}
+    )
+    assert receipt.identities["ventilation_template"] == "epsm.ventilation.FTX_080"
+    assert advanced.spec.airflow.sensible_recovery_effectiveness == 0.8
+    earlier, receipt = EPSMBuilding.from_record(
+        record, weather=weather, preflight=False,
+        policy=ModelPolicy(version="3", catalogue_templates=False),
+    )
+    assert "ventilation_template" not in receipt.identities
+    assert earlier.spec.facade.default_wwr == 0.2 and not earlier.spec.facade.overrides
+
+
 def test_missing_basement_recipe_requires_explicit_input_without_floor_substitution(
     monkeypatch,
 ):
