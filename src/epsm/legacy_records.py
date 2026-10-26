@@ -108,6 +108,39 @@ def _positive(value):
     return value is not None and math.isfinite(float(value)) and float(value) > 0
 
 
+# GIS-lake records (epsm_db schema 2) name status and height evidence differently
+# from the earlier sweden_ubem database; assembly reads both.
+def _lake_record(record):
+    return "geometry_valid" in record.facts
+
+
+def _verified_existing(record):
+    if _lake_record(record):
+        return record.facts.get("object_status") == "Gällande"
+    return bool(record.facts.get("status_verified") and record.facts.get("is_existing"))
+
+
+def _geometry_resolved(record):
+    if _lake_record(record):
+        return record.facts.get("geometry_valid") is True
+    return record.facts.get("geometry_status") == "resolved"
+
+
+def _height_evidence(record, component, height):
+    """Whether a determined height belongs to this component's geometry, and its resolution."""
+    if not height or height.get("height_status") != "determined":
+        return False, None
+    if _lake_record(record):
+        # Lake heights are keyed to their component; the evidence states whether
+        # it was measured on that same geometry.
+        status = (height.get("attributes") or {}).get("geometry_status")
+        return True, "resolved" if status == "consistent_source_component" else status
+    return (
+        height.get("input_geometry_hash") == component.get("geometry_hash"),
+        (height.get("details") or {}).get("evidence_resolution"),
+    )
+
+
 def _field(receipt, name, value, state, assumption=None):
     receipt.fields.setdefault(name, {})
     receipt.fields[name].update(model_value=value, model_state=state)
@@ -298,7 +331,7 @@ def _geometry(record, policy, receipt, overrides):
     from epsm_core.roofs import roof_faces
     from shapely.affinity import translate
 
-    if record.facts.get("geometry_status") != "resolved" or not record.components:
+    if not _geometry_resolved(record) or not record.components:
         raise ValueError("Resolved component geometry is required")
     indexed = {h["component_id"]: h for h in record.heights}
     n = overrides.get("storeys", record.storeys)
@@ -337,13 +370,9 @@ def _geometry(record, policy, receipt, overrides):
             )
             continue
         h = indexed.get(component["component_id"])
-        if (
-            not h
-            or h.get("height_status") != "determined"
-            or h.get("input_geometry_hash") != component.get("geometry_hash")
-        ):
+        matched, resolution = _height_evidence(record, component, h)
+        if not matched:
             raise ValueError(f"Missing or geometry-mismatched height: {component['component_id']}")
-        resolution = (h.get("details") or {}).get("evidence_resolution")
         if resolution not in (None, "resolved"):
             raise ValueError("Unresolved height evidence")
         if resolution is None:
@@ -431,7 +460,11 @@ def _geometry(record, policy, receipt, overrides):
             else:
                 receipt.assumptions.append(f"Component {i}: assumed gable pitch {pitch} degrees")
             roof = RoofSpec(shape="gable", topology="cold_attic", pitch_deg=pitch)
-        labels = component.get("outline_labels") or []
+        labels = (
+            component.get("outline_labels")
+            or (component.get("attributes") or {}).get("outline_labels")
+            or []
+        )
         parts.append(
             BuildingPart(
                 identifier=f"part_{i}",
@@ -662,7 +695,7 @@ class EPSMBuilding:
                 raise TypeError("Supply a BuildingRecord")
             if record.type.value not in {"single_family", "multi_family", "school", "office"}:
                 raise ValueError("No v1 physical archetype for this building type")
-            if not record.facts.get("status_verified") or not record.facts.get("is_existing"):
+            if not _verified_existing(record):
                 raise ValueError("v1 model assembly requires verified existing-building status")
             if any(
                 r.get("temporal_status") in {"construction_after_certificate", "temporal_conflict"}

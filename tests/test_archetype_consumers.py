@@ -504,6 +504,61 @@ def test_legacy_record_handoff_runs_se07_without_renovation_state():
     assert older.identities["archetype_assignment"]["components"]["wall"]["state"] == "existing"
 
 
+def _lake_record(record):
+    """The same evidence as a GIS-lake (epsm_db schema 2) record."""
+    from dataclasses import replace
+
+    facts = dict(
+        construction_year=record.facts["construction_year"],
+        geometry_valid=True,
+        object_status="Gällande",
+    )
+    components = tuple(
+        dict(
+            {k: v for k, v in c.items() if k not in {"geometry_hash", "outline_labels"}},
+            attributes={"outline_labels": c["outline_labels"]},
+        )
+        for c in record.components
+    )
+    heights = tuple(
+        dict(
+            {k: v for k, v in h.items() if k not in {"input_geometry_hash", "details"}},
+            attributes={"geometry_status": "consistent_source_component"},
+        )
+        for h in record.heights
+    )
+    return replace(record, facts=facts, components=components, heights=heights)
+
+
+def test_legacy_record_handoff_reads_gis_lake_evidence():
+    pytest.importorskip("sweden_ubem")
+    from dataclasses import replace
+    from importlib.resources import files
+
+    from sweden_ubem.weather import WeatherReference
+
+    from epsm.legacy_records import EPSMBuilding, ModelAssemblyError
+
+    weather = WeatherReference.from_epw(
+        files("epsm_rc") / "data/epw/goteborg.epw", calendar_year=2023
+    )
+    record = _legacy_record()
+    lake = _lake_record(record)
+    legacy, _ = EPSMBuilding.from_record(record, weather=weather, preflight=False)
+    built, _ = EPSMBuilding.from_record(lake, weather=weather, preflight=False)
+    assert built.spec.physical_hash() == legacy.spec.physical_hash()
+    for facts, heights, message in (
+        ({**lake.facts, "object_status": "Avregistrerad"}, lake.heights, "existing-building"),
+        (lake.facts, tuple(
+            dict(h, attributes={"geometry_status": "unresolved_roof_evidence"}) for h in lake.heights
+        ), "Unresolved height"),
+    ):
+        with pytest.raises(ModelAssemblyError, match=message):
+            EPSMBuilding.from_record(
+                replace(lake, facts=facts, heights=heights), weather=weather, preflight=False
+            )
+
+
 def test_missing_basement_recipe_requires_explicit_input_without_floor_substitution(
     monkeypatch,
 ):
