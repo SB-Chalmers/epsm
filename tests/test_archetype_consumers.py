@@ -366,18 +366,11 @@ def test_independent_component_evidence_builds_portable_archetype_without_cross_
         )
 
 
-def test_legacy_record_handoff_preserves_area_evidence_and_portable_definition(
-    tmp_path,
-):
-    pytest.importorskip("sweden_ubem")
+def _legacy_record(year=1977):
     from datetime import date
-    from importlib.resources import files
 
     from sweden_ubem.enums import BuildingType
     from sweden_ubem.records import BuildingRecord
-    from sweden_ubem.weather import WeatherReference
-
-    from epsm.legacy_records import EPSMBuilding
 
     footprint = box(0, 0, 10, 10)
     certificate = "synthetic-certificate"
@@ -392,7 +385,7 @@ def test_legacy_record_handoff_preserves_area_evidence_and_portable_definition(
             "EgenAtemp": 90,
             "EgenAntalPlan": 1,
             "EgenAntalKallarplan": 0,
-            "EgenNybyggAr": 1977,
+            "EgenNybyggAr": year,
             "EgenAtempBostad": 100,
         }.items()
     )
@@ -403,7 +396,7 @@ def test_legacy_record_handoff_preserves_area_evidence_and_portable_definition(
         footprint,
         facts=dict(
             geometry_status="resolved",
-            construction_year=1977,
+            construction_year=year,
             status_verified=True,
             is_existing=True,
         ),
@@ -438,6 +431,20 @@ def test_legacy_record_handoff_preserves_area_evidence_and_portable_definition(
         ),
         observations=observations,
     )
+    return record
+
+
+def test_legacy_record_handoff_preserves_area_evidence_and_portable_definition(
+    tmp_path,
+):
+    pytest.importorskip("sweden_ubem")
+    from importlib.resources import files
+
+    from sweden_ubem.weather import WeatherReference
+
+    from epsm.legacy_records import EPSMBuilding
+
+    record = _legacy_record()
     before = record.to_dict()
     weather = WeatherReference.from_epw(
         files("epsm_rc") / "data/epw/goteborg.epw", calendar_year=2023
@@ -473,6 +480,28 @@ def test_legacy_record_handoff_preserves_area_evidence_and_portable_definition(
         json.loads(paths[1].read_text())["identities"]["archetype_definition"]
         == receipt.identities["archetype_definition"]
     )
+
+
+def test_legacy_record_handoff_runs_se07_without_renovation_state():
+    pytest.importorskip("sweden_ubem")
+    from importlib.resources import files
+
+    from sweden_ubem.weather import WeatherReference
+
+    from epsm.legacy_records import EPSMBuilding, ModelAssemblyError
+
+    weather = WeatherReference.from_epw(
+        files("epsm_rc") / "data/epw/goteborg.epw", calendar_year=2023
+    )
+    record = _legacy_record(2023)
+    _, receipt = EPSMBuilding.from_record(record, weather=weather, preflight=False)
+    assert receipt.identities["archetype_assignment"]["era"] == "SE.07"
+    with pytest.raises(ModelAssemblyError, match="SE.07 has one catalogue configuration"):
+        EPSMBuilding.from_record(
+            record, weather=weather, preflight=False, overrides={"renovation_state": "existing"}
+        )
+    _, older = EPSMBuilding.from_record(_legacy_record(), weather=weather, preflight=False)
+    assert older.identities["archetype_assignment"]["components"]["wall"]["state"] == "existing"
 
 
 def test_missing_basement_recipe_requires_explicit_input_without_floor_substitution(

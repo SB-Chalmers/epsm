@@ -697,8 +697,8 @@ class EPSMBuilding:
                 "component_sources",
             }:
                 raise ValueError("Unknown model override")
-            renovation_state = overrides.get("renovation_state", "existing")
-            if renovation_state not in ("existing", "standard", "advanced"):
+            renovation_state = overrides.get("renovation_state")
+            if renovation_state not in (None, "existing", "standard", "advanced"):
                 raise ValueError("renovation_state must be existing, standard or advanced")
             receipt.identities["policy"] = asdict(policy)
             receipt.identities["overrides"] = overrides
@@ -728,6 +728,14 @@ class EPSMBuilding:
                 int(year),
                 "assumed" if "construction_year" in overrides else "reported",
             )
+            # SE.07 has one catalogue configuration; older eras default to existing.
+            from epsm_data.classification import era_for_year
+
+            if era_for_year(int(year)) == "SE.07":
+                if renovation_state is not None:
+                    raise ValueError("SE.07 has one catalogue configuration; omit renovation_state")
+            elif renovation_state is None:
+                renovation_state = "existing"
             area = record.atemp_m2
             if not _positive(area):
                 area = geometry.conditioned_floor_area_m2
@@ -838,6 +846,8 @@ class EPSMBuilding:
             receipt.assumptions.append(
                 "Matrix existing state is a construction-era representative; renovations are not inferred"
                 if renovation_state == "existing" else
+                "SE.07 single configuration is the current-code representative; renovations are not inferred"
+                if renovation_state is None else
                 f"Matrix {renovation_state} renovation package is an explicit scenario, not an observed building state"
             )
             receipt.assumptions.append(
