@@ -178,6 +178,7 @@ def resolve_building_archetype(
             infiltration_ach=airflow_handoff["core_envelope_infiltration_ach"],
             infiltration_reference_basis="conditioned_volume",
             thermal_bridge_uplift_fraction=envelope_definition.thermal_bridge_uplift_fraction,
+            thermal_bridge_delta_u_w_m2k=envelope_definition.thermal_bridge_delta_u_w_m2k,
             source_references=envelope_definition.source_references,
             notes=envelope_definition.notes + (
                 "Explicit catalogue reference-volume to conditioned-volume conversion: "
