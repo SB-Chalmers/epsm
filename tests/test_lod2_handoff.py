@@ -208,3 +208,22 @@ def test_se07_has_one_variant_and_invalid_classifications_fail(catalogue):
             climate_zone="unknown",
             catalogue=catalogue,
         )
+
+
+def test_catalogue_bridge_surcharge_reaches_the_core_envelope(catalogue):
+    office = catalogue.get("office_se05", state="existing").envelope_performance
+    assert office.thermal_bridge_delta_u_w_m2k == 0.1
+    native = core_inputs("office_se05", "existing", catalogue=catalogue)
+    assert native["envelope"].thermal_bridge_delta_u_w_m2k == 0.1
+    assert native["envelope"].thermal_bridge_uplift_fraction == 0
+    housing = core_inputs("mf_se05", "existing", catalogue=catalogue)["envelope"]
+    assert housing.thermal_bridge_delta_u_w_m2k is None
+    assert housing.thermal_bridge_uplift_fraction == 0
+    selection = resolve_building_archetype(
+        category="office", construction_year=2000, climate_zone="SE.Zone3",
+        ventilation="FTX", default_state="existing", catalogue=catalogue,
+        component_states={"airtightness": "standard"},
+        component_sources={"airtightness": "test:airtightness"},
+    )
+    assert selection["envelope"].thermal_bridge_delta_u_w_m2k == 0.1
+    assert selection["archetype"].envelope_performance.thermal_bridge_delta_u_w_m2k == 0.1
