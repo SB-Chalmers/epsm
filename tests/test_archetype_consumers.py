@@ -519,7 +519,7 @@ def test_catalogue_selection_keeps_caller_case_context(caplog):
     events = [
         record
         for record in caplog.records
-        if record.name == "epsm_data.library"
+        if record.name.startswith("epsm_data.")
         and getattr(record, "epsm_event", "") == "catalogue.select.started"
     ]
     assert events
