@@ -199,7 +199,7 @@ def _ventilation(record, policy, receipt, override):
     for name, kind in {
         "VentTypSjalvdrag": "S",
         "VentTypF": "F",
-        "VentTypFmed": "F",
+        "VentTypFmed": "Fmed",
         "VentTypFT": "FT",
         "VentTypFTX": "FTX",
     }.items():
@@ -214,8 +214,21 @@ def _ventilation(record, policy, receipt, override):
             and str(values[0][0]).strip().casefold() in {"ja", "true", "1"}
         ):
             positive.add(kind)
+    if positive == {"F", "Fmed"}:
+        positive = {"Fmed"}  # exhaust, with recovery
     if len(positive) == 1:
         result = positive.pop()
+        if result == "Fmed":
+            # Exhaust with heat recovery, in practice an exhaust-air heat pump. With heat-pump
+            # heating the exhaust air is the pump's source and its COP carries the recovery,
+            # so the building is modelled as F. Otherwise the pump's electricity is not in the
+            # heating carrier and the recovered heat lowers it: modelled as recovery on the
+            # exhaust flow, FTX at the catalogue's observed-FTX effectiveness.
+            result = "F" if _heating_carriers(record) == ["heat_pump"] else "FTX"
+            receipt.assumptions.append(
+                f"EPC ventilation F with heat recovery modelled as {result}: "
+                + ("recovery carried by the heat pump's COP" if result == "F" else "no heat-pump heating carrier")
+            )
         _field(receipt, "ventilation", result, "reported_raw_mapping")
     else:
         result = policy.ventilation_by_type[record.type.value]
@@ -674,47 +687,54 @@ def _operation(
     return use, air, source
 
 
+_CARRIER_FIELDS = {
+    "district_heat": ["EgiFjarrvarme", "EgiFjarrvarmeUPPV"],
+    "electric_direct": [
+        "EgiElVatten",
+        "EgiElDirekt",
+        "EgiElLuft",
+        "EgiElVattenUPPV",
+        "EgiElDirektUPPV",
+        "EgiElLuftUPPV",
+    ],
+    "heat_pump": [
+        "EgiPumpMark",
+        "EgiPumpFranluft",
+        "EgiPumpLuftLuft",
+        "EgiPumpLuftVatten",
+        "EgiPumpMarkUPPV",
+        "EgiPumpFranluftUPPV",
+        "EgiPumpLuftLuftUPPV",
+        "EgiPumpLuftVattenUPPV",
+    ],
+    "fuel": [
+        "EgiOlja",
+        "EgiGas",
+        "EgiVed",
+        "EgiFlis",
+        "EgiOvrBiobransle",
+        "EgiOljaUPPV",
+        "EgiGasUPPV",
+        "EgiVedUPPV",
+        "EgiFlisUPPV",
+        "EgiOvrBiobransleUPPV",
+    ],
+}
+
+
+def _heating_carriers(record):
+    """Carrier families with positive reported energy on a single-building EPC."""
+    return [
+        name
+        for name, sources in _CARRIER_FIELDS.items()
+        if record.single_building_epc and any(_positive(record.observation(s)[0]) for s in sources)
+    ]
+
+
 def _delivery(record, policy, receipt):
     from epsm_core import DeliverySpec, HeatingDeliverySpec, ScheduleSpec
 
-    fields = {
-        "district_heat": ["EgiFjarrvarme", "EgiFjarrvarmeUPPV"],
-        "electric_direct": [
-            "EgiElVatten",
-            "EgiElDirekt",
-            "EgiElLuft",
-            "EgiElVattenUPPV",
-            "EgiElDirektUPPV",
-            "EgiElLuftUPPV",
-        ],
-        "heat_pump": [
-            "EgiPumpMark",
-            "EgiPumpFranluft",
-            "EgiPumpLuftLuft",
-            "EgiPumpLuftVatten",
-            "EgiPumpMarkUPPV",
-            "EgiPumpFranluftUPPV",
-            "EgiPumpLuftLuftUPPV",
-            "EgiPumpLuftVattenUPPV",
-        ],
-        "fuel": [
-            "EgiOlja",
-            "EgiGas",
-            "EgiVed",
-            "EgiFlis",
-            "EgiOvrBiobransle",
-            "EgiOljaUPPV",
-            "EgiGasUPPV",
-            "EgiVedUPPV",
-            "EgiFlisUPPV",
-            "EgiOvrBiobransleUPPV",
-        ],
-    }
-    present = [
-        name
-        for name, sources in fields.items()
-        if record.single_building_epc and any(_positive(record.observation(s)[0]) for s in sources)
-    ]
+    present = _heating_carriers(record)
     if len(present) != 1:
         receipt.quality.append(
             "Heating carrier mixed/unavailable: model reports ideal thermal demand; no purchased-energy conversion"
