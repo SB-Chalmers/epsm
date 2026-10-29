@@ -28,13 +28,18 @@ def catalogue():
 
 
 @pytest.mark.parametrize("era,year,state", CASES)
-def test_generic_handoff_uses_matching_mf_config_in_every_zone(catalogue, era, year, state):
+def test_generic_handoff_uses_matching_mf_config_in_every_zone(
+    catalogue, era, year, state
+):
     donor = catalogue.for_year("multi_family", year, state=state)
     expected = core_inputs(donor.archetype_id, state, catalogue=catalogue)
     for zone in ZONES:
         result = resolve_building_archetype(
-            category="generic", construction_year=year, climate_zone=zone,
-            default_state=state, catalogue=catalogue,
+            category="generic",
+            construction_year=year,
+            climate_zone=zone,
+            default_state=state,
+            catalogue=catalogue,
         )
         archetype = result["archetype"]
         assert archetype.construction_set is donor.construction_set
@@ -47,27 +52,33 @@ def test_generic_handoff_uses_matching_mf_config_in_every_zone(catalogue, era, y
         assert assignment["category"] == "generic"
         assert assignment["climate_zone"] == zone
         assert assignment["archetype_id"] == donor.archetype_id
-        assert assignment["requested_archetype_id"] == "generic_se" + era.removeprefix("SE.")
+        assert assignment["requested_archetype_id"] == "generic_se" + era.removeprefix(
+            "SE."
+        )
         assert assignment["selection"]["requested_category"] == "generic"
         assert assignment["selection"]["donor_category"] == "multi_family"
         assert assignment["selection"]["donor_archetype_id"] == donor.archetype_id
         assert assignment["selection"]["assumption_label"] == LABEL
         assert result["nominal_bundle"]["selection"] == assignment["selection"]
         assert validate_nominal_handover(result["nominal_bundle"]) == {
-            "honeybee": True, "core": True,
+            "honeybee": True,
+            "core": True,
         }
         assert "geometry" in result["requirements"]
         assert "ventilation" in result["requirements"]
         # The donor's era-default ventilation template; no system was observed.
         assert archetype.hvac_template == donor.hvac_template
         assert all(
-            item["state"] == state for item in result["assignment"]["components"].values()
+            item["state"] == state
+            for item in result["assignment"]["components"].values()
         )
 
 
 def test_generic_component_intervention_preserves_selection_audit(catalogue):
     choices = dict(
-        construction_year=1970, climate_zone="SE.Zone2", catalogue=catalogue,
+        construction_year=1970,
+        climate_zone="SE.Zone2",
+        catalogue=catalogue,
         component_states={"window": "advanced"},
         component_sources={"window": "independent survey: replacement glazing"},
     )
@@ -88,7 +99,10 @@ def test_direct_generic_core_handoff_has_explicit_label_and_profile(catalogue):
     native = core_inputs("generic_se07", catalogue=catalogue)
     assert native["archetype"].display_name == LABEL
     assert native["selection"]["donor_archetype_id"] == "mf_se07"
-    assert native["archetype"].operating_profile is catalogue.get("mf_se07").operating_profile
+    assert (
+        native["archetype"].operating_profile
+        is catalogue.get("mf_se07").operating_profile
+    )
     assert native["nominal_bundle"]["category"] == "generic"
     with pytest.raises(ValueError, match="SE.07"):
         core_inputs("generic_se07", "existing", catalogue=catalogue)

@@ -149,8 +149,10 @@ def test_natural_ventilation_preserves_normal_use_closures(name, expected_hours,
         Footprint.rectangle(10, 10), storeys=1, storey_height_m=3
     )
     options = dict(
-        infiltration={"envelope_infiltration_ach": 0.2}, geometry=geometry,
-        area=90, policy=ModelPolicy(),
+        infiltration={"envelope_infiltration_ach": 0.2},
+        geometry=geometry,
+        area=90,
+        policy=ModelPolicy(),
     )
     _, mechanical, _ = _operation(
         name, year, ventilation="FTX", receipt=Receipt("mechanical"), **options
@@ -158,12 +160,15 @@ def test_natural_ventilation_preserves_normal_use_closures(name, expected_hours,
     receipt = Receipt("natural")
     _, natural, _ = _operation(name, year, ventilation="S", receipt=receipt, **options)
     schedule = natural.natural_exchange_fraction.hourly(year)
-    np.testing.assert_array_equal(schedule, mechanical.mechanical_vent_fraction.hourly(year))
+    np.testing.assert_array_equal(
+        schedule, mechanical.mechanical_vent_fraction.hourly(year)
+    )
     assert sum(schedule) == expected_hours
     assert schedule[0] == 0  # Midnight is outside either operating programme.
     assert natural.mechanical_vent_l_s_m2 == 0
-    assert natural.natural_exchange_ach * geometry.conditioned_volume_m3 / 3.6 == pytest.approx(
-        mechanical.mechanical_vent_l_s_m2 * 90
+    assert (
+        natural.natural_exchange_ach * geometry.conditioned_volume_m3 / 3.6
+        == pytest.approx(mechanical.mechanical_vent_l_s_m2 * 90)
     )
     assert natural.sensible_recovery_effectiveness == 0
     assert natural.envelope_infiltration_ach == 0.2
@@ -191,8 +196,10 @@ def test_record_archetype_route_preserves_independent_evidence_and_area():
     assert building._source_record["observations"] == record["observations"]
     assert building.archetype_applications[0].archetype_id == archetype.archetype_id
     assert building.operation is not None
-    assert building.hvac.airflow.topology == archetype.hvac_template.to_dict()[
-        "values"]["airflow"]["topology"]
+    assert (
+        building.hvac.airflow.topology
+        == archetype.hvac_template.to_dict()["values"]["airflow"]["topology"]
+    )
     assert building.hvac.delivery.heating is None
     assert record == original
     assert (
@@ -298,8 +305,11 @@ def test_nominal_handoff_uses_common_authoring_without_calibration_dependency(
     } == normalized_physical_values(expected["roles"])
     top_role = "TOP_FLOOR" if "TOP_FLOOR" in expected["core"] else "ROOF"
     for field, role in {
-        "wall": "EXT_WALL", "top": top_role, "ground": "GROUND_FLOOR",
-        "intermediate_floor": "INTERMEDIATE_FLOOR", "basement_wall": "BASEMENT_WALL",
+        "wall": "EXT_WALL",
+        "top": top_role,
+        "ground": "GROUND_FLOOR",
+        "intermediate_floor": "INTERMEDIATE_FLOOR",
+        "basement_wall": "BASEMENT_WALL",
     }.items():
         assert construction_physics(
             getattr(result["envelope"], field).model_dump(mode="json")
@@ -351,7 +361,9 @@ def test_independent_component_evidence_builds_portable_archetype_without_cross_
     with pytest.raises(ValueError, match="independent source"):
         resolve_building_archetype(**options, component_states={"window": "advanced"})
     with pytest.raises(ValueError, match="Unknown component"):
-        resolve_building_archetype(**options, component_states={"best_heating_error": "advanced"})
+        resolve_building_archetype(
+            **options, component_states={"best_heating_error": "advanced"}
+        )
 
 
 def test_legacy_record_handoff_preserves_area_evidence_and_portable_definition(
