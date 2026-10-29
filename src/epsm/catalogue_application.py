@@ -92,6 +92,8 @@ def resolve_building_archetype(
 
     The catalogue has four building types, seven eras and three climate zones.
     Eras SE.01–SE.06 have existing/standard/advanced variants; SE.07 has one.
+    ``generic`` explicitly borrows the matching multifamily construction and
+    residential operation; its caller identity and donor remain visible.
     ``ventilation`` is retained in the assignment audit for existing callers;
     it neither selects a catalogue slot nor installs an HVAC system.
 
@@ -115,6 +117,8 @@ def resolve_building_archetype(
     key = ArchetypeKey(category, era, climate_zone, default_state)
     parent_slot = cat.get_slot(key)
     aid = parent_slot.archetype_id
+    selection_id = (cat.for_year(category, construction_year, state=default_state).archetype_id
+                    if category == "generic" else aid)
     states, sources = dict(component_states or {}), dict(component_sources or {})
     selectable = set(COMPONENT_FIELDS) | {"window", "airtightness"}
     if set(states) - selectable:
@@ -123,30 +127,32 @@ def resolve_building_archetype(
         not isinstance(source, str) or not source.strip() for source in sources.values()
     ):
         raise ValueError("Each component selection needs one nonempty independent source")
-    native = core_inputs(aid, default_state, catalogue=cat, weather_shell=weather_shell)
+    native = core_inputs(selection_id, default_state, catalogue=cat, weather_shell=weather_shell)
     cache = {default_state: native}
     assignments, envelope_updates = {}, {}
     glazing = native["glazing"]
     roof_topology = native["roof_topology"]
     envelope_definition = native["archetype"].envelope_performance
-    infiltration_metadata = cat.nominal_metadata(aid, state=default_state)
+    infiltration_metadata = cat.nominal_metadata(selection_id, state=default_state)
     for role, state in sorted(states.items()):
         # Validate states against the era without introducing extra catalogue axes.
         cat.get_slot(ArchetypeKey(category, era, climate_zone, state))
         if state not in cache:
-            cache[state] = core_inputs(aid, state, catalogue=cat, weather_shell=weather_shell)
+            cache[state] = core_inputs(selection_id, state, catalogue=cat, weather_shell=weather_shell)
         selected = cache[state]
         if role == "window":
             glazing = selected["glazing"]
         elif role == "airtightness":
             envelope_definition = selected["archetype"].envelope_performance
-            infiltration_metadata = cat.nominal_metadata(aid, state=state)
+            infiltration_metadata = cat.nominal_metadata(selection_id, state=state)
         else:
             envelope_updates[COMPONENT_FIELDS[role]] = getattr(
                 selected["envelope"], COMPONENT_FIELDS[role]
             )
             if role == "roof":
                 roof_topology = selected["roof_topology"]
+            elif role == "ground":
+                envelope_updates["basement_ceiling"] = selected["envelope"].basement_ceiling
         assignments[role] = {
             "state": state, "source": sources[role],
             "status": "evidence_selected_catalogue_representative",
@@ -173,6 +179,10 @@ def resolve_building_archetype(
             elements[role_names[role]] = cache[state]["archetype"].construction_set.elements[
                 role_names[role]
             ]
+            if role == "ground" and Role.BASEMENT_FLOOR in elements:
+                elements[Role.BASEMENT_FLOOR] = cache[state]["archetype"].construction_set.elements[
+                    Role.BASEMENT_FLOOR
+                ]
     if airflow_handoff is not None:
         envelope_definition = EnvelopePerformance(
             infiltration_ach=airflow_handoff["core_envelope_infiltration_ach"],
@@ -206,7 +216,7 @@ def resolve_building_archetype(
             for role, assignment in sorted(assignments.items())
         ),
     )
-    composed_metadata = cat.nominal_metadata(aid, state=default_state)
+    composed_metadata = cat.nominal_metadata(selection_id, state=default_state)
     composed_metadata["roof_topology"] = roof_topology
     for selected in cache.values():
         composed_metadata["material_references"].update(
@@ -221,7 +231,7 @@ def resolve_building_archetype(
                 or identifier.startswith(("window_", "window:"))):
             del refs[identifier]
     for identifier, ref in cat.nominal_metadata(
-        aid, state=states.get("window", default_state)
+        selection_id, state=states.get("window", default_state)
     )["material_references"].items():
         if (ref.get("kind") in {"simple_window", "window"}
                 or identifier.startswith(("window_", "window:"))):
@@ -229,10 +239,14 @@ def resolve_building_archetype(
     for role, state in states.items():
         if role in role_names:
             role_name = role_names[role].value
-            details = cat.nominal_metadata(aid, state=state).get("boundary_details", {})
+            details = cat.nominal_metadata(selection_id, state=state).get("boundary_details", {})
             composed_metadata.setdefault("boundary_details", {})[role_name] = deepcopy(
                 details.get(role_name, {})
             )
+            if role == "ground" and Role.BASEMENT_FLOOR in elements:
+                composed_metadata["boundary_details"][Role.BASEMENT_FLOOR.value] = deepcopy(
+                    details.get(Role.BASEMENT_FLOOR.value, {})
+                )
     return {
         "archetype": archetype,
         "envelope": native["envelope"].updated(**envelope_updates),
@@ -251,6 +265,8 @@ def resolve_building_archetype(
         "assignment": {
             "archetype_id": aid, "category": category, "era": era,
             "climate_zone": climate_zone, "ventilation": ventilation,
+            **({"requested_archetype_id": selection_id,
+                "selection": parent_slot.selection} if parent_slot.selection is not None else {}),
             "components": assignments,
         },
         "component_nominal_bundles": {

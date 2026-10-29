@@ -52,6 +52,19 @@ def test_representative_weather_shell_stays_explicit_and_can_be_overridden(catal
     assert "Caller-supplied" in changed["requirements"]["weather_shell"]
 
 
+def test_legacy_attic_adapter_rejects_native_double_counting():
+    from epsm.catalogue_release import apply_attic_ventilation
+
+    model = {
+        "Zone": {"main_attic": {"part_of_total_floor_area": "No"}},
+        "ZoneInfiltration:DesignFlowRate": {
+            "native": {"zone_or_zonelist_or_space_or_spacelist_name": "main_attic"}
+        },
+    }
+    with pytest.raises(ValueError, match="already assigned"):
+        apply_attic_ventilation(model, outdoor_air_ach=0.5)
+
+
 def test_ventilation_is_audit_context_without_multiplying_physical_slots(catalogue):
     options = dict(category="multi_family", construction_year=1970,
                    climate_zone="SE.Zone3", catalogue=catalogue)

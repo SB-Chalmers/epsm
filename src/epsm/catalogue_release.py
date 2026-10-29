@@ -48,20 +48,10 @@ def core_inputs(archetype_id, state=None, *, detailed=None, catalogue=None,
     from epsm_core.specs import ConstructionSpec, EnvelopeSpec, GlazingSpec
 
     library = _catalogue_view(catalogue, detailed)
-    records = library.archetype_records
-    identifier = archetype_id
-    if identifier not in records:
-        identifier = library.to_dict().get("aliases", {}).get("archetypes", {}).get(
-            identifier, identifier
-        )
-    record = records[identifier]
-    if record["era"] == "SE.07":
-        if state is not None:
-            raise ValueError("SE.07 has no renovation states; use state=None")
-    elif state is None:
-        state = "existing"
-    archetype = call_with_context(library.get, identifier, state=state)
-    metadata = library.nominal_metadata(identifier, state=state)
+    # Catalogue selection resolves legacy aliases and the explicit generic/MF
+    # assumption without inserting another authored construction family.
+    archetype = call_with_context(library.get, archetype_id, state=state)
+    metadata = library.nominal_metadata(archetype_id, state=state)
     bundle = export_nominal_constructions(archetype, metadata=metadata)
     core = bundle["core"]
     required = {"EXT_WALL", "GROUND_FLOOR", "INTERMEDIATE_FLOOR", "WINDOW"}
@@ -86,7 +76,9 @@ def core_inputs(archetype_id, state=None, *, detailed=None, catalogue=None,
         basement_wall = ConstructionSpec(**basement_wall)
     envelope = EnvelopeSpec(
         wall=ConstructionSpec(**core["EXT_WALL"]), top=top,
-        ground=ConstructionSpec(**core["GROUND_FLOOR"]),
+        ground=ConstructionSpec(**core.get("BASEMENT_FLOOR", core["GROUND_FLOOR"])),
+        basement_ceiling=(ConstructionSpec(**core["GROUND_FLOOR"])
+                          if "BASEMENT_FLOOR" in core else None),
         intermediate_floor=ConstructionSpec(**core["INTERMEDIATE_FLOOR"]),
         weather_shell=shell, basement_wall=basement_wall,
     )
@@ -94,6 +86,7 @@ def core_inputs(archetype_id, state=None, *, detailed=None, catalogue=None,
         "archetype": archetype, "envelope": envelope,
         "glazing": GlazingSpec(**core["WINDOW"]), "roof_topology": roof,
         "nominal_bundle": bundle,
+        **({"selection": deepcopy(metadata["selection"])} if "selection" in metadata else {}),
         "requirements": {
             "attic_outdoor_air_ach": "required explicit assumption"
             if roof == "cold_attic" else "not applicable",

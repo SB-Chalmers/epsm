@@ -57,6 +57,31 @@ Whole-building application does not assign a separate common-space or mixed-use
 profile. Such supplied inputs appear as unmatched; apartment zoning requiring a
 separate common-space assignment remains an explicit requirement.
 
+## School and office construction boundaries
+
+Period constructions describe fabric independently of the project's geometry
+and installed systems. The catalogue sanity report screens the authored school
+and office families against explicit period assumptions; it does not establish
+measured energy agreement or infer an HVAC system from the construction year.
+
+Keep the floor above a basement separate from the slab against soil. An explicit
+`BASEMENT_FLOOR` supplies the soil-contact slab; `GROUND_FLOOR` supplies the floor
+between the main rooms and a modeled basement. When both roles are present, a
+building without a basement uses the soil slab rather than the suspended floor.
+Ground heat transfer still requires the site's geometry, soil and boundary method.
+
+For a cold attic, `TOP_FLOOR` is the conditioned ceiling and `ROOF` is the distinct
+weather shell. A compact roof supplied as `ROOF` can serve the physical top when
+no `TOP_FLOOR` is supplied; this alias must not turn an attic weather shell into
+a conditioned ceiling. Verify floor and ceiling room-side finishes when examining
+compiled models: nominal U-value and total mass do not detect reversed layers.
+
+Office and school programmes use an explicit `Atemp` load-reference basis and
+caller-supplied active dates. They describe normal use rather than installed
+historic ventilation. The legacy record assembler's natural-ventilation option
+preserves the programme timetable as a scheduled equivalent-flow assumption;
+it is not a pressure-driven natural-ventilation calculation.
+
 ## Historical records
 
 `building.archetype_applications` is a tuple of immutable application reports.

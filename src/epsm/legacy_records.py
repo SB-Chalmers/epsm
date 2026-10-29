@@ -511,12 +511,14 @@ def _operation(
     receipt,
     residential_type="single_family",
 ):
-    from epsm_core import AirflowSpec, ScheduleSpec, resolve_operating_profile
+    from epsm_core import ScheduleSpec, resolve_operating_profile
     from epsm_data import (
         load_operating_profile,
         select_dhw_profile,
         select_operating_profile,
     )
+
+    from ._programme_airflow import normal_use_airflow
 
     if name == "residential":
         profile = select_operating_profile(residential_type)
@@ -555,16 +557,17 @@ def _operation(
         receipt.quality.append(
             f"{name} operational programme uses a generic fallback; review before interpreting demand error"
         )
-    air = AirflowSpec(
-        topology=ventilation,
-        **infiltration,
-        natural_exchange_ach=flow * area / 1000 * 3600 / geometry.conditioned_volume_m3
-        if ventilation == "S"
-        else 0,
-        mechanical_vent_l_s_m2=0 if ventilation == "S" else flow,
-        mechanical_vent_fraction=fraction,
-        sensible_recovery_effectiveness=policy.ftx_recovery if ventilation == "FTX" else 0,
+    air = normal_use_airflow(
+        ventilation=ventilation, infiltration=infiltration, flow_l_s_m2=flow,
+        fraction=fraction, reference_area_m2=area,
+        conditioned_volume_m3=geometry.conditioned_volume_m3,
+        recovery_effectiveness=policy.ftx_recovery,
     )
+    if ventilation == "S":
+        receipt.assumptions.append(
+            "Natural ventilation uses the source normal-use outdoor-air timetable "
+            "as an equivalent-flow assumption, not a pressure-driven airflow model"
+        )
     source = profile.profile_id + (" + " + dhw.profile_id if name == "residential" else "")
     return use, air, source
 
@@ -927,7 +930,7 @@ class EPSMBuilding:
                     foundation=FoundationSpec(),
                     ground_temperature=None,
                     basement_ceiling=(
-                        fabric["envelope"].ground
+                        fabric["envelope"].basement_ceiling or fabric["envelope"].ground
                         if geometry.basement_depth_m and not geometry.basement_conditioned
                         else fabric["envelope"].basement_ceiling
                     ),
@@ -951,7 +954,7 @@ class EPSMBuilding:
                 receipt.identities[package] = version
             receipt.identities["implementation_sha256"] = {
                 name: implementation_hash(name)
-                for name in ("sweden_ubem", "epsm_core", "epsm_data")
+                for name in ("epsm", "sweden_ubem", "epsm_core", "epsm_data")
             }
             if preflight:
                 _, compiled = EnergyPlusCompiler(energyplus).compile(spec)
