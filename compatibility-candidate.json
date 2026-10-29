@@ -33,7 +33,7 @@
     },
     "epsm_db": {
       "version": "0.5.0",
-      "revision": "26017c05f418d5128d59420619266f7ececbbf41",
+      "revision": "d73ebe39e7b5fb6067b347ba229a1a7eeb93950e",
       "role": "scientific"
     },
     "epsm_workflows": {
