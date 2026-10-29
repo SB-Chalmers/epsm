@@ -289,7 +289,9 @@ def apply_archetype(building, archetype, *, mode="replace", calendar=None):
     if envelope is not None:
         sources.extend(envelope.source_references)
         if envelope.thermal_bridge_delta_u_w_m2k is not None:
-            inputs["thermal_bridge_delta_u_w_m2k"] = envelope.thermal_bridge_delta_u_w_m2k
+            inputs["thermal_bridge_delta_u_w_m2k"] = (
+                envelope.thermal_bridge_delta_u_w_m2k
+            )
         else:
             inputs["thermal_bridge_uplift_fraction"] = (
                 envelope.thermal_bridge_uplift_fraction

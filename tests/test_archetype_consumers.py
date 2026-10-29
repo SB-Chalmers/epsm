@@ -496,12 +496,22 @@ def test_legacy_record_handoff_runs_se07_without_renovation_state():
     record = _legacy_record(2023)
     _, receipt = EPSMBuilding.from_record(record, weather=weather, preflight=False)
     assert receipt.identities["archetype_assignment"]["era"] == "SE.07"
-    with pytest.raises(ModelAssemblyError, match="SE.07 has one catalogue configuration"):
+    with pytest.raises(
+        ModelAssemblyError, match="SE.07 has one catalogue configuration"
+    ):
         EPSMBuilding.from_record(
-            record, weather=weather, preflight=False, overrides={"renovation_state": "existing"}
+            record,
+            weather=weather,
+            preflight=False,
+            overrides={"renovation_state": "existing"},
         )
-    _, older = EPSMBuilding.from_record(_legacy_record(), weather=weather, preflight=False)
-    assert older.identities["archetype_assignment"]["components"]["wall"]["state"] == "existing"
+    _, older = EPSMBuilding.from_record(
+        _legacy_record(), weather=weather, preflight=False
+    )
+    assert (
+        older.identities["archetype_assignment"]["components"]["wall"]["state"]
+        == "existing"
+    )
 
 
 def _lake_record(record):
@@ -515,7 +525,11 @@ def _lake_record(record):
     )
     components = tuple(
         dict(
-            {k: v for k, v in c.items() if k not in {"geometry_hash", "outline_labels"}},
+            {
+                k: v
+                for k, v in c.items()
+                if k not in {"geometry_hash", "outline_labels"}
+            },
             attributes={"outline_labels": c["outline_labels"]},
         )
         for c in record.components
@@ -548,14 +562,25 @@ def test_legacy_record_handoff_reads_gis_lake_evidence():
     built, _ = EPSMBuilding.from_record(lake, weather=weather, preflight=False)
     assert built.spec.physical_hash() == legacy.spec.physical_hash()
     for facts, heights, message in (
-        ({**lake.facts, "object_status": "Avregistrerad"}, lake.heights, "existing-building"),
-        (lake.facts, tuple(
-            dict(h, attributes={"geometry_status": "unresolved_roof_evidence"}) for h in lake.heights
-        ), "Unresolved height"),
+        (
+            {**lake.facts, "object_status": "Avregistrerad"},
+            lake.heights,
+            "existing-building",
+        ),
+        (
+            lake.facts,
+            tuple(
+                dict(h, attributes={"geometry_status": "unresolved_roof_evidence"})
+                for h in lake.heights
+            ),
+            "Unresolved height",
+        ),
     ):
         with pytest.raises(ModelAssemblyError, match=message):
             EPSMBuilding.from_record(
-                replace(lake, facts=facts, heights=heights), weather=weather, preflight=False
+                replace(lake, facts=facts, heights=heights),
+                weather=weather,
+                preflight=False,
             )
 
 
@@ -571,19 +596,26 @@ def test_legacy_record_handoff_uses_catalogue_ventilation_and_facade_templates()
         files("epsm_rc") / "data/epw/goteborg.epw", calendar_year=2023
     )
     record = _legacy_record()  # 1977 multifamily, no reported ventilation
-    existing, receipt = EPSMBuilding.from_record(record, weather=weather, preflight=False)
+    existing, receipt = EPSMBuilding.from_record(
+        record, weather=weather, preflight=False
+    )
     assert receipt.identities["ventilation_template"] == "epsm.ventilation.F"
     assert existing.spec.airflow.topology == "F"
     assert existing.spec.facade.default_wwr == 0.24
     assert {o.wwr for o in existing.spec.facade.overrides} <= {0.22, 0.23, 0.28}
     assert existing.spec.facade.overrides
     advanced, receipt = EPSMBuilding.from_record(
-        record, weather=weather, preflight=False, overrides={"renovation_state": "advanced"}
+        record,
+        weather=weather,
+        preflight=False,
+        overrides={"renovation_state": "advanced"},
     )
     assert receipt.identities["ventilation_template"] == "epsm.ventilation.FTX_080"
     assert advanced.spec.airflow.sensible_recovery_effectiveness == 0.8
     earlier, receipt = EPSMBuilding.from_record(
-        record, weather=weather, preflight=False,
+        record,
+        weather=weather,
+        preflight=False,
         policy=ModelPolicy(version="3", catalogue_templates=False),
     )
     assert "ventilation_template" not in receipt.identities

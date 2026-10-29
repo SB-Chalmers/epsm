@@ -220,10 +220,16 @@ def test_catalogue_bridge_surcharge_reaches_the_core_envelope(catalogue):
     assert housing.thermal_bridge_delta_u_w_m2k is None
     assert housing.thermal_bridge_uplift_fraction == 0
     selection = resolve_building_archetype(
-        category="office", construction_year=2000, climate_zone="SE.Zone3",
-        ventilation="FTX", default_state="existing", catalogue=catalogue,
+        category="office",
+        construction_year=2000,
+        climate_zone="SE.Zone3",
+        ventilation="FTX",
+        default_state="existing",
+        catalogue=catalogue,
         component_states={"airtightness": "standard"},
         component_sources={"airtightness": "test:airtightness"},
     )
     assert selection["envelope"].thermal_bridge_delta_u_w_m2k == 0.1
-    assert selection["archetype"].envelope_performance.thermal_bridge_delta_u_w_m2k == 0.1
+    assert (
+        selection["archetype"].envelope_performance.thermal_bridge_delta_u_w_m2k == 0.1
+    )

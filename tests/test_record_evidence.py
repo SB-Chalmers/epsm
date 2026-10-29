@@ -117,7 +117,10 @@ def test_exhaust_with_recovery_follows_heating_carrier():
 
     def record(vent, energy):
         fields = {**{f: ["Ja"] for f in vent}, **{f: [v] for f, v in energy.items()}}
-        observations = [{"certificate_id": "c", "source_field": f, "raw_values": v} for f, v in fields.items()]
+        observations = [
+            {"certificate_id": "c", "source_field": f, "raw_values": v}
+            for f, v in fields.items()
+        ]
         return SimpleNamespace(
             single_building_epc=True,
             selected_certificate={"certificate_id": "c"},
@@ -131,6 +134,9 @@ def test_exhaust_with_recovery_follows_heating_carrier():
         return _ventilation(r, ModelPolicy(), receipt, None)
 
     assert resolve(record(["VentTypFmed"], {"EgiPumpFranluftUPPV": 9000})) == "F"
-    assert resolve(record(["VentTypF", "VentTypFmed"], {"EgiPumpFranluftUPPV": 9000})) == "F"
+    assert (
+        resolve(record(["VentTypF", "VentTypFmed"], {"EgiPumpFranluftUPPV": 9000}))
+        == "F"
+    )
     assert resolve(record(["VentTypFmed"], {"EgiFjarrvarmeUPPV": 12000})) == "FTX"
     assert resolve(record(["VentTypF"], {"EgiFjarrvarmeUPPV": 12000})) == "F"

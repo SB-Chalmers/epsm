@@ -491,12 +491,24 @@ def test_template_schedule_replacement_discards_stale_calendar_sources():
 
 def test_applied_bridge_surcharge_replaces_the_uplift_fraction():
     b = reference()
-    b.apply_archetype(authored(envelope_performance=EnvelopePerformance(
-        thermal_bridge_delta_u_w_m2k=0.1, source_references=("study:tabula",))))
+    b.apply_archetype(
+        authored(
+            envelope_performance=EnvelopePerformance(
+                thermal_bridge_delta_u_w_m2k=0.1, source_references=("study:tabula",)
+            )
+        )
+    )
     assert b.thermal_bridge_delta_u_w_m2k == 0.1
     assert b.thermal_bridge_uplift_fraction is None
-    assert any(r.field_path == "thermal_bridge_delta_u_w_m2k" for r in b.provenance.records)
-    b.apply_archetype(authored(envelope_performance=EnvelopePerformance(
-        thermal_bridge_uplift_fraction=0.05, source_references=("study:uplift",))))
+    assert any(
+        r.field_path == "thermal_bridge_delta_u_w_m2k" for r in b.provenance.records
+    )
+    b.apply_archetype(
+        authored(
+            envelope_performance=EnvelopePerformance(
+                thermal_bridge_uplift_fraction=0.05, source_references=("study:uplift",)
+            )
+        )
+    )
     assert b.thermal_bridge_uplift_fraction == 0.05
     assert b.thermal_bridge_delta_u_w_m2k is None
