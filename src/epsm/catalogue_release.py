@@ -79,6 +79,10 @@ def core_inputs(archetype_id, state=None, *, detailed=None, catalogue=None,
         )
     elif not isinstance(basement_wall, ConstructionSpec):
         basement_wall = ConstructionSpec(**basement_wall)
+    # The catalogue's thermal-bridge assumption; an unknown one stays no allowance.
+    performance = archetype.envelope_performance
+    uplift = performance.thermal_bridge_uplift_fraction if performance else None
+    delta_u = performance.thermal_bridge_delta_u_w_m2k if performance else None
     envelope = EnvelopeSpec(
         wall=ConstructionSpec(**core["EXT_WALL"]), top=top,
         ground=ConstructionSpec(**core.get("BASEMENT_FLOOR", core["GROUND_FLOOR"])),
@@ -86,6 +90,8 @@ def core_inputs(archetype_id, state=None, *, detailed=None, catalogue=None,
                           if "BASEMENT_FLOOR" in core else None),
         intermediate_floor=ConstructionSpec(**core["INTERMEDIATE_FLOOR"]),
         weather_shell=shell, basement_wall=basement_wall,
+        thermal_bridge_uplift_fraction=uplift or 0,
+        thermal_bridge_delta_u_w_m2k=delta_u,
     )
     return {
         "archetype": archetype, "envelope": envelope,

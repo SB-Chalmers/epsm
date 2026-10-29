@@ -10,20 +10,20 @@ from dataclasses import asdict, dataclass, field
 from datetime import date, timedelta
 from pathlib import Path
 
-from sweden_ubem.enums import BuildingType
-from sweden_ubem.records import (
+from epsm_db.enums import BuildingType
+from epsm_db.records import (
     BuildingRecord,
     Receipt,
     implementation_hash,
     json_default,
 )
-from sweden_ubem.weather import WeatherReference
+from epsm_db.weather import WeatherReference
 
 
 @dataclass(frozen=True)
 class ModelPolicy:
     name: str = "ubem_v1"
-    version: str = "3"
+    version: str = "4"
     minimum_programme_blend_share: float = 0.05
     typical_floor_height_m: float = 3.0
     minimum_full_floor_height_m: float = 2.0
@@ -42,6 +42,9 @@ class ModelPolicy:
     fuel_efficiency: float = 0.9
     calendar_year: int = 2023
     catalogue_climate_zone: str = "SE.Zone3"
+    # Version 4: catalogue ventilation templates and facade window ratios. False
+    # restores version 3's type defaults below (one WWR and one FTX recovery).
+    catalogue_templates: bool = True
     wwr_by_type: dict = field(
         default_factory=lambda: {
             "single_family": 0.2,
@@ -108,6 +111,39 @@ def _positive(value):
     return value is not None and math.isfinite(float(value)) and float(value) > 0
 
 
+# GIS-lake records (epsm_db schema 2) name status and height evidence differently
+# from the earlier sweden_ubem database; assembly reads both.
+def _lake_record(record):
+    return "geometry_valid" in record.facts
+
+
+def _verified_existing(record):
+    if _lake_record(record):
+        return record.facts.get("object_status") == "Gällande"
+    return bool(record.facts.get("status_verified") and record.facts.get("is_existing"))
+
+
+def _geometry_resolved(record):
+    if _lake_record(record):
+        return record.facts.get("geometry_valid") is True
+    return record.facts.get("geometry_status") == "resolved"
+
+
+def _height_evidence(record, component, height):
+    """Whether a determined height belongs to this component's geometry, and its resolution."""
+    if not height or height.get("height_status") != "determined":
+        return False, None
+    if _lake_record(record):
+        # Lake heights are keyed to their component; the evidence states whether
+        # it was measured on that same geometry.
+        status = (height.get("attributes") or {}).get("geometry_status")
+        return True, "resolved" if status == "consistent_source_component" else status
+    return (
+        height.get("input_geometry_hash") == component.get("geometry_hash"),
+        (height.get("details") or {}).get("evidence_resolution"),
+    )
+
+
 def _field(receipt, name, value, state, assumption=None):
     receipt.fields.setdefault(name, {})
     receipt.fields[name].update(model_value=value, model_state=state)
@@ -163,7 +199,7 @@ def _ventilation(record, policy, receipt, override):
     for name, kind in {
         "VentTypSjalvdrag": "S",
         "VentTypF": "F",
-        "VentTypFmed": "F",
+        "VentTypFmed": "Fmed",
         "VentTypFT": "FT",
         "VentTypFTX": "FTX",
     }.items():
@@ -178,8 +214,21 @@ def _ventilation(record, policy, receipt, override):
             and str(values[0][0]).strip().casefold() in {"ja", "true", "1"}
         ):
             positive.add(kind)
+    if positive == {"F", "Fmed"}:
+        positive = {"Fmed"}  # exhaust, with recovery
     if len(positive) == 1:
         result = positive.pop()
+        if result == "Fmed":
+            # Exhaust with heat recovery, in practice an exhaust-air heat pump. With heat-pump
+            # heating the exhaust air is the pump's source and its COP carries the recovery,
+            # so the building is modelled as F. Otherwise the pump's electricity is not in the
+            # heating carrier and the recovered heat lowers it: modelled as recovery on the
+            # exhaust flow, FTX at the catalogue's observed-FTX effectiveness.
+            result = "F" if _heating_carriers(record) == ["heat_pump"] else "FTX"
+            receipt.assumptions.append(
+                f"EPC ventilation F with heat recovery modelled as {result}: "
+                + ("recovery carried by the heat pump's COP" if result == "F" else "no heat-pump heating carrier")
+            )
         _field(receipt, "ventilation", result, "reported_raw_mapping")
     else:
         result = policy.ventilation_by_type[record.type.value]
@@ -298,7 +347,7 @@ def _geometry(record, policy, receipt, overrides):
     from epsm_core.roofs import roof_faces
     from shapely.affinity import translate
 
-    if record.facts.get("geometry_status") != "resolved" or not record.components:
+    if not _geometry_resolved(record) or not record.components:
         raise ValueError("Resolved component geometry is required")
     indexed = {h["component_id"]: h for h in record.heights}
     n = overrides.get("storeys", record.storeys)
@@ -337,13 +386,9 @@ def _geometry(record, policy, receipt, overrides):
             )
             continue
         h = indexed.get(component["component_id"])
-        if (
-            not h
-            or h.get("height_status") != "determined"
-            or h.get("input_geometry_hash") != component.get("geometry_hash")
-        ):
+        matched, resolution = _height_evidence(record, component, h)
+        if not matched:
             raise ValueError(f"Missing or geometry-mismatched height: {component['component_id']}")
-        resolution = (h.get("details") or {}).get("evidence_resolution")
         if resolution not in (None, "resolved"):
             raise ValueError("Unresolved height evidence")
         if resolution is None:
@@ -431,7 +476,11 @@ def _geometry(record, policy, receipt, overrides):
             else:
                 receipt.assumptions.append(f"Component {i}: assumed gable pitch {pitch} degrees")
             roof = RoofSpec(shape="gable", topology="cold_attic", pitch_deg=pitch)
-        labels = component.get("outline_labels") or []
+        labels = (
+            component.get("outline_labels")
+            or (component.get("attributes") or {}).get("outline_labels")
+            or []
+        )
         parts.append(
             BuildingPart(
                 identifier=f"part_{i}",
@@ -499,11 +548,68 @@ def _geometry(record, policy, receipt, overrides):
     return geometry
 
 
+def _ventilation_template(record, policy, receipt, ventilation, era, state, override):
+    """Airflow-only system inputs: the catalogue template, or version 3's policy completion."""
+    if not policy.catalogue_templates:
+        return None
+    from epsm_data.templates import ventilation_template_id, ventilation_templates
+
+    reported = override or receipt.fields["ventilation"]["model_state"] == "reported_raw_mapping"
+    identifier = ventilation_template_id(record.type.value, era, state, ventilation if reported else None)
+    airflow = dict(ventilation_templates()[identifier].values["airflow"])
+    receipt.identities["ventilation_template"] = identifier
+    _field(
+        receipt,
+        "ventilation_template",
+        identifier,
+        "assumed",
+        f"Catalogue ventilation template {identifier} for the "
+        + ("observed system" if reported else "era default")
+        + (f" under {state} renovation" if state not in (None, "existing") else ""),
+    )
+    return airflow
+
+
+def _compass_sector(azimuth_deg):
+    """Facade sector of an outward normal, clockwise from north: N 315-45, E 45-135, S, W."""
+    a = azimuth_deg % 360
+    return "N" if a >= 315 or a < 45 else "E" if a < 135 else "S" if a < 225 else "W"
+
+
+def _facade(record, geometry, glazing, policy, receipt, override):
+    from epsm_core import FacadeOverride, FacadeSpec
+
+    if override is not None or not policy.catalogue_templates:
+        wwr = override if override is not None else policy.wwr_by_type[record.type.value]
+        _field(receipt, "wwr", wwr, "assumed", f"Type-policy WWR {wwr}; not measured glazing")
+        return FacadeSpec(default_wwr=wwr, glazing=glazing)
+    from epsm_data.templates import facade_assumptions
+
+    table = facade_assumptions(record.type.value)
+    by_orientation = table["wwr_by_orientation"]
+    overrides = tuple(
+        FacadeOverride(facade_id=facade.facade_id, wwr=by_orientation[_compass_sector(facade.azimuth_deg)])
+        for facade in geometry.facades()
+        if by_orientation[_compass_sector(facade.azimuth_deg)] != table["default_wwr"]
+    )
+    _field(
+        receipt,
+        "wwr",
+        table["default_wwr"],
+        "assumed",
+        f"Catalogue facade WWR ({table['tier']}): default {table['default_wwr']}, "
+        + "N/E/S/W " + "/".join(str(by_orientation[k]) for k in "NESW")
+        + "; not measured glazing",
+    )
+    return FacadeSpec(default_wwr=table["default_wwr"], glazing=glazing, overrides=overrides)
+
+
 def _operation(
     name,
     year,
     *,
-    ventilation,
+    airflow_template=None,
+    ventilation=None,
     infiltration,
     geometry,
     area,
@@ -557,13 +663,22 @@ def _operation(
         receipt.quality.append(
             f"{name} operational programme uses a generic fallback; review before interpreting demand error"
         )
+    # The template sets the system and its heat recovery; the operating profile keeps
+    # the occupied flow rates and natural ventilation keeps the normal-use timetable.
+    # A bare ``ventilation`` system keeps version 3's policy completion.
+    if airflow_template is None:
+        airflow_template = {
+            "topology": ventilation,
+            "sensible_recovery_effectiveness": policy.ftx_recovery if ventilation == "FTX" else 0,
+        }
+    topology = airflow_template["topology"]
     air = normal_use_airflow(
-        ventilation=ventilation, infiltration=infiltration, flow_l_s_m2=flow,
+        ventilation=topology, infiltration=infiltration, flow_l_s_m2=flow,
         fraction=fraction, reference_area_m2=area,
         conditioned_volume_m3=geometry.conditioned_volume_m3,
-        recovery_effectiveness=policy.ftx_recovery,
+        recovery_effectiveness=airflow_template.get("sensible_recovery_effectiveness", 0),
     )
-    if ventilation == "S":
+    if topology == "S":
         receipt.assumptions.append(
             "Natural ventilation uses the source normal-use outdoor-air timetable "
             "as an equivalent-flow assumption, not a pressure-driven airflow model"
@@ -572,47 +687,54 @@ def _operation(
     return use, air, source
 
 
+_CARRIER_FIELDS = {
+    "district_heat": ["EgiFjarrvarme", "EgiFjarrvarmeUPPV"],
+    "electric_direct": [
+        "EgiElVatten",
+        "EgiElDirekt",
+        "EgiElLuft",
+        "EgiElVattenUPPV",
+        "EgiElDirektUPPV",
+        "EgiElLuftUPPV",
+    ],
+    "heat_pump": [
+        "EgiPumpMark",
+        "EgiPumpFranluft",
+        "EgiPumpLuftLuft",
+        "EgiPumpLuftVatten",
+        "EgiPumpMarkUPPV",
+        "EgiPumpFranluftUPPV",
+        "EgiPumpLuftLuftUPPV",
+        "EgiPumpLuftVattenUPPV",
+    ],
+    "fuel": [
+        "EgiOlja",
+        "EgiGas",
+        "EgiVed",
+        "EgiFlis",
+        "EgiOvrBiobransle",
+        "EgiOljaUPPV",
+        "EgiGasUPPV",
+        "EgiVedUPPV",
+        "EgiFlisUPPV",
+        "EgiOvrBiobransleUPPV",
+    ],
+}
+
+
+def _heating_carriers(record):
+    """Carrier families with positive reported energy on a single-building EPC."""
+    return [
+        name
+        for name, sources in _CARRIER_FIELDS.items()
+        if record.single_building_epc and any(_positive(record.observation(s)[0]) for s in sources)
+    ]
+
+
 def _delivery(record, policy, receipt):
     from epsm_core import DeliverySpec, HeatingDeliverySpec, ScheduleSpec
 
-    fields = {
-        "district_heat": ["EgiFjarrvarme", "EgiFjarrvarmeUPPV"],
-        "electric_direct": [
-            "EgiElVatten",
-            "EgiElDirekt",
-            "EgiElLuft",
-            "EgiElVattenUPPV",
-            "EgiElDirektUPPV",
-            "EgiElLuftUPPV",
-        ],
-        "heat_pump": [
-            "EgiPumpMark",
-            "EgiPumpFranluft",
-            "EgiPumpLuftLuft",
-            "EgiPumpLuftVatten",
-            "EgiPumpMarkUPPV",
-            "EgiPumpFranluftUPPV",
-            "EgiPumpLuftLuftUPPV",
-            "EgiPumpLuftVattenUPPV",
-        ],
-        "fuel": [
-            "EgiOlja",
-            "EgiGas",
-            "EgiVed",
-            "EgiFlis",
-            "EgiOvrBiobransle",
-            "EgiOljaUPPV",
-            "EgiGasUPPV",
-            "EgiVedUPPV",
-            "EgiFlisUPPV",
-            "EgiOvrBiobransleUPPV",
-        ],
-    }
-    present = [
-        name
-        for name, sources in fields.items()
-        if record.single_building_epc and any(_positive(record.observation(s)[0]) for s in sources)
-    ]
+    present = _heating_carriers(record)
     if len(present) != 1:
         receipt.quality.append(
             "Heating carrier mixed/unavailable: model reports ideal thermal demand; no purchased-energy conversion"
@@ -662,7 +784,7 @@ class EPSMBuilding:
                 raise TypeError("Supply a BuildingRecord")
             if record.type.value not in {"single_family", "multi_family", "school", "office"}:
                 raise ValueError("No v1 physical archetype for this building type")
-            if not record.facts.get("status_verified") or not record.facts.get("is_existing"):
+            if not _verified_existing(record):
                 raise ValueError("v1 model assembly requires verified existing-building status")
             if any(
                 r.get("temporal_status") in {"construction_after_certificate", "temporal_conflict"}
@@ -671,7 +793,6 @@ class EPSMBuilding:
                 raise ValueError("EPC temporal conflict requires review")
             from epsm_core import (
                 BuildingSpec,
-                FacadeSpec,
                 FoundationSpec,
                 ProgramBlend,
                 ProgramComponent,
@@ -697,8 +818,8 @@ class EPSMBuilding:
                 "component_sources",
             }:
                 raise ValueError("Unknown model override")
-            renovation_state = overrides.get("renovation_state", "existing")
-            if renovation_state not in ("existing", "standard", "advanced"):
+            renovation_state = overrides.get("renovation_state")
+            if renovation_state not in (None, "existing", "standard", "advanced"):
                 raise ValueError("renovation_state must be existing, standard or advanced")
             receipt.identities["policy"] = asdict(policy)
             receipt.identities["overrides"] = overrides
@@ -728,6 +849,14 @@ class EPSMBuilding:
                 int(year),
                 "assumed" if "construction_year" in overrides else "reported",
             )
+            # SE.07 has one catalogue configuration; older eras default to existing.
+            from epsm_data.classification import era_for_year
+
+            if era_for_year(int(year)) == "SE.07":
+                if renovation_state is not None:
+                    raise ValueError("SE.07 has one catalogue configuration; omit renovation_state")
+            elif renovation_state is None:
+                renovation_state = "existing"
             area = record.atemp_m2
             if not _positive(area):
                 area = geometry.conditioned_floor_area_m2
@@ -755,6 +884,15 @@ class EPSMBuilding:
                 component_sources=overrides.get("component_sources"),
                 tabula_reference_area_m2=area,
                 conditioned_volume_m3=geometry.conditioned_volume_m3,
+            )
+            airflow_template = _ventilation_template(
+                record,
+                policy,
+                receipt,
+                ventilation,
+                fabric["assignment"]["era"],
+                renovation_state,
+                overrides.get("ventilation"),
             )
             if fabric["infiltration_reference_basis"] == "core_conditioned_volume":
                 receipt.assumptions.append(
@@ -789,6 +927,7 @@ class EPSMBuilding:
                 name: _operation(
                     name,
                     climate.calendar_year,
+                    airflow_template=airflow_template,
                     ventilation=ventilation,
                     infiltration=fabric["core_airflow_inputs"],
                     geometry=geometry,
@@ -804,6 +943,7 @@ class EPSMBuilding:
             control_use, _, _ = _operation(
                 primary,
                 climate.calendar_year,
+                airflow_template=airflow_template,
                 ventilation=ventilation,
                 infiltration=fabric["core_airflow_inputs"],
                 geometry=geometry,
@@ -838,6 +978,8 @@ class EPSMBuilding:
             receipt.assumptions.append(
                 "Matrix existing state is a construction-era representative; renovations are not inferred"
                 if renovation_state == "existing" else
+                "SE.07 single configuration is the current-code representative; renovations are not inferred"
+                if renovation_state is None else
                 f"Matrix {renovation_state} renovation package is an explicit scenario, not an observed building state"
             )
             receipt.assumptions.append(
@@ -870,8 +1012,7 @@ class EPSMBuilding:
                 receipt.assumptions.append(
                     f"Assumed attic outdoor exchange {policy.attic_outdoor_air_ach} ACH"
                 )
-            wwr = overrides.get("wwr", policy.wwr_by_type[record.type.value])
-            _field(receipt, "wwr", wwr, "assumed", f"Type-policy WWR {wwr}; not measured glazing")
+            facade = _facade(record, geometry, fabric["glazing"], policy, receipt, overrides.get("wwr"))
             receipt.identities["physical_conditioned_floor_area_m2"] = (
                 geometry.conditioned_floor_area_m2
             )
@@ -918,14 +1059,16 @@ class EPSMBuilding:
                 SourceRecord(
                     field_path="facade.default_wwr",
                     status="assumed",
-                    source=f"{policy.name}/{policy.version}",
+                    source=f"epsm_data facade_assumptions; {policy.name}/{policy.version}"
+                    if policy.catalogue_templates and "wwr" not in overrides
+                    else f"{policy.name}/{policy.version}",
                 ),
             ]
             spec = BuildingSpec(
                 identifier=record.building_id,
                 geometry=geometry,
                 load_reference_area_m2=area,
-                facade=FacadeSpec(default_wwr=wwr, glazing=fabric["glazing"]),
+                facade=facade,
                 envelope=fabric["envelope"].updated(
                     foundation=FoundationSpec(),
                     ground_temperature=None,
@@ -954,7 +1097,7 @@ class EPSMBuilding:
                 receipt.identities[package] = version
             receipt.identities["implementation_sha256"] = {
                 name: implementation_hash(name)
-                for name in ("epsm", "sweden_ubem", "epsm_core", "epsm_data")
+                for name in ("epsm", "epsm_db", "epsm_core", "epsm_data")
             }
             if preflight:
                 _, compiled = EnergyPlusCompiler(energyplus).compile(spec)

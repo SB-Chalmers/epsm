@@ -13,37 +13,37 @@
     },
     "epsm_data": {
       "version": "0.7.0",
-      "revision": "243e2a79db9f1e9b77dacd776dd59e27ade86e27",
+      "revision": "7fb68171e95ef32b59872e5d01bfc85b04aea56b",
       "role": "scientific"
     },
     "epsm_core": {
       "version": "0.9.0",
-      "revision": "8732095a3ee3c176e8e41d2b8cbc0c0fd209523d",
+      "revision": "21fbed6bb4ba7e2fe050525aade464282956a1d0",
       "role": "scientific"
     },
     "epsm_rc": {
       "version": "0.11.0",
-      "revision": "5f4c8b98be1d3077353e448a574954072d810650",
+      "revision": "dcb47ba9e8a5ce8919e84017822d7f2d7e55af00",
       "role": "scientific"
     },
     "epsm_lca": {
       "version": "0.3.0",
-      "revision": "c372d68a0c25ddb06ce08531a97b96f1a5cad970",
+      "revision": "a64c991f219f4f09e34a72dbf42b52764a112400",
       "role": "scientific"
     },
     "epsm_db": {
-      "version": "0.3.0",
-      "revision": "9e29a575f5495b76d5a8553bbe6e20dd4f0e1ff0",
+      "version": "0.5.0",
+      "revision": "d73ebe39e7b5fb6067b347ba229a1a7eeb93950e",
       "role": "scientific"
     },
     "epsm_workflows": {
-      "version": "0.4.0",
-      "revision": "433a8b6d461ad2016e6f8c046aeaeb16b2861787",
+      "version": "0.5.0",
+      "revision": "80f508f06eb420bdafcf1c19d4a6574112838e5a",
       "role": "scientific"
     },
     "epsm_studies": {
-      "version": "0.4.0",
-      "revision": "d38ffc053cc4e9f88cb86e15018bf6ce309a65a9",
+      "version": "0.5.0",
+      "revision": "8085e994b7e10c2783672b1f452fcc3fd3887d38",
       "role": "scientific"
     },
     "smhi2epw": {

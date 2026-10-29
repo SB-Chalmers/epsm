@@ -108,3 +108,35 @@ def test_old_summary_only_building_remains_readable(source_record):
     restored = Building.from_dict(old)
     assert restored.to_dict()["source_record"] == old["source_record"]
     assert len(restored.compare()) == 2
+
+
+def test_exhaust_with_recovery_follows_heating_carrier():
+    from types import SimpleNamespace
+
+    from epsm.legacy_records import ModelPolicy, _ventilation
+
+    def record(vent, energy):
+        fields = {**{f: ["Ja"] for f in vent}, **{f: [v] for f, v in energy.items()}}
+        observations = [
+            {"certificate_id": "c", "source_field": f, "raw_values": v}
+            for f, v in fields.items()
+        ]
+        return SimpleNamespace(
+            single_building_epc=True,
+            selected_certificate={"certificate_id": "c"},
+            observations=observations,
+            observation=lambda f: (float(fields[f][0]) if f in energy else None,),
+            type=SimpleNamespace(value="single_family"),
+        )
+
+    def resolve(r):
+        receipt = SimpleNamespace(fields={}, assumptions=[])
+        return _ventilation(r, ModelPolicy(), receipt, None)
+
+    assert resolve(record(["VentTypFmed"], {"EgiPumpFranluftUPPV": 9000})) == "F"
+    assert (
+        resolve(record(["VentTypF", "VentTypFmed"], {"EgiPumpFranluftUPPV": 9000}))
+        == "F"
+    )
+    assert resolve(record(["VentTypFmed"], {"EgiFjarrvarmeUPPV": 12000})) == "FTX"
+    assert resolve(record(["VentTypF"], {"EgiFjarrvarmeUPPV": 12000})) == "F"

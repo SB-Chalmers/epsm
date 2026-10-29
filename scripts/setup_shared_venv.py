@@ -28,7 +28,7 @@ PACKAGE_IMPORTS = {
     "epsm_core": "epsm_core",
     "epsm_lca": "epsm_lca",
     "epsm_rc": "epsm_rc",
-    "epsm_db": "sweden_ubem",
+    "epsm_db": "epsm_db",
     "epsm_workflows": "epsm_workflows",
     "epsm_studies": "epsm_studies",
     "smhi2epw": "smhi2epw",

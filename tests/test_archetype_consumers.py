@@ -59,9 +59,9 @@ def normalized_physical_values(value):
 def test_legacy_programme_uses_public_definition_conversion_with_same_outputs(
     name, year, monkeypatch
 ):
-    pytest.importorskip("sweden_ubem")
+    pytest.importorskip("epsm_db")
     import epsm_core
-    from sweden_ubem.records import Receipt
+    from epsm_db.records import Receipt
 
     from epsm.legacy_records import ModelPolicy, _operation
 
@@ -139,9 +139,9 @@ def test_programme_preservation_under_python_311_summation(name, year, monkeypat
 @pytest.mark.parametrize("year", [2023, 2024])
 def test_natural_ventilation_preserves_normal_use_closures(name, expected_hours, year):
     """Changing the topology must not turn occupied-hours flow into 24/7 flow."""
-    pytest.importorskip("sweden_ubem")
+    pytest.importorskip("epsm_db")
     import numpy as np
-    from sweden_ubem.records import Receipt
+    from epsm_db.records import Receipt
 
     from epsm.legacy_records import ModelPolicy, _operation
 
@@ -366,18 +366,11 @@ def test_independent_component_evidence_builds_portable_archetype_without_cross_
         )
 
 
-def test_legacy_record_handoff_preserves_area_evidence_and_portable_definition(
-    tmp_path,
-):
-    pytest.importorskip("sweden_ubem")
+def _legacy_record(year=1977):
     from datetime import date
-    from importlib.resources import files
 
-    from sweden_ubem.enums import BuildingType
-    from sweden_ubem.records import BuildingRecord
-    from sweden_ubem.weather import WeatherReference
-
-    from epsm.legacy_records import EPSMBuilding
+    from epsm_db.enums import BuildingType
+    from epsm_db.records import BuildingRecord
 
     footprint = box(0, 0, 10, 10)
     certificate = "synthetic-certificate"
@@ -392,7 +385,7 @@ def test_legacy_record_handoff_preserves_area_evidence_and_portable_definition(
             "EgenAtemp": 90,
             "EgenAntalPlan": 1,
             "EgenAntalKallarplan": 0,
-            "EgenNybyggAr": 1977,
+            "EgenNybyggAr": year,
             "EgenAtempBostad": 100,
         }.items()
     )
@@ -403,7 +396,7 @@ def test_legacy_record_handoff_preserves_area_evidence_and_portable_definition(
         footprint,
         facts=dict(
             geometry_status="resolved",
-            construction_year=1977,
+            construction_year=year,
             status_verified=True,
             is_existing=True,
         ),
@@ -438,6 +431,20 @@ def test_legacy_record_handoff_preserves_area_evidence_and_portable_definition(
         ),
         observations=observations,
     )
+    return record
+
+
+def test_legacy_record_handoff_preserves_area_evidence_and_portable_definition(
+    tmp_path,
+):
+    pytest.importorskip("epsm_db")
+    from importlib.resources import files
+
+    from epsm_db.weather import WeatherReference
+
+    from epsm.legacy_records import EPSMBuilding
+
+    record = _legacy_record()
     before = record.to_dict()
     weather = WeatherReference.from_epw(
         files("epsm_rc") / "data/epw/goteborg.epw", calendar_year=2023
@@ -473,6 +480,146 @@ def test_legacy_record_handoff_preserves_area_evidence_and_portable_definition(
         json.loads(paths[1].read_text())["identities"]["archetype_definition"]
         == receipt.identities["archetype_definition"]
     )
+
+
+def test_legacy_record_handoff_runs_se07_without_renovation_state():
+    pytest.importorskip("epsm_db")
+    from importlib.resources import files
+
+    from epsm_db.weather import WeatherReference
+
+    from epsm.legacy_records import EPSMBuilding, ModelAssemblyError
+
+    weather = WeatherReference.from_epw(
+        files("epsm_rc") / "data/epw/goteborg.epw", calendar_year=2023
+    )
+    record = _legacy_record(2023)
+    _, receipt = EPSMBuilding.from_record(record, weather=weather, preflight=False)
+    assert receipt.identities["archetype_assignment"]["era"] == "SE.07"
+    with pytest.raises(
+        ModelAssemblyError, match="SE.07 has one catalogue configuration"
+    ):
+        EPSMBuilding.from_record(
+            record,
+            weather=weather,
+            preflight=False,
+            overrides={"renovation_state": "existing"},
+        )
+    _, older = EPSMBuilding.from_record(
+        _legacy_record(), weather=weather, preflight=False
+    )
+    assert (
+        older.identities["archetype_assignment"]["components"]["wall"]["state"]
+        == "existing"
+    )
+
+
+def _lake_record(record):
+    """The same evidence as a GIS-lake (epsm_db schema 2) record."""
+    from dataclasses import replace
+
+    facts = dict(
+        construction_year=record.facts["construction_year"],
+        geometry_valid=True,
+        object_status="Gällande",
+    )
+    components = tuple(
+        dict(
+            {
+                k: v
+                for k, v in c.items()
+                if k not in {"geometry_hash", "outline_labels"}
+            },
+            attributes={"outline_labels": c["outline_labels"]},
+        )
+        for c in record.components
+    )
+    heights = tuple(
+        dict(
+            {k: v for k, v in h.items() if k not in {"input_geometry_hash", "details"}},
+            attributes={"geometry_status": "consistent_source_component"},
+        )
+        for h in record.heights
+    )
+    return replace(record, facts=facts, components=components, heights=heights)
+
+
+def test_legacy_record_handoff_reads_gis_lake_evidence():
+    pytest.importorskip("epsm_db")
+    from dataclasses import replace
+    from importlib.resources import files
+
+    from epsm_db.weather import WeatherReference
+
+    from epsm.legacy_records import EPSMBuilding, ModelAssemblyError
+
+    weather = WeatherReference.from_epw(
+        files("epsm_rc") / "data/epw/goteborg.epw", calendar_year=2023
+    )
+    record = _legacy_record()
+    lake = _lake_record(record)
+    legacy, _ = EPSMBuilding.from_record(record, weather=weather, preflight=False)
+    built, _ = EPSMBuilding.from_record(lake, weather=weather, preflight=False)
+    assert built.spec.physical_hash() == legacy.spec.physical_hash()
+    for facts, heights, message in (
+        (
+            {**lake.facts, "object_status": "Avregistrerad"},
+            lake.heights,
+            "existing-building",
+        ),
+        (
+            lake.facts,
+            tuple(
+                dict(h, attributes={"geometry_status": "unresolved_roof_evidence"})
+                for h in lake.heights
+            ),
+            "Unresolved height",
+        ),
+    ):
+        with pytest.raises(ModelAssemblyError, match=message):
+            EPSMBuilding.from_record(
+                replace(lake, facts=facts, heights=heights),
+                weather=weather,
+                preflight=False,
+            )
+
+
+def test_legacy_record_handoff_uses_catalogue_ventilation_and_facade_templates():
+    pytest.importorskip("epsm_db")
+    from importlib.resources import files
+
+    from epsm_db.weather import WeatherReference
+
+    from epsm.legacy_records import EPSMBuilding, ModelPolicy
+
+    weather = WeatherReference.from_epw(
+        files("epsm_rc") / "data/epw/goteborg.epw", calendar_year=2023
+    )
+    record = _legacy_record()  # 1977 multifamily, no reported ventilation
+    existing, receipt = EPSMBuilding.from_record(
+        record, weather=weather, preflight=False
+    )
+    assert receipt.identities["ventilation_template"] == "epsm.ventilation.F"
+    assert existing.spec.airflow.topology == "F"
+    assert existing.spec.facade.default_wwr == 0.24
+    assert {o.wwr for o in existing.spec.facade.overrides} <= {0.22, 0.23, 0.28}
+    assert existing.spec.facade.overrides
+    advanced, receipt = EPSMBuilding.from_record(
+        record,
+        weather=weather,
+        preflight=False,
+        overrides={"renovation_state": "advanced"},
+    )
+    assert receipt.identities["ventilation_template"] == "epsm.ventilation.FTX_080"
+    assert advanced.spec.airflow.sensible_recovery_effectiveness == 0.8
+    earlier, receipt = EPSMBuilding.from_record(
+        record,
+        weather=weather,
+        preflight=False,
+        policy=ModelPolicy(version="3", catalogue_templates=False),
+    )
+    assert "ventilation_template" not in receipt.identities
+    assert earlier.spec.facade.default_wwr == 0.2 and not earlier.spec.facade.overrides
 
 
 def test_missing_basement_recipe_requires_explicit_input_without_floor_substitution(

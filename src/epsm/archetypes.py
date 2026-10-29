@@ -288,9 +288,14 @@ def apply_archetype(building, archetype, *, mode="replace", calendar=None):
     envelope_airflow = {}
     if envelope is not None:
         sources.extend(envelope.source_references)
-        inputs["thermal_bridge_uplift_fraction"] = (
-            envelope.thermal_bridge_uplift_fraction
-        )
+        if envelope.thermal_bridge_delta_u_w_m2k is not None:
+            inputs["thermal_bridge_delta_u_w_m2k"] = (
+                envelope.thermal_bridge_delta_u_w_m2k
+            )
+        else:
+            inputs["thermal_bridge_uplift_fraction"] = (
+                envelope.thermal_bridge_uplift_fraction
+            )
         rate, area_rate, basis = (
             envelope.infiltration_ach,
             envelope.infiltration_l_s_m2,
@@ -326,8 +331,9 @@ def apply_archetype(building, archetype, *, mode="replace", calendar=None):
                 requirements.append(
                     f"envelope_performance.load_reference_area ({basis})"
                 )
-        if envelope.thermal_bridge_uplift_fraction is not None:
-            records.append(_source("thermal_bridge_uplift_fraction", envelope))
+        for name in ("thermal_bridge_uplift_fraction", "thermal_bridge_delta_u_w_m2k"):
+            if getattr(envelope, name) is not None:
+                records.append(_source(name, envelope))
     template = archetype.hvac_template
     template_airflow = {}
     if template is not None:
