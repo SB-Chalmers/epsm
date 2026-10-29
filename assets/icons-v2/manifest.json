@@ -1,0 +1,78 @@
+{
+  "version": 2,
+  "grid": 32,
+  "palette": {
+    "ink": "#184A48",
+    "accent": "#27826E",
+    "mint": "#83D8BC",
+    "paper": "#F5F3ED"
+  },
+  "icons": [
+    {
+      "name": "epsm",
+      "label": "EPSM",
+      "role": "The integrated platform",
+      "metaphor": "E building section"
+    },
+    {
+      "name": "epsm_core",
+      "label": "Core",
+      "role": "Physical building model",
+      "metaphor": "Solid building cell"
+    },
+    {
+      "name": "epsm_data",
+      "label": "Data",
+      "role": "Materials & constructions",
+      "metaphor": "Layered construction plates"
+    },
+    {
+      "name": "epsm_db",
+      "label": "Database",
+      "role": "Building evidence & records",
+      "metaphor": "Stored building records"
+    },
+    {
+      "name": "epsm_rc",
+      "label": "RC",
+      "role": "Thermal energy simulation",
+      "metaphor": "Energy through the section"
+    },
+    {
+      "name": "epsm_lca",
+      "label": "LCA",
+      "role": "Climate impact assessment",
+      "metaphor": "Living building cell"
+    },
+    {
+      "name": "epsm_workflows",
+      "label": "Workflows",
+      "role": "Execution & optimisation",
+      "metaphor": "Connected building paths"
+    },
+    {
+      "name": "epsm_studies",
+      "label": "Studies",
+      "role": "Research & comparison",
+      "metaphor": "Comparative building measures"
+    },
+    {
+      "name": "epsm_development",
+      "label": "Development",
+      "role": "Engineering handbook & tools",
+      "metaphor": "Open construction brackets"
+    },
+    {
+      "name": "epsm_studio",
+      "label": "Studio",
+      "role": "Application & workspace",
+      "metaphor": "Section as a workspace"
+    },
+    {
+      "name": "epsm_viewer",
+      "label": "Viewer",
+      "role": "3D display & inspection",
+      "metaphor": "View into the building"
+    }
+  ]
+}
