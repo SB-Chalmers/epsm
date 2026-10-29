@@ -37,13 +37,13 @@
       "role": "scientific"
     },
     "epsm_workflows": {
-      "version": "0.4.0",
-      "revision": "433a8b6d461ad2016e6f8c046aeaeb16b2861787",
+      "version": "0.5.0",
+      "revision": "80f508f06eb420bdafcf1c19d4a6574112838e5a",
       "role": "scientific"
     },
     "epsm_studies": {
-      "version": "0.4.0",
-      "revision": "d38ffc053cc4e9f88cb86e15018bf6ce309a65a9",
+      "version": "0.5.0",
+      "revision": "8085e994b7e10c2783672b1f452fcc3fd3887d38",
       "role": "scientific"
     },
     "smhi2epw": {
