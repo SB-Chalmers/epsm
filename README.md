@@ -75,15 +75,15 @@ commits. See the [detailed guide](docs/guide.md#tested-package-combination) for 
 <!-- compatibility-table:start -->
 | Package | Version | Tested commit |
 | --- | --- | --- |
-| `epsm` | 0.4.0 | `self` |
-| `epsm_core` | 0.8.2 | `1ea867d849b808bc9f879f2fb740c54a51754295` |
-| `epsm_data` | 0.6.0 | `bc8449402b9e0dbe0ea85ff76c954cf36d209f86` |
-| `epsm_db` | 0.3.0 | `9e29a575f5495b76d5a8553bbe6e20dd4f0e1ff0` |
-| `epsm_lca` | 0.2.0 | `00141d0500e717b4f18a9d69e158f0af2aae1934` |
-| `epsm_rc` | 0.9.0 | `8837d3e8afd2d5be70172fd88d74598f1eba74ff` |
-| `epsm_studies` | 0.4.0 | `d38ffc053cc4e9f88cb86e15018bf6ce309a65a9` |
+| `epsm` | 0.5.0 | `self` |
+| `epsm_core` | 0.9.0 | `21fbed6bb4ba7e2fe050525aade464282956a1d0` |
+| `epsm_data` | 0.7.0 | `7fb68171e95ef32b59872e5d01bfc85b04aea56b` |
+| `epsm_db` | 0.5.0 | `a3dcdb76a8505826b10492189da4b0ea74f7aeb5` |
+| `epsm_lca` | 0.3.0 | `9854bc78453318b4183991c2c7dbfcae41443bbc` |
+| `epsm_rc` | 0.11.0 | `dcb47ba9e8a5ce8919e84017822d7f2d7e55af00` |
+| `epsm_studies` | 0.5.0 | `6bccba1a5195002beeb23573172ae3ccedc6368b` |
 | `epsm_viewer` | 0.1.0 | `f2c847b9cd44280b7cf21803acfefa6e49e78b1b` |
-| `epsm_workflows` | 0.4.0 | `433a8b6d461ad2016e6f8c046aeaeb16b2861787` |
+| `epsm_workflows` | 0.5.0 | `1ea589e27728345b0c5ade866f6f4398d1f17db9` |
 | `smhi2epw` | 1.3.0 | `6792b2a4d1bc6a7bdcd1bd77b35dd0ff704f2b29` |
 <!-- compatibility-table:end -->
 

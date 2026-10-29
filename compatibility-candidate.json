@@ -28,22 +28,22 @@
     },
     "epsm_lca": {
       "version": "0.3.0",
-      "revision": "a64c991f219f4f09e34a72dbf42b52764a112400",
+      "revision": "9854bc78453318b4183991c2c7dbfcae41443bbc",
       "role": "scientific"
     },
     "epsm_db": {
       "version": "0.5.0",
-      "revision": "d73ebe39e7b5fb6067b347ba229a1a7eeb93950e",
+      "revision": "a3dcdb76a8505826b10492189da4b0ea74f7aeb5",
       "role": "scientific"
     },
     "epsm_workflows": {
       "version": "0.5.0",
-      "revision": "80f508f06eb420bdafcf1c19d4a6574112838e5a",
+      "revision": "1ea589e27728345b0c5ade866f6f4398d1f17db9",
       "role": "scientific"
     },
     "epsm_studies": {
       "version": "0.5.0",
-      "revision": "8085e994b7e10c2783672b1f452fcc3fd3887d38",
+      "revision": "6bccba1a5195002beeb23573172ae3ccedc6368b",
       "role": "scientific"
     },
     "smhi2epw": {
