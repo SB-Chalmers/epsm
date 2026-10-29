@@ -7,28 +7,28 @@
   ],
   "packages": {
     "epsm": {
-      "version": "0.4.0",
+      "version": "0.5.0",
       "revision": "self",
       "role": "scientific"
     },
     "epsm_data": {
-      "version": "0.6.0",
-      "revision": "bc8449402b9e0dbe0ea85ff76c954cf36d209f86",
+      "version": "0.7.0",
+      "revision": "243e2a79db9f1e9b77dacd776dd59e27ade86e27",
       "role": "scientific"
     },
     "epsm_core": {
-      "version": "0.8.2",
-      "revision": "1ea867d849b808bc9f879f2fb740c54a51754295",
+      "version": "0.9.0",
+      "revision": "8732095a3ee3c176e8e41d2b8cbc0c0fd209523d",
       "role": "scientific"
     },
     "epsm_rc": {
-      "version": "0.9.0",
-      "revision": "8837d3e8afd2d5be70172fd88d74598f1eba74ff",
+      "version": "0.11.0",
+      "revision": "5f4c8b98be1d3077353e448a574954072d810650",
       "role": "scientific"
     },
     "epsm_lca": {
-      "version": "0.2.0",
-      "revision": "00141d0500e717b4f18a9d69e158f0af2aae1934",
+      "version": "0.3.0",
+      "revision": "c372d68a0c25ddb06ce08531a97b96f1a5cad970",
       "role": "scientific"
     },
     "epsm_db": {

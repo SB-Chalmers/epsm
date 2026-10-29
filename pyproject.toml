@@ -4,21 +4,21 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "epsm"
-version = "0.4.0"
+version = "0.5.0"
 description = "Researcher-facing EPSM Building, simulations and assessment"
 requires-python = ">=3.11"
-dependencies = ["epsm_core>=0.8.2,<0.9", "epsm_data>=0.6.0", "epsm_lca>=0.2.0", "numpy>=2,<3"]
+dependencies = ["epsm_core>=0.9.0,<0.10", "epsm_data>=0.7.0,<0.8", "epsm_lca>=0.3.0,<0.4", "numpy>=2,<3"]
 license = "MIT"
 license-files = ["LICENSE"]
 readme = "README.md"
 
 [project.optional-dependencies]
-rc = ["epsm_rc>=0.9.0,<0.10"]
+rc = ["epsm_rc>=0.11.0,<0.12"]
 database = ["epsm_db>=0.3.0"]
 workflows = ["epsm_workflows>=0.4.0,<0.5"]
 examples = ["nbclient>=0.10", "nbformat>=5", "ipykernel>=6", "matplotlib>=3.8"]
 all = [
-  "epsm_rc>=0.9.0,<0.10",
+  "epsm_rc>=0.11.0,<0.12",
   "epsm_db>=0.3.0",
   "epsm_workflows>=0.4.0,<0.5",
   "epsm_studies>=0.4.0,<0.5",
