@@ -76,10 +76,10 @@ commits. See the [detailed guide](docs/guide.md#tested-package-combination) for 
 | Package | Version | Tested commit |
 | --- | --- | --- |
 | `epsm` | 0.4.0 | `self` |
-| `epsm_core` | 0.8.2 | `1ea867d849b808bc9f879f2fb740c54a51754295` |
-| `epsm_data` | 0.6.0 | `bc8449402b9e0dbe0ea85ff76c954cf36d209f86` |
+| `epsm_core` | 0.8.2 | `18fe2c531e248511c7e8965ddb045acd6bcaddf8` |
+| `epsm_data` | 0.6.0 | `d799272d1e3058287b18da9f138197d2e415a594` |
 | `epsm_db` | 0.3.0 | `9e29a575f5495b76d5a8553bbe6e20dd4f0e1ff0` |
-| `epsm_lca` | 0.2.0 | `00141d0500e717b4f18a9d69e158f0af2aae1934` |
+| `epsm_lca` | 0.2.0 | `dfec3ed0a568e5c4f5375b00881aa5ae8e00f414` |
 | `epsm_rc` | 0.9.0 | `8837d3e8afd2d5be70172fd88d74598f1eba74ff` |
 | `epsm_studies` | 0.4.0 | `d38ffc053cc4e9f88cb86e15018bf6ce309a65a9` |
 | `epsm_viewer` | 0.1.0 | `f2c847b9cd44280b7cf21803acfefa6e49e78b1b` |
