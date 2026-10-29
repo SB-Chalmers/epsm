@@ -190,7 +190,10 @@ def test_record_archetype_route_preserves_independent_evidence_and_area():
     assert building.load_reference_area_m2 == 125
     assert building._source_record["observations"] == record["observations"]
     assert building.archetype_applications[0].archetype_id == archetype.archetype_id
-    assert building.operation is not None and building.hvac is None
+    assert building.operation is not None
+    assert building.hvac.airflow.topology == archetype.hvac_template.to_dict()[
+        "values"]["airflow"]["topology"]
+    assert building.hvac.delivery.heating is None
     assert record == original
     assert (
         Building.from_dict(building.to_dict()).archetype_applications[0].to_dict()
@@ -245,8 +248,8 @@ def test_nominal_handoff_uses_common_authoring_without_calibration_dependency(
     )
     selected, described, exported = [], [], []
 
-    def select(self, identifier, *, state=None):
-        result = get(self, identifier, state=state)
+    def select(self, identifier, *, state=None, ventilation=None):
+        result = get(self, identifier, state=state, ventilation=ventilation)
         selected.append((identifier, state, result))
         return result
 
@@ -556,7 +559,7 @@ def test_catalogue_selection_keeps_caller_case_context(caplog):
     events = [
         record
         for record in caplog.records
-        if record.name == "epsm_data.library"
+        if record.name == "epsm_data.catalogue"
         and getattr(record, "epsm_event", "") == "catalogue.select.started"
     ]
     assert events

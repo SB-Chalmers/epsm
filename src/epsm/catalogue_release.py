@@ -37,20 +37,25 @@ def _weather_shell(library, metadata, supplied):
 
 
 def core_inputs(archetype_id, state=None, *, detailed=None, catalogue=None,
-                basement_wall=None, weather_shell=None):
+                basement_wall=None, weather_shell=None, ventilation=None):
     """Return native Core constructions from the frozen physical catalogue.
 
     The caller supplies geometry, weather, use, HVAC and ground boundaries.
     Cold-attic ventilation remains an explicit building input. The default
     weather shell is the recorded representative assumption, independently of
     the insulated ceiling; override it with a supplied ConstructionSpec.
+    ``ventilation`` (S, F, FT or FTX) is the building's observed system; it
+    selects only the archetype's airflow-only ventilation template.
     """
     from epsm_core.specs import ConstructionSpec, EnvelopeSpec, GlazingSpec
 
     library = _catalogue_view(catalogue, detailed)
     # Catalogue selection resolves legacy aliases and the explicit generic/MF
     # assumption without inserting another authored construction family.
-    archetype = call_with_context(library.get, archetype_id, state=state)
+    # An observed ventilation system selects the archetype's airflow template;
+    # without one, Data applies the era default. Constructions do not change.
+    archetype = call_with_context(library.get, archetype_id, state=state,
+                                  ventilation=ventilation)
     metadata = library.nominal_metadata(archetype_id, state=state)
     bundle = export_nominal_constructions(archetype, metadata=metadata)
     core = bundle["core"]

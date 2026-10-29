@@ -74,7 +74,9 @@ def test_ventilation_is_audit_context_without_multiplying_physical_slots(catalog
     assert extract["envelope"] == recovery["envelope"]
     assert extract["assignment"]["ventilation"] == "F"
     assert recovery["assignment"]["ventilation"] == "FTX"
-    assert extract["archetype"].hvac_template is None
+    # The observed system selects only the airflow template.
+    assert extract["archetype"].hvac_template.template_id == "epsm.ventilation.F"
+    assert recovery["archetype"].hvac_template.to_dict()["values"]["airflow"]["topology"] == "FTX"
     assert len(catalogue.search()) == 228
 
 
@@ -138,7 +140,10 @@ def test_public_building_application_preserves_geometry_and_leaves_hvac_explicit
     assert building.construction_set.elements
     for role, construction in building.construction_set.elements.items():
         assert construction == archetype.construction_set.elements[role]
-    assert building.hvac is None
+    # Only the archetype's airflow template is installed; heating stays explicit.
+    assert building.hvac.airflow.topology == archetype.hvac_template.to_dict()[
+        "values"]["airflow"]["topology"]
+    assert building.hvac.delivery.heating is None
     assert report.archetype_id == archetype.archetype_id
     assert building.operation is not None
     restored = Building.from_dict(building.to_dict())

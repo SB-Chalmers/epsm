@@ -94,8 +94,10 @@ def resolve_building_archetype(
     Eras SE.01–SE.06 have existing/standard/advanced variants; SE.07 has one.
     ``generic`` explicitly borrows the matching multifamily construction and
     residential operation; its caller identity and donor remain visible.
-    ``ventilation`` is retained in the assignment audit for existing callers;
-    it neither selects a catalogue slot nor installs an HVAC system.
+    ``ventilation`` is the building's observed system (S, F, FT or FTX). It is
+    recorded in the assignment audit and selects only the archetype's airflow-only
+    ventilation template; without it Data applies the era default. It never
+    selects another catalogue slot or construction.
 
     ``component_states`` selects wall, roof, window, ground, basement_wall,
     intermediate_floor or airtightness independently. Each choice requires an
@@ -127,7 +129,8 @@ def resolve_building_archetype(
         not isinstance(source, str) or not source.strip() for source in sources.values()
     ):
         raise ValueError("Each component selection needs one nonempty independent source")
-    native = core_inputs(selection_id, default_state, catalogue=cat, weather_shell=weather_shell)
+    native = core_inputs(selection_id, default_state, catalogue=cat, weather_shell=weather_shell,
+                         ventilation=ventilation)
     cache = {default_state: native}
     assignments, envelope_updates = {}, {}
     glazing = native["glazing"]
@@ -138,7 +141,8 @@ def resolve_building_archetype(
         # Validate states against the era without introducing extra catalogue axes.
         cat.get_slot(ArchetypeKey(category, era, climate_zone, state))
         if state not in cache:
-            cache[state] = core_inputs(selection_id, state, catalogue=cat, weather_shell=weather_shell)
+            cache[state] = core_inputs(selection_id, state, catalogue=cat,
+                                       weather_shell=weather_shell, ventilation=ventilation)
         selected = cache[state]
         if role == "window":
             glazing = selected["glazing"]

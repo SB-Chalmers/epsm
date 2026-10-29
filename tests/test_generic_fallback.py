@@ -58,7 +58,8 @@ def test_generic_handoff_uses_matching_mf_config_in_every_zone(catalogue, era, y
         }
         assert "geometry" in result["requirements"]
         assert "ventilation" in result["requirements"]
-        assert archetype.hvac_template is None
+        # The donor's era-default ventilation template; no system was observed.
+        assert archetype.hvac_template == donor.hvac_template
         assert all(
             item["state"] == state for item in result["assignment"]["components"].values()
         )
