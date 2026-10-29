@@ -1,0 +1,138 @@
+name: Release wheels
+'on':
+  push:
+    tags:
+    - v*
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: Existing EPSM release tag (vX.Y.Z) whose supported combination is built and published
+        type: string
+        required: true
+permissions:
+  contents: write
+concurrency:
+  group: release-${{ inputs.tag || github.ref_name }}
+  cancel-in-progress: false
+env:
+  RELEASE_TAG: ${{ inputs.tag || github.ref_name }}
+jobs:
+  wheels:
+    name: build once and publish
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    steps:
+    - uses: actions/checkout@v4
+      with:
+        ref: ${{ env.RELEASE_TAG }}
+        fetch-depth: 0
+    - uses: actions/setup-python@v5
+      with:
+        python-version: '3.11'
+    - name: Require the tag to name this checkout's supported combination
+      id: pins
+      run: |
+        python - <<'PYTHON' >> "$GITHUB_OUTPUT"
+        import json, os, re, tomllib
+        tag = os.environ["RELEASE_TAG"]
+        version = tomllib.load(open("pyproject.toml", "rb"))["project"]["version"]
+        if tag != f"v{version}":
+            raise SystemExit(f"Tag {tag} does not name pyproject version {version}")
+        manifest = json.load(open("compatibility.json"))
+        if manifest["packages"]["epsm"]["version"] != version:
+            raise SystemExit("compatibility.json names another EPSM version than pyproject")
+        for name, record in manifest["packages"].items():
+            if name == "epsm" or record.get("role") == "display":
+                continue
+            if not re.fullmatch(r"[0-9a-f]{40}", record["revision"]):
+                raise SystemExit(f"{name} is not pinned to an immutable revision")
+            print(f"{name}={record['revision']}")
+        PYTHON
+    - uses: actions/checkout@v4
+      with:
+        repository: SB-Chalmers/epsm_data
+        ref: ${{ steps.pins.outputs.epsm_data }}
+        path: .ci/epsm_data
+    - uses: actions/checkout@v4
+      with:
+        repository: SB-Chalmers/epsm_core
+        ref: ${{ steps.pins.outputs.epsm_core }}
+        path: .ci/epsm_core
+    - uses: actions/checkout@v4
+      with:
+        repository: SB-Chalmers/epsm_lca
+        ref: ${{ steps.pins.outputs.epsm_lca }}
+        path: .ci/epsm_lca
+    - uses: actions/checkout@v4
+      with:
+        repository: SB-Chalmers/epsm_rc
+        ref: ${{ steps.pins.outputs.epsm_rc }}
+        path: .ci/epsm_rc
+    - uses: actions/checkout@v4
+      with:
+        repository: SB-Chalmers/epsm_db
+        ref: ${{ steps.pins.outputs.epsm_db }}
+        path: .ci/epsm_db
+    - uses: actions/checkout@v4
+      with:
+        repository: SB-Chalmers/smhi2epw
+        ref: ${{ steps.pins.outputs.smhi2epw }}
+        path: .ci/smhi2epw
+    - uses: actions/checkout@v4
+      with:
+        repository: SB-Chalmers/epsm_workflows
+        ssh-key: ${{ secrets.EPSM_WORKFLOWS_DEPLOY_KEY }}
+        persist-credentials: false
+        ref: ${{ steps.pins.outputs.epsm_workflows }}
+        path: .ci/epsm_workflows
+    - uses: actions/checkout@v4
+      with:
+        repository: SB-Chalmers/epsm_studies
+        ssh-key: ${{ secrets.EPSM_STUDIES_DEPLOY_KEY }}
+        persist-credentials: false
+        ref: ${{ steps.pins.outputs.epsm_studies }}
+        path: .ci/epsm_studies
+    - name: Build the complete wheel combination once and prove it installs
+      run: |
+        python -m pip install build
+        for package in epsm_data epsm_core epsm_lca epsm_rc epsm_db epsm_workflows epsm_studies smhi2epw; do
+          python -m build --wheel --outdir .ci/wheels ".ci/$package"
+        done
+        python -m build --wheel --outdir .ci/wheels .
+        python -m pip install .ci/wheels/*.whl
+        python -m pip check
+    - name: Select the wheels whose source repositories are public
+      env:
+        GH_TOKEN: ${{ github.token }}
+      run: |
+        mkdir -p dist
+        for package in epsm epsm_data epsm_core epsm_lca epsm_rc epsm_db epsm_workflows epsm_studies smhi2epw; do
+          visibility=$(gh api "repos/SB-Chalmers/$package" --jq .visibility 2>/dev/null || echo unreadable)
+          wheel=$(ls .ci/wheels/${package}-*.whl | head -n 1)
+          if [[ "$visibility" == "public" ]]; then
+            cp "$wheel" dist/
+            echo "publish $(basename "$wheel")"
+          else
+            echo "skip $(basename "$wheel"): repository is $visibility"
+          fi
+        done
+        cp compatibility.json dist/compatibility.json
+        (cd dist && sha256sum * > SHA256SUMS)
+        cat dist/SHA256SUMS
+    - name: Publish to the GitHub release
+      env:
+        GH_TOKEN: ${{ github.token }}
+      run: |
+        if ! gh release view "$RELEASE_TAG" >/dev/null 2>&1; then
+          python - <<'PYTHON' > notes.md
+        import json
+        manifest = json.load(open("compatibility.json"))
+        print("Wheels of the supported combination recorded in `compatibility.json` at this tag, built once by the `Release wheels` workflow. Only packages whose repositories are public are attached. See `RELEASE_NOTES.md` for the contents of this release.\n")
+        print("| Package | Version | Source revision |")
+        print("| --- | --- | --- |")
+        for name, record in manifest["packages"].items():
+            print(f"| `{name}` | {record['version']} | `{record['revision']}` |")
+        PYTHON
+          gh release create "$RELEASE_TAG" --verify-tag --title "EPSM $RELEASE_TAG" --notes-file notes.md
+        fi
+        gh release upload "$RELEASE_TAG" dist/* --clobber

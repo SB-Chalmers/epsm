@@ -111,6 +111,22 @@ logging checkout values are generated directly from the same manifest.
    the README table. Consumers adopt the central manifest on their next normal CI
    run while retaining their own checkout under test.
 
+## Sibling bounds and released wheels
+
+In-house packages declare a lower bound on each sibling and no upper bound.
+The supported manifest is the tested combination; a strict `<next-minor` bound
+only forced every consumer to release whenever a sibling bumped its minor
+version. Third-party dependencies keep their usual upper bounds. A sibling that
+needs a newer minimum raises its lower bound in the same change.
+
+Each EPSM release builds the supported combination once. The `Release wheels`
+workflow runs on a `vX.Y.Z` tag, or on demand for an existing tag, checks that
+the tag names the checkout's version and manifest, builds every scientific
+package at its pinned revision, proves the set installs with `pip check`, and
+attaches the wheels of packages whose repositories are public to the GitHub
+release together with `compatibility.json` and `SHA256SUMS`. Consumers and
+users install from that release instead of rebuilding the cohort from source.
+
 ## Consumer interface
 
 Each consumer checks out EPSM main read-only into `.ci/platform`, captures that
