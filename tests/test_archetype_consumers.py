@@ -135,6 +135,46 @@ def test_programme_preservation_under_python_311_summation(name, year, monkeypat
     )
 
 
+@pytest.mark.parametrize("name,expected_hours", [("office", 2700), ("school", 2200)])
+@pytest.mark.parametrize("year", [2023, 2024])
+def test_natural_ventilation_preserves_normal_use_closures(name, expected_hours, year):
+    """Changing the topology must not turn occupied-hours flow into 24/7 flow."""
+    pytest.importorskip("sweden_ubem")
+    import numpy as np
+    from sweden_ubem.records import Receipt
+
+    from epsm.legacy_records import ModelPolicy, _operation
+
+    geometry = GeometrySpec.from_footprint(
+        Footprint.rectangle(10, 10), storeys=1, storey_height_m=3
+    )
+    options = dict(
+        infiltration={"envelope_infiltration_ach": 0.2},
+        geometry=geometry,
+        area=90,
+        policy=ModelPolicy(),
+    )
+    _, mechanical, _ = _operation(
+        name, year, ventilation="FTX", receipt=Receipt("mechanical"), **options
+    )
+    receipt = Receipt("natural")
+    _, natural, _ = _operation(name, year, ventilation="S", receipt=receipt, **options)
+    schedule = natural.natural_exchange_fraction.hourly(year)
+    np.testing.assert_array_equal(
+        schedule, mechanical.mechanical_vent_fraction.hourly(year)
+    )
+    assert sum(schedule) == expected_hours
+    assert schedule[0] == 0  # Midnight is outside either operating programme.
+    assert natural.mechanical_vent_l_s_m2 == 0
+    assert (
+        natural.natural_exchange_ach * geometry.conditioned_volume_m3 / 3.6
+        == pytest.approx(mechanical.mechanical_vent_l_s_m2 * 90)
+    )
+    assert natural.sensible_recovery_effectiveness == 0
+    assert natural.envelope_infiltration_ach == 0.2
+    assert any("equivalent-flow assumption" in item for item in receipt.assumptions)
+
+
 def test_record_archetype_route_preserves_independent_evidence_and_area():
     record = {
         "building_id": "survey-one",
@@ -155,7 +195,12 @@ def test_record_archetype_route_preserves_independent_evidence_and_area():
     assert building.load_reference_area_m2 == 125
     assert building._source_record["observations"] == record["observations"]
     assert building.archetype_applications[0].archetype_id == archetype.archetype_id
-    assert building.operation is not None and building.hvac is None
+    assert building.operation is not None
+    assert (
+        building.hvac.airflow.topology
+        == archetype.hvac_template.to_dict()["values"]["airflow"]["topology"]
+    )
+    assert building.hvac.delivery.heating is None
     assert record == original
     assert (
         Building.from_dict(building.to_dict()).archetype_applications[0].to_dict()
@@ -172,11 +217,22 @@ def test_record_without_archetype_remains_unassigned():
         )
 
 
-# Expected from the original catalogue_release.core_inputs route, after verifying
-# every raw fingerprint; normalize only float representation as for programmes.
-HANDOFF_BASELINES = json.loads(
+# Captured from the original Data handovers before canonicalizing IDs and names.
+# Preserve all physical layer/glazing fields and numeric role metrics; curation
+# metadata and generated material names do not determine the physical model.
+_HANDOFF_FIXTURE = json.loads(
     (Path(__file__).parent / "fixtures/archetype-consumer-baseline.json").read_text()
 )
+HANDOFF_BASELINES = _HANDOFF_FIXTURE["configurations"]
+
+
+def construction_physics(record):
+    """Retain every physical construction value while ignoring display identity."""
+    result = json.loads(json.dumps(record))
+    if "layers" in result:
+        for layer in result["layers"]:
+            layer["material"].pop("name", None)
+    return normalized_physical_values(result)
 
 
 @pytest.mark.parametrize("key", HANDOFF_BASELINES)
@@ -199,8 +255,8 @@ def test_nominal_handoff_uses_common_authoring_without_calibration_dependency(
     )
     selected, described, exported = [], [], []
 
-    def select(self, identifier, *, state=None):
-        result = get(self, identifier, state=state)
+    def select(self, identifier, *, state=None, ventilation=None):
+        result = get(self, identifier, state=state, ventilation=ventilation)
         selected.append((identifier, state, result))
         return result
 
@@ -237,20 +293,32 @@ def test_nominal_handoff_uses_common_authoring_without_calibration_dependency(
     assert len(exported) == 1
     assert exported[0][0] is selected[0][2] is result["archetype"]
     assert exported[0][1] is described[0][2]
-    payload = {
-        name: result[name].model_dump(mode="json") for name in ("envelope", "glazing")
-    }
-    payload.update(
-        core=result["nominal_bundle"]["core"], roles=result["nominal_bundle"]["roles"]
-    )
-    assert (
-        hashlib.sha256(
-            json.dumps(
-                normalized_physical_values(payload), sort_keys=True, allow_nan=False
-            ).encode()
-        ).hexdigest()
-        == HANDOFF_BASELINES[key]
-    )
+    expected = HANDOFF_BASELINES[key]
+    actual = result["nominal_bundle"]
+    assert {
+        role: construction_physics(record) for role, record in actual["core"].items()
+    } == normalized_physical_values(expected["core"])
+    assert {
+        role: {field: normalized_physical_values(record[field]) for field in metrics}
+        for role, metrics in expected["roles"].items()
+        for record in (actual["roles"][role],)
+    } == normalized_physical_values(expected["roles"])
+    top_role = "TOP_FLOOR" if "TOP_FLOOR" in expected["core"] else "ROOF"
+    for field, role in {
+        "wall": "EXT_WALL",
+        "top": top_role,
+        "ground": "GROUND_FLOOR",
+        "intermediate_floor": "INTERMEDIATE_FLOOR",
+        "basement_wall": "BASEMENT_WALL",
+    }.items():
+        assert construction_physics(
+            getattr(result["envelope"], field).model_dump(mode="json")
+        ) == normalized_physical_values(expected["core"][role])
+    assert construction_physics(
+        result["envelope"].weather_shell.model_dump(mode="json")
+    ) == normalized_physical_values(_HANDOFF_FIXTURE["weather_shell"])
+    for field, value in expected["core"]["WINDOW"].items():
+        assert getattr(result["glazing"], field) == value
 
 
 def test_independent_component_evidence_builds_portable_archetype_without_cross_changes():
@@ -292,6 +360,10 @@ def test_independent_component_evidence_builds_portable_archetype_without_cross_
     assert selected["assignment"]["components"]["airtightness"]["status"] == "assumed"
     with pytest.raises(ValueError, match="independent source"):
         resolve_building_archetype(**options, component_states={"window": "advanced"})
+    with pytest.raises(ValueError, match="Unknown component"):
+        resolve_building_archetype(
+            **options, component_states={"best_heating_error": "advanced"}
+        )
 
 
 def test_legacy_record_handoff_preserves_area_evidence_and_portable_definition(

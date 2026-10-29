@@ -1,15 +1,4819 @@
 {
-  "sf_se02:existing": "9834846b620e243129eda63d9f993f6bb52a8e17891f990cb03036ef7b91a9e6",
-  "sf_se02:standard": "63e9f950e4ad63ca952a5ac59069fe32a1fbf6e172fea31b79dbd3ee0dc046ca",
-  "sf_se02:advanced": "e3acd234f1cd404fd52bb146f3f1e56a11901cdfbd8da60ec00569c1021089c7",
-  "mf_se02:existing": "b796fe34453df242ce1daa7674935cd254ae75fb013c22a89b1b0e157a242ea5",
-  "mf_se02:standard": "5c16c6e746a25b5c1494844666921903767535cb9dc0bd1087690256e5cd91cb",
-  "mf_se02:advanced": "5dfc01548276ad2c003c63dc434124e49fdc407ae5086bf0e82dd0331349a755",
-  "office_se05:existing": "a6eddb8fed2e47d075c17cb636768ab84ad7b3f2ad0c354914da64b989b3932c",
-  "office_se05:standard": "0f05156f10bf3efc4019d5e6ce67c98ababfd82e8a863ba2f7ccaa60f6b6aa9c",
-  "office_se05:advanced": "272eff8f52f48e19d658e6decefb37f789b357566d92056c4a704ef5a88fdf65",
-  "school_se05:existing": "fe061b902d3a01a065c8743ce3ebadf0345992f4dc5c1bcd73d8bf7200e111d3",
-  "school_se05:standard": "5110093977dae69f250636e28266b6d625bab42d06b7d06b9410dfc838eff333",
-  "school_se05:advanced": "fa0796314b5b5626569375c9fb18df35409099f78deff571928ed81910c72b45",
-  "mf_se07:None": "fa49fce72baeb9262b59548fd7c1efe6a45d5150b9654a20e81b8fc1e935b0a9"
+  "configurations": {
+    "mf_se02:advanced": {
+      "core": {
+        "BASEMENT_WALL": {
+          "layers": [
+            {
+              "material": {
+                "conductivity_w_mk": 2.3,
+                "density_kg_m3": 2300.0,
+                "roughness": "MediumRough",
+                "solar_absorptance": 0.7,
+                "specific_heat_j_kgk": 900.0,
+                "thermal_absorptance": 0.9,
+                "visible_absorptance": 0.7
+              },
+              "thickness_m": 0.3
+            },
+            {
+              "material": {
+                "conductivity_w_mk": 1.0,
+                "density_kg_m3": 1800.0,
+                "roughness": "Smooth",
+                "solar_absorptance": 0.7,
+                "specific_heat_j_kgk": 836.0,
+                "thermal_absorptance": 0.9,
+                "visible_absorptance": 0.92
+              },
+              "thickness_m": 0.015
+            },
+            {
+              "material": {
+                "conductivity_w_mk": 0.036,
+                "density_kg_m3": 29.0,
+                "roughness": "MediumRough",
+                "solar_absorptance": 0.5,
+                "specific_heat_j_kgk": 1030.0,
+                "thermal_absorptance": 0.9,
+                "visible_absorptance": 0.5
+              },
+              "thickness_m": 0.04
+            },
+            {
+              "material": {
+                "conductivity_w_mk": 0.21,
+                "density_kg_m3": 720.0,
+                "roughness": "Smooth",
+                "solar_absorptance": 0.7,
+                "specific_heat_j_kgk": 1000.0,
+                "thermal_absorptance": 0.9,
+                "visible_absorptance": 0.5
+              },
+              "thickness_m": 0.013
+            }
+          ],
+          "surface_resistance_m2k_w": 0.17
+        },
+        "EXT_WALL": {
+          "layers": [
+            {
+              "material": {
+                "conductivity_w_mk": 0.6,
+                "density_kg_m3": 1650.0,
+                "roughness": "MediumRough",
+                "solar_absorptance": 0.7,
+                "specific_heat_j_kgk": 800.0,
+                "thermal_absorptance": 0.9,
+                "visible_absorptance": 0.7
+              },
+              "thickness_m": 0.12
+            },
+            {
+              "material": {
+                "conductivity_w_mk": 0.033,
+                "density_kg_m3": 80.0,
+                "roughness": "MediumRough",
+                "solar_absorptance": 0.7,
+                "specific_heat_j_kgk": 1030.0,
+                "thermal_absorptance": 0.9,
+                "visible_absorptance": 0.7
+              },
+              "thickness_m": 0.3
+            },
+            {
+              "material": {
+                "conductivity_w_mk": 0.66,
+                "density_kg_m3": 1672.5,
+                "roughness": "MediumRough",
+                "solar_absorptance": 0.7,
+                "specific_heat_j_kgk": 805.8116591928251,
+                "thermal_absorptance": 0.9,
+                "visible_absorptance": 0.733
+              },
+              "thickness_m": 0.125
+            },
+            {
+              "material": {
+                "conductivity_w_mk": 0.21,
+                "density_kg_m3": 757.8947368421053,
+                "roughness": "MediumSmooth",
+                "solar_absorptance": 0.7,
+                "specific_heat_j_kgk": 1000.0,
+                "thermal_absorptance": 0.9,
+                "visible_absorptance": 0.7
+              },
+              "thickness_m": 0.0095
+            },
+            {
+              "material": {
+                "conductivity_w_mk": 0.05104,
+                "density_kg_m3": 104.36,
+                "roughness": "MediumRough",
+                "solar_absorptance": 0.532,
+                "specific_heat_j_kgk": 1466.9490226140283,
+                "thermal_absorptance": 0.9,
+                "visible_absorptance": 0.532
+              },
+              "thickness_m": 0.095
+            },
+            {
+              "material": {
+                "conductivity_w_mk": 0.21,
+                "density_kg_m3": 720.0,
+                "roughness": "Smooth",
+                "solar_absorptance": 0.7,
+                "specific_heat_j_kgk": 1000.0,
+                "thermal_absorptance": 0.9,
+                "visible_absorptance": 0.5
+              },
+              "thickness_m": 0.0095
+            },
+            {
+              "material": {
+                "conductivity_w_mk": 0.21,
+                "density_kg_m3": 720.0,
+                "roughness": "Smooth",
+                "solar_absorptance": 0.7,
+                "specific_heat_j_kgk": 1000.0,
+                "thermal_absorptance": 0.9,
+                "visible_absorptance": 0.5
+              },
+              "thickness_m": 0.0125
+            }
+          ],
+          "surface_resistance_m2k_w": 0.17
+        },
+        "GROUND_FLOOR": {
+          "layers": [
+            {
+              "material": {
+                "conductivity_w_mk": 0.095,
+                "density_kg_m3": 305.0,
+                "roughness": "VeryRough",
+                "solar_absorptance": 0.7,
+                "specific_heat_j_kgk": 1000.0,
+                "thermal_absorptance": 0.9,
+                "visible_absorptance": 0.7
+              },
+              "thickness_m": 0.125
+            },
+            {
+              "material": {
+                "conductivity_w_mk": 2.3,
+                "density_kg_m3": 2300.0,
+                "roughness": "MediumRough",
+                "solar_absorptance": 0.7,
+                "specific_heat_j_kgk": 900.0,
+                "thermal_absorptance": 0.9,
+                "visible_absorptance": 0.7
+              },
+              "thickness_m": 0.16
+            },
+            {
+              "material": {
+                "conductivity_w_mk": 1.7,
+                "density_kg_m3": 2300.0,
+                "roughness": "MediumRough",
+                "solar_absorptance": 0.65,
+                "specific_heat_j_kgk": 900.0,
+                "thermal_absorptance": 0.9,
+                "visible_absorptance": 0.65
+              },
+              "thickness_m": 0.04
+            },
+            {
+              "material": {
+                "conductivity_w_mk": 0.036,
+                "density_kg_m3": 20.0,
+                "roughness": "MediumRough",
+                "solar_absorptance": 0.6,
+                "specific_heat_j_kgk": 1450.0,
+                "thermal_absorptance": 0.9,
+                "visible_absorptance": 0.6
+              },
+              "thickness_m": 0.045
+            },
+            {
+              "material": {
+                "conductivity_w_mk": 1.7,
+                "density_kg_m3": 2300.0,
+                "roughness": "MediumRough",
+                "solar_absorptance": 0.65,
+                "specific_heat_j_kgk": 900.0,
+                "thermal_absorptance": 0.9,
+                "visible_absorptance": 0.65
+              },
+              "thickness_m": 0.05
+            }
+          ],
+          "surface_resistance_m2k_w": 0.17
+        },
+        "INTERMEDIATE_FLOOR": {
+          "layers": [
+            {
+              "material": {
+                "conductivity_w_mk": 0.13,
+                "density_kg_m3": 500.0,
+                "roughness": "MediumSmooth",
+                "solar_absorptance": 0.7,
+                "specific_heat_j_kgk": 1600.0,
+                "thermal_absorptance": 0.9,
+                "visible_absorptance": 0.7
+              },
+              "thickness_m": 0.015
+            },
+            {
+              "material": {
+                "conductivity_w_mk": 0.05,
+                "density_kg_m3": 230.0,
+                "roughness": "MediumRough",
+                "solar_absorptance": 0.65,
+                "specific_heat_j_kgk": 2100.0,
+                "thermal_absorptance": 0.9,
+                "visible_absorptance": 0.65
+              },
+              "thickness_m": 0.005
+            },
+            {
+              "material": {
+                "conductivity_w_mk": 2.3,
+                "density_kg_m3": 2300.0,
+                "roughness": "MediumRough",
+                "solar_absorptance": 0.7,
+                "specific_heat_j_kgk": 900.0,
+                "thermal_absorptance": 0.9,
+                "visible_absorptance": 0.7
+              },
+              "thickness_m": 0.18
+            },
+            {
+              "material": {
+                "conductivity_w_mk": 1.0,
+                "density_kg_m3": 1800.0,
+                "roughness": "Smooth",
+                "solar_absorptance": 0.7,
+                "specific_heat_j_kgk": 836.0,
+                "thermal_absorptance": 0.9,
+                "visible_absorptance": 0.92
+              },
+              "thickness_m": 0.01
+            }
+          ],
+          "surface_resistance_m2k_w": 0.26
+        },
+        "INT_WALL_NONLOADBEARING": {
+          "layers": [
+            {
+              "material": {
+                "conductivity_w_mk": 0.21,
+                "density_kg_m3": 720.0,
+                "roughness": "Smooth",
+                "solar_absorptance": 0.7,
+                "specific_heat_j_kgk": 1000.0,
+                "thermal_absorptance": 0.9,
+                "visible_absorptance": 0.5
+              },
+              "thickness_m": 0.0125
+            },
+            {
+              "material": {
+                "conductivity_w_mk": 0.0548,
+                "density_kg_m3": 123.2,
+                "roughness": "MediumRough",
+                "solar_absorptance": 0.54,
+                "specific_heat_j_kgk": 1492.6623376623377,
+                "thermal_absorptance": 0.9000000000000001,
+                "visible_absorptance": 0.54
+              },
+              "thickness_m": 0.07
+            },
+            {
+              "material": {
+                "conductivity_w_mk": 0.21,
+                "density_kg_m3": 720.0,
+                "roughness": "Smooth",
+                "solar_absorptance": 0.7,
+                "specific_heat_j_kgk": 1000.0,
+                "thermal_absorptance": 0.9,
+                "visible_absorptance": 0.5
+              },
+              "thickness_m": 0.0125
+            }
+          ],
+          "surface_resistance_m2k_w": 0.26
+        },
+        "TOP_FLOOR": {
+          "layers": [
+            {
+              "material": {
+                "conductivity_w_mk": 0.04,
+                "density_kg_m3": 20.0,
+                "roughness": "MediumRough",
+                "solar_absorptance": 0.7,
+                "specific_heat_j_kgk": 1030.0,
+                "thermal_absorptance": 0.9,
+                "visible_absorptance": 0.7
+              },
+              "thickness_m": 0.5
+            },
+            {
+              "material": {
+                "conductivity_w_mk": 0.036,
+                "density_kg_m3": 29.0,
+                "roughness": "MediumRough",
+                "solar_absorptance": 0.5,
+                "specific_heat_j_kgk": 1030.0,
+                "thermal_absorptance": 0.9,
+                "visible_absorptance": 0.5
+              },
+              "thickness_m": 0.17
+            },
+            {
+              "material": {
+                "conductivity_w_mk": 0.12,
+                "density_kg_m3": 460.0,
+                "roughness": "Smooth",
+                "solar_absorptance": 0.7,
+                "specific_heat_j_kgk": 1600.0,
+                "thermal_absorptance": 0.9,
+                "visible_absorptance": 0.7
+              },
+              "thickness_m": 0.005
+            },
+            {
+              "material": {
+                "conductivity_w_mk": 2.3,
+                "density_kg_m3": 2300.0,
+                "roughness": "MediumRough",
+                "solar_absorptance": 0.7,
+                "specific_heat_j_kgk": 900.0,
+                "thermal_absorptance": 0.9,
+                "visible_absorptance": 0.7
+              },
+              "thickness_m": 0.14
+            }
+          ],
+          "surface_resistance_m2k_w": 0.17
+        },
+        "WINDOW": {
+          "solar_heat_gain_coefficient": 0.42,
+          "u_value_w_m2k": 0.76,
+          "visible_transmittance": 0.518
+        }
+      },
+      "roles": {
+        "BASEMENT_WALL": {
+          "heat_capacity_j_m2k": 654126.8,
+          "mass_kg_m2": 727.52,
+          "nominal_u_w_m2k": 0.6718395374554019,
+          "resistance_m2k_w": 1.3184506556245688,
+          "rse_m2k_w": 0.04,
+          "rsi_m2k_w": 0.13,
+          "thickness_m": 0.368
+        },
+        "EXT_WALL": {
+          "heat_capacity_j_m2k": 389168.626,
+          "mass_kg_m2": 464.0167,
+          "nominal_u_w_m2k": 0.08575161243496945,
+          "resistance_m2k_w": 11.49158829676071,
+          "rse_m2k_w": 0.04,
+          "rsi_m2k_w": 0.13,
+          "thickness_m": 0.6715
+        },
+        "GROUND_FLOOR": {
+          "heat_capacity_j_m2k": 556930.0,
+          "mass_kg_m2": 614.025,
+          "nominal_u_w_m2k": 0.34985881320204876,
+          "resistance_m2k_w": 2.688295867546103,
+          "rse_m2k_w": 0.04,
+          "rsi_m2k_w": 0.13,
+          "thickness_m": 0.42
+        },
+        "INTERMEDIATE_FLOOR": {
+          "heat_capacity_j_m2k": 402063.0,
+          "mass_kg_m2": 440.65,
+          "nominal_u_w_m2k": 1.7741648371209873,
+          "resistance_m2k_w": 0.3036454849498328,
+          "rse_m2k_w": 0.13,
+          "rsi_m2k_w": 0.13,
+          "thickness_m": 0.21
+        },
+        "INT_WALL_NONLOADBEARING": {
+          "heat_capacity_j_m2k": 30872.72,
+          "mass_kg_m2": 26.624000000000002,
+          "nominal_u_w_m2k": 0.603711662106129,
+          "resistance_m2k_w": 1.3964198818213418,
+          "rse_m2k_w": 0.13,
+          "rsi_m2k_w": 0.13,
+          "thickness_m": 0.095
+        },
+        "TOP_FLOOR": {
+          "heat_capacity_j_m2k": 308857.9000000001,
+          "mass_kg_m2": 339.2300000000001,
+          "nominal_u_w_m2k": 0.057159977522598215,
+          "resistance_m2k_w": 17.32475845410628,
+          "rse_m2k_w": 0.04,
+          "rsi_m2k_w": 0.13,
+          "thickness_m": 0.8150000000000001
+        },
+        "WINDOW": {
+          "heat_capacity_j_m2k": null,
+          "mass_kg_m2": null,
+          "nominal_u_w_m2k": 0.76
+        }
+      }
+    },
+    "mf_se02:existing": {
+      "core": {
+        "BASEMENT_WALL": {
+          "layers": [
+            {
+              "material": {
+                "conductivity_w_mk": 2.3,
+                "density_kg_m3": 2300.0,
+                "roughness": "MediumRough",
+                "solar_absorptance": 0.7,
+                "specific_heat_j_kgk": 900.0,
+                "thermal_absorptance": 0.9,
+                "visible_absorptance": 0.7
+              },
+              "thickness_m": 0.3
+            },
+            {
+              "material": {
+                "conductivity_w_mk": 1.0,
+                "density_kg_m3": 1800.0,
+                "roughness": "Smooth",
+                "solar_absorptance": 0.7,
+                "specific_heat_j_kgk": 836.0,
+                "thermal_absorptance": 0.9,
+                "visible_absorptance": 0.92
+              },
+              "thickness_m": 0.015
+            }
+          ],
+          "surface_resistance_m2k_w": 0.17
+        },
+        "EXT_WALL": {
+          "layers": [
+            {
+              "material": {
+                "conductivity_w_mk": 0.66,
+                "density_kg_m3": 1672.5,
+                "roughness": "MediumRough",
+                "solar_absorptance": 0.7,
+                "specific_heat_j_kgk": 805.8116591928251,
+                "thermal_absorptance": 0.9,
+                "visible_absorptance": 0.733
+              },
+              "thickness_m": 0.125
+            },
+            {
+              "material": {
+                "conductivity_w_mk": 0.21,
+                "density_kg_m3": 757.8947368421053,
+                "roughness": "MediumSmooth",
+                "solar_absorptance": 0.7,
+                "specific_heat_j_kgk": 1000.0,
+                "thermal_absorptance": 0.9,
+                "visible_absorptance": 0.7
+              },
+              "thickness_m": 0.0095
+            },
+            {
+              "material": {
+                "conductivity_w_mk": 0.05104,
+                "density_kg_m3": 104.36,
+                "roughness": "MediumRough",
+                "solar_absorptance": 0.532,
+                "specific_heat_j_kgk": 1466.9490226140283,
+                "thermal_absorptance": 0.9,
+                "visible_absorptance": 0.532
+              },
+              "thickness_m": 0.095
+            },
+            {
+              "material": {
+                "conductivity_w_mk": 0.21,
+                "density_kg_m3": 720.0,
+                "roughness": "Smooth",
+                "solar_absorptance": 0.7,
+                "specific_heat_j_kgk": 1000.0,
+                "thermal_absorptance": 0.9,
+                "visible_absorptance": 0.5
+              },
+              "thickness_m": 0.0095
+            },
+            {
+              "material": {
+                "conductivity_w_mk": 0.21,
+                "density_kg_m3": 720.0,
+                "roughness": "Smooth",
+                "solar_absorptance": 0.7,
+                "specific_heat_j_kgk": 1000.0,
+                "thermal_absorptance": 0.9,
+                "visible_absorptance": 0.5
+              },
+              "thickness_m": 0.0125
+            }
+          ],
+          "surface_resistance_m2k_w": 0.17
+        },
+        "GROUND_FLOOR": {
+          "layers": [
+            {
+              "material": {
+                "conductivity_w_mk": 0.095,
+                "density_kg_m3": 305.0,
+                "roughness": "VeryRough",
+                "solar_absorptance": 0.7,
+                "specific_heat_j_kgk": 1000.0,
+                "thermal_absorptance": 0.9,
+                "visible_absorptance": 0.7
+              },
+              "thickness_m": 0.125
+            },
+            {
+              "material": {
+                "conductivity_w_mk": 2.3,
+                "density_kg_m3": 2300.0,
+                "roughness": "MediumRough",
+                "solar_absorptance": 0.7,
+                "specific_heat_j_kgk": 900.0,
+                "thermal_absorptance": 0.9,
+                "visible_absorptance": 0.7
+              },
+              "thickness_m": 0.16
+            },
+            {
+              "material": {
+                "conductivity_w_mk": 1.7,
+                "density_kg_m3": 2300.0,
+                "roughness": "MediumRough",
+                "solar_absorptance": 0.65,
+                "specific_heat_j_kgk": 900.0,
+                "thermal_absorptance": 0.9,
+                "visible_absorptance": 0.65
+              },
+              "thickness_m": 0.04
+            }
+          ],
+          "surface_resistance_m2k_w": 0.17
+        },
+        "INTERMEDIATE_FLOOR": {
+          "layers": [
+            {
+              "material": {
+                "conductivity_w_mk": 0.13,
+                "density_kg_m3": 500.0,
+                "roughness": "MediumSmooth",
+                "solar_absorptance": 0.7,
+                "specific_heat_j_kgk": 1600.0,
+                "thermal_absorptance": 0.9,
+                "visible_absorptance": 0.7
+              },
+              "thickness_m": 0.015
+            },
+            {
+              "material": {
+                "conductivity_w_mk": 0.05,
+                "density_kg_m3": 230.0,
+                "roughness": "MediumRough",
+                "solar_absorptance": 0.65,
+                "specific_heat_j_kgk": 2100.0,
+                "thermal_absorptance": 0.9,
+                "visible_absorptance": 0.65
+              },
+              "thickness_m": 0.005
+            },
+            {
+              "material": {
+                "conductivity_w_mk": 2.3,
+                "density_kg_m3": 2300.0,
+                "roughness": "MediumRough",
+                "solar_absorptance": 0.7,
+                "specific_heat_j_kgk": 900.0,
+                "thermal_absorptance": 0.9,
+                "visible_absorptance": 0.7
+              },
+              "thickness_m": 0.18
+            },
+            {
+              "material": {
+                "conductivity_w_mk": 1.0,
+                "density_kg_m3": 1800.0,
+                "roughness": "Smooth",
+                "solar_absorptance": 0.7,
+                "specific_heat_j_kgk": 836.0,
+                "thermal_absorptance": 0.9,
+                "visible_absorptance": 0.92
+              },
+              "thickness_m": 0.01
+            }
+          ],
+          "surface_resistance_m2k_w": 0.26
+        },
+        "INT_WALL_NONLOADBEARING": {
+          "layers": [
+            {
+              "material": {
+                "conductivity_w_mk": 0.21,
+                "density_kg_m3": 720.0,
+                "roughness": "Smooth",
+                "solar_absorptance": 0.7,
+                "specific_heat_j_kgk": 1000.0,
+                "thermal_absorptance": 0.9,
+                "visible_absorptance": 0.5
+              },
+              "thickness_m": 0.0125
+            },
+            {
+              "material": {
+                "conductivity_w_mk": 0.0548,
+                "density_kg_m3": 123.2,
+                "roughness": "MediumRough",
+                "solar_absorptance": 0.54,
+                "specific_heat_j_kgk": 1492.6623376623377,
+                "thermal_absorptance": 0.9000000000000001,
+                "visible_absorptance": 0.54
+              },
+              "thickness_m": 0.07
+            },
+            {
+              "material": {
+                "conductivity_w_mk": 0.21,
+                "density_kg_m3": 720.0,
+                "roughness": "Smooth",
+                "solar_absorptance": 0.7,
+                "specific_heat_j_kgk": 1000.0,
+                "thermal_absorptance": 0.9,
+                "visible_absorptance": 0.5
+              },
+              "thickness_m": 0.0125
+            }
+          ],
+          "surface_resistance_m2k_w": 0.26
+        },
+        "TOP_FLOOR": {
+          "layers": [
+            {
+              "material": {
+                "conductivity_w_mk": 0.036,
+                "density_kg_m3": 29.0,
+                "roughness": "MediumRough",
+                "solar_absorptance": 0.5,
+                "specific_heat_j_kgk": 1030.0,
+                "thermal_absorptance": 0.9,
+                "visible_absorptance": 0.5
+              },
+              "thickness_m": 0.17
+            },
+            {
+              "material": {
+                "conductivity_w_mk": 0.12,
+                "density_kg_m3": 460.0,
+                "roughness": "Smooth",
+                "solar_absorptance": 0.7,
+                "specific_heat_j_kgk": 1600.0,
+                "thermal_absorptance": 0.9,
+                "visible_absorptance": 0.7
+              },
+              "thickness_m": 0.005
+            },
+            {
+              "material": {
+                "conductivity_w_mk": 2.3,
+                "density_kg_m3": 2300.0,
+                "roughness": "MediumRough",
+                "solar_absorptance": 0.7,
+                "specific_heat_j_kgk": 900.0,
+                "thermal_absorptance": 0.9,
+                "visible_absorptance": 0.7
+              },
+              "thickness_m": 0.14
+            }
+          ],
+          "surface_resistance_m2k_w": 0.17
+        },
+        "WINDOW": {
+          "solar_heat_gain_coefficient": 0.56,
+          "u_value_w_m2k": 2.22,
+          "visible_transmittance": 0.525
+        }
+      },
+      "roles": {
+        "BASEMENT_WALL": {
+          "heat_capacity_j_m2k": 643572.0,
+          "mass_kg_m2": 717.0,
+          "nominal_u_w_m2k": 3.170227429359063,
+          "resistance_m2k_w": 0.14543478260869563,
+          "rse_m2k_w": 0.04,
+          "rsi_m2k_w": 0.13,
+          "thickness_m": 0.315
+        },
+        "EXT_WALL": {
+          "heat_capacity_j_m2k": 206048.626,
+          "mass_kg_m2": 242.0167,
+          "nominal_u_w_m2k": 0.4218200410800709,
+          "resistance_m2k_w": 2.20067920585162,
+          "rse_m2k_w": 0.04,
+          "rsi_m2k_w": 0.13,
+          "thickness_m": 0.2515
+        },
+        "GROUND_FLOOR": {
+          "heat_capacity_j_m2k": 452125.0,
+          "mass_kg_m2": 498.125,
+          "nominal_u_w_m2k": 0.6333587108775884,
+          "resistance_m2k_w": 1.4088841028402208,
+          "rse_m2k_w": 0.04,
+          "rsi_m2k_w": 0.13,
+          "thickness_m": 0.325
+        },
+        "INTERMEDIATE_FLOOR": {
+          "heat_capacity_j_m2k": 402063.0,
+          "mass_kg_m2": 440.65,
+          "nominal_u_w_m2k": 1.7741648371209873,
+          "resistance_m2k_w": 0.3036454849498328,
+          "rse_m2k_w": 0.13,
+          "rsi_m2k_w": 0.13,
+          "thickness_m": 0.21
+        },
+        "INT_WALL_NONLOADBEARING": {
+          "heat_capacity_j_m2k": 30872.72,
+          "mass_kg_m2": 26.624000000000002,
+          "nominal_u_w_m2k": 0.603711662106129,
+          "resistance_m2k_w": 1.3964198818213418,
+          "rse_m2k_w": 0.13,
+          "rsi_m2k_w": 0.13,
+          "thickness_m": 0.095
+        },
+        "TOP_FLOOR": {
+          "heat_capacity_j_m2k": 298557.9000000001,
+          "mass_kg_m2": 329.2300000000001,
+          "nominal_u_w_m2k": 0.2002098818568257,
+          "resistance_m2k_w": 4.824758454106282,
+          "rse_m2k_w": 0.04,
+          "rsi_m2k_w": 0.13,
+          "thickness_m": 0.315
+        },
+        "WINDOW": {
+          "heat_capacity_j_m2k": null,
+          "mass_kg_m2": null,
+          "nominal_u_w_m2k": 2.22
+        }
+      }
+    },
+    "mf_se02:standard": {
+      "core": {
+        "BASEMENT_WALL": {
+          "layers": [
+            {
+              "material": {
+                "conductivity_w_mk": 2.3,
+                "density_kg_m3": 2300.0,
+                "roughness": "MediumRough",
+                "solar_absorptance": 0.7,
+                "specific_heat_j_kgk": 900.0,
+                "thermal_absorptance": 0.9,
+                "visible_absorptance": 0.7
+              },
+              "thickness_m": 0.3
+            },
+            {
+              "material": {
+                "conductivity_w_mk": 1.0,
+                "density_kg_m3": 1800.0,
+                "roughness": "Smooth",
+                "solar_absorptance": 0.7,
+                "specific_heat_j_kgk": 836.0,
+                "thermal_absorptance": 0.9,
+                "visible_absorptance": 0.92
+              },
+              "thickness_m": 0.015
+            }
+          ],
+          "surface_resistance_m2k_w": 0.17
+        },
+        "EXT_WALL": {
+          "layers": [
+            {
+              "material": {
+                "conductivity_w_mk": 0.6,
+                "density_kg_m3": 1650.0,
+                "roughness": "MediumRough",
+                "solar_absorptance": 0.7,
+                "specific_heat_j_kgk": 800.0,
+                "thermal_absorptance": 0.9,
+                "visible_absorptance": 0.7
+              },
+              "thickness_m": 0.12
+            },
+            {
+              "material": {
+                "conductivity_w_mk": 0.033,
+                "density_kg_m3": 80.0,
+                "roughness": "MediumRough",
+                "solar_absorptance": 0.7,
+                "specific_heat_j_kgk": 1030.0,
+                "thermal_absorptance": 0.9,
+                "visible_absorptance": 0.7
+              },
+              "thickness_m": 0.05
+            },
+            {
+              "material": {
+                "conductivity_w_mk": 0.66,
+                "density_kg_m3": 1672.5,
+                "roughness": "MediumRough",
+                "solar_absorptance": 0.7,
+                "specific_heat_j_kgk": 805.8116591928251,
+                "thermal_absorptance": 0.9,
+                "visible_absorptance": 0.733
+              },
+              "thickness_m": 0.125
+            },
+            {
+              "material": {
+                "conductivity_w_mk": 0.21,
+                "density_kg_m3": 757.8947368421053,
+                "roughness": "MediumSmooth",
+                "solar_absorptance": 0.7,
+                "specific_heat_j_kgk": 1000.0,
+                "thermal_absorptance": 0.9,
+                "visible_absorptance": 0.7
+              },
+              "thickness_m": 0.0095
+            },
+            {
+              "material": {
+                "conductivity_w_mk": 0.05104,
+                "density_kg_m3": 104.36,
+                "roughness": "MediumRough",
+                "solar_absorptance": 0.532,
+                "specific_heat_j_kgk": 1466.9490226140283,
+                "thermal_absorptance": 0.9,
+                "visible_absorptance": 0.532
+              },
+              "thickness_m": 0.095
+            },
+            {
+              "material": {
+                "conductivity_w_mk": 0.21,
+                "density_kg_m3": 720.0,
+                "roughness": "Smooth",
+                "solar_absorptance": 0.7,
+                "specific_heat_j_kgk": 1000.0,
+                "thermal_absorptance": 0.9,
+                "visible_absorptance": 0.5
+              },
+              "thickness_m": 0.0095
+            },
+            {
+              "material": {
+                "conductivity_w_mk": 0.21,
+                "density_kg_m3": 720.0,
+                "roughness": "Smooth",
+                "solar_absorptance": 0.7,
+                "specific_heat_j_kgk": 1000.0,
+                "thermal_absorptance": 0.9,
+                "visible_absorptance": 0.5
+              },
+              "thickness_m": 0.0125
+            }
+          ],
+          "surface_resistance_m2k_w": 0.17
+        },
+        "GROUND_FLOOR": {
+          "layers": [
+            {
+              "material": {
+                "conductivity_w_mk": 0.095,
+                "density_kg_m3": 305.0,
+                "roughness": "VeryRough",
+                "solar_absorptance": 0.7,
+                "specific_heat_j_kgk": 1000.0,
+                "thermal_absorptance": 0.9,
+                "visible_absorptance": 0.7
+              },
+              "thickness_m": 0.125
+            },
+            {
+              "material": {
+                "conductivity_w_mk": 2.3,
+                "density_kg_m3": 2300.0,
+                "roughness": "MediumRough",
+                "solar_absorptance": 0.7,
+                "specific_heat_j_kgk": 900.0,
+                "thermal_absorptance": 0.9,
+                "visible_absorptance": 0.7
+              },
+              "thickness_m": 0.16
+            },
+            {
+              "material": {
+                "conductivity_w_mk": 1.7,
+                "density_kg_m3": 2300.0,
+                "roughness": "MediumRough",
+                "solar_absorptance": 0.65,
+                "specific_heat_j_kgk": 900.0,
+                "thermal_absorptance": 0.9,
+                "visible_absorptance": 0.65
+              },
+              "thickness_m": 0.04
+            },
+            {
+              "material": {
+                "conductivity_w_mk": 0.036,
+                "density_kg_m3": 20.0,
+                "roughness": "MediumRough",
+                "solar_absorptance": 0.6,
+                "specific_heat_j_kgk": 1450.0,
+                "thermal_absorptance": 0.9,
+                "visible_absorptance": 0.6
+              },
+              "thickness_m": 0.04
+            },
+            {
+              "material": {
+                "conductivity_w_mk": 1.7,
+                "density_kg_m3": 2300.0,
+                "roughness": "MediumRough",
+                "solar_absorptance": 0.65,
+                "specific_heat_j_kgk": 900.0,
+                "thermal_absorptance": 0.9,
+                "visible_absorptance": 0.65
+              },
+              "thickness_m": 0.05
+            }
+          ],
+          "surface_resistance_m2k_w": 0.17
+        },
+        "INTERMEDIATE_FLOOR": {
+          "layers": [
+            {
+              "material": {
+                "conductivity_w_mk": 0.13,
+                "density_kg_m3": 500.0,
+                "roughness": "MediumSmooth",
+                "solar_absorptance": 0.7,
+                "specific_heat_j_kgk": 1600.0,
+                "thermal_absorptance": 0.9,
+                "visible_absorptance": 0.7
+              },
+              "thickness_m": 0.015
+            },
+            {
+              "material": {
+                "conductivity_w_mk": 0.05,
+                "density_kg_m3": 230.0,
+                "roughness": "MediumRough",
+                "solar_absorptance": 0.65,
+                "specific_heat_j_kgk": 2100.0,
+                "thermal_absorptance": 0.9,
+                "visible_absorptance": 0.65
+              },
+              "thickness_m": 0.005
+            },
+            {
+              "material": {
+                "conductivity_w_mk": 2.3,
+                "density_kg_m3": 2300.0,
+                "roughness": "MediumRough",
+                "solar_absorptance": 0.7,
+                "specific_heat_j_kgk": 900.0,
+                "thermal_absorptance": 0.9,
+                "visible_absorptance": 0.7
+              },
+              "thickness_m": 0.18
+            },
+            {
+              "material": {
+                "conductivity_w_mk": 1.0,
+                "density_kg_m3": 1800.0,
+                "roughness": "Smooth",
+                "solar_absorptance": 0.7,
+                "specific_heat_j_kgk": 836.0,
+                "thermal_absorptance": 0.9,
+                "visible_absorptance": 0.92
+              },
+              "thickness_m": 0.01
+            }
+          ],
+          "surface_resistance_m2k_w": 0.26
+        },
+        "INT_WALL_NONLOADBEARING": {
+          "layers": [
+            {
+              "material": {
+                "conductivity_w_mk": 0.21,
+                "density_kg_m3": 720.0,
+                "roughness": "Smooth",
+                "solar_absorptance": 0.7,
+                "specific_heat_j_kgk": 1000.0,
+                "thermal_absorptance": 0.9,
+                "visible_absorptance": 0.5
+              },
+              "thickness_m": 0.0125
+            },
+            {
+              "material": {
+                "conductivity_w_mk": 0.0548,
+                "density_kg_m3": 123.2,
+                "roughness": "MediumRough",
+                "solar_absorptance": 0.54,
+                "specific_heat_j_kgk": 1492.6623376623377,
+                "thermal_absorptance": 0.9000000000000001,
+                "visible_absorptance": 0.54
+              },
+              "thickness_m": 0.07
+            },
+            {
+              "material": {
+                "conductivity_w_mk": 0.21,
+                "density_kg_m3": 720.0,
+                "roughness": "Smooth",
+                "solar_absorptance": 0.7,
+                "specific_heat_j_kgk": 1000.0,
+                "thermal_absorptance": 0.9,
+                "visible_absorptance": 0.5
+              },
+              "thickness_m": 0.0125
+            }
+          ],
+          "surface_resistance_m2k_w": 0.26
+        },
+        "TOP_FLOOR": {
+          "layers": [
+            {
+              "material": {
+                "conductivity_w_mk": 0.04,
+                "density_kg_m3": 20.0,
+                "roughness": "MediumRough",
+                "solar_absorptance": 0.7,
+                "specific_heat_j_kgk": 1030.0,
+                "thermal_absorptance": 0.9,
+                "visible_absorptance": 0.7
+              },
+              "thickness_m": 0.2
+            },
+            {
+              "material": {
+                "conductivity_w_mk": 0.036,
+                "density_kg_m3": 29.0,
+                "roughness": "MediumRough",
+                "solar_absorptance": 0.5,
+                "specific_heat_j_kgk": 1030.0,
+                "thermal_absorptance": 0.9,
+                "visible_absorptance": 0.5
+              },
+              "thickness_m": 0.17
+            },
+            {
+              "material": {
+                "conductivity_w_mk": 0.12,
+                "density_kg_m3": 460.0,
+                "roughness": "Smooth",
+                "solar_absorptance": 0.7,
+                "specific_heat_j_kgk": 1600.0,
+                "thermal_absorptance": 0.9,
+                "visible_absorptance": 0.7
+              },
+              "thickness_m": 0.005
+            },
+            {
+              "material": {
+                "conductivity_w_mk": 2.3,
+                "density_kg_m3": 2300.0,
+                "roughness": "MediumRough",
+                "solar_absorptance": 0.7,
+                "specific_heat_j_kgk": 900.0,
+                "thermal_absorptance": 0.9,
+                "visible_absorptance": 0.7
+              },
+              "thickness_m": 0.14
+            }
+          ],
+          "surface_resistance_m2k_w": 0.17
+        },
+        "WINDOW": {
+          "solar_heat_gain_coefficient": 0.35,
+          "u_value_w_m2k": 0.9,
+          "visible_transmittance": 0.518
+        }
+      },
+      "roles": {
+        "BASEMENT_WALL": {
+          "heat_capacity_j_m2k": 643572.0,
+          "mass_kg_m2": 717.0,
+          "nominal_u_w_m2k": 3.170227429359063,
+          "resistance_m2k_w": 0.14543478260869563,
+          "rse_m2k_w": 0.04,
+          "rsi_m2k_w": 0.13,
+          "thickness_m": 0.315
+        },
+        "EXT_WALL": {
+          "heat_capacity_j_m2k": 368568.626,
+          "mass_kg_m2": 444.0167,
+          "nominal_u_w_m2k": 0.24474826988291978,
+          "resistance_m2k_w": 3.9158307210031347,
+          "rse_m2k_w": 0.04,
+          "rsi_m2k_w": 0.13,
+          "thickness_m": 0.4215
+        },
+        "GROUND_FLOOR": {
+          "heat_capacity_j_m2k": 556785.0,
+          "mass_kg_m2": 613.925,
+          "nominal_u_w_m2k": 0.36772723165319626,
+          "resistance_m2k_w": 2.549406978657214,
+          "rse_m2k_w": 0.04,
+          "rsi_m2k_w": 0.13,
+          "thickness_m": 0.41500000000000004
+        },
+        "INTERMEDIATE_FLOOR": {
+          "heat_capacity_j_m2k": 402063.0,
+          "mass_kg_m2": 440.65,
+          "nominal_u_w_m2k": 1.7741648371209873,
+          "resistance_m2k_w": 0.3036454849498328,
+          "rse_m2k_w": 0.13,
+          "rsi_m2k_w": 0.13,
+          "thickness_m": 0.21
+        },
+        "INT_WALL_NONLOADBEARING": {
+          "heat_capacity_j_m2k": 30872.72,
+          "mass_kg_m2": 26.624000000000002,
+          "nominal_u_w_m2k": 0.603711662106129,
+          "resistance_m2k_w": 1.3964198818213418,
+          "rse_m2k_w": 0.13,
+          "rsi_m2k_w": 0.13,
+          "thickness_m": 0.095
+        },
+        "TOP_FLOOR": {
+          "heat_capacity_j_m2k": 302677.9000000001,
+          "mass_kg_m2": 333.2300000000001,
+          "nominal_u_w_m2k": 0.10005244294714863,
+          "resistance_m2k_w": 9.82475845410628,
+          "rse_m2k_w": 0.04,
+          "rsi_m2k_w": 0.13,
+          "thickness_m": 0.515
+        },
+        "WINDOW": {
+          "heat_capacity_j_m2k": null,
+          "mass_kg_m2": null,
+          "nominal_u_w_m2k": 0.9
+        }
+      }
+    },
+    "mf_se07:None": {
+      "core": {
+        "BASEMENT_WALL": {
+          "layers": [
+            {
+              "material": {
+                "conductivity_w_mk": 2.3,
+                "density_kg_m3": 2300.0,
+                "roughness": "MediumRough",
+                "solar_absorptance": 0.7,
+                "specific_heat_j_kgk": 900.0,
+                "thermal_absorptance": 0.9,
+                "visible_absorptance": 0.7
+              },
+              "thickness_m": 0.2
+            },
+            {
+              "material": {
+                "conductivity_w_mk": 1.0,
+                "density_kg_m3": 1800.0,
+                "roughness": "Smooth",
+                "solar_absorptance": 0.7,
+                "specific_heat_j_kgk": 836.0,
+                "thermal_absorptance": 0.9,
+                "visible_absorptance": 0.92
+              },
+              "thickness_m": 0.015
+            }
+          ],
+          "surface_resistance_m2k_w": 0.17
+        },
+        "EXT_WALL": {
+          "layers": [
+            {
+              "material": {
+                "conductivity_w_mk": 0.033,
+                "density_kg_m3": 80.0,
+                "roughness": "MediumRough",
+                "solar_absorptance": 0.7,
+                "specific_heat_j_kgk": 1030.0,
+                "thermal_absorptance": 0.9,
+                "visible_absorptance": 0.7
+              },
+              "thickness_m": 0.075
+            },
+            {
+              "material": {
+                "conductivity_w_mk": 1.0,
+                "density_kg_m3": 1800.0,
+                "roughness": "Smooth",
+                "solar_absorptance": 0.7,
+                "specific_heat_j_kgk": 836.0,
+                "thermal_absorptance": 0.9,
+                "visible_absorptance": 0.92
+              },
+              "thickness_m": 0.02
+            },
+            {
+              "material": {
+                "conductivity_w_mk": 0.036,
+                "density_kg_m3": 29.0,
+                "roughness": "MediumRough",
+                "solar_absorptance": 0.5,
+                "specific_heat_j_kgk": 1030.0,
+                "thermal_absorptance": 0.9,
+                "visible_absorptance": 0.5
+              },
+              "thickness_m": 0.22
+            },
+            {
+              "material": {
+                "conductivity_w_mk": 2.3,
+                "density_kg_m3": 2300.0,
+                "roughness": "MediumRough",
+                "solar_absorptance": 0.7,
+                "specific_heat_j_kgk": 900.0,
+                "thermal_absorptance": 0.9,
+                "visible_absorptance": 0.7
+              },
+              "thickness_m": 0.2
+            },
+            {
+              "material": {
+                "conductivity_w_mk": 1.0,
+                "density_kg_m3": 1800.0,
+                "roughness": "Smooth",
+                "solar_absorptance": 0.7,
+                "specific_heat_j_kgk": 836.0,
+                "thermal_absorptance": 0.9,
+                "visible_absorptance": 0.92
+              },
+              "thickness_m": 0.01
+            }
+          ],
+          "surface_resistance_m2k_w": 0.17
+        },
+        "GROUND_FLOOR": {
+          "layers": [
+            {
+              "material": {
+                "conductivity_w_mk": 0.037,
+                "density_kg_m3": 20.0,
+                "roughness": "MediumRough",
+                "solar_absorptance": 0.6,
+                "specific_heat_j_kgk": 1450.0,
+                "thermal_absorptance": 0.9,
+                "visible_absorptance": 0.6
+              },
+              "thickness_m": 0.2
+            },
+            {
+              "material": {
+                "conductivity_w_mk": 2.3,
+                "density_kg_m3": 2300.0,
+                "roughness": "MediumRough",
+                "solar_absorptance": 0.7,
+                "specific_heat_j_kgk": 900.0,
+                "thermal_absorptance": 0.9,
+                "visible_absorptance": 0.7
+              },
+              "thickness_m": 0.12
+            },
+            {
+              "material": {
+                "conductivity_w_mk": 0.13,
+                "density_kg_m3": 500.0,
+                "roughness": "MediumSmooth",
+                "solar_absorptance": 0.7,
+                "specific_heat_j_kgk": 1600.0,
+                "thermal_absorptance": 0.9,
+                "visible_absorptance": 0.7
+              },
+              "thickness_m": 0.01
+            }
+          ],
+          "surface_resistance_m2k_w": 0.17
+        },
+        "INTERMEDIATE_FLOOR": {
+          "layers": [
+            {
+              "material": {
+                "conductivity_w_mk": 0.13,
+                "density_kg_m3": 500.0,
+                "roughness": "MediumSmooth",
+                "solar_absorptance": 0.7,
+                "specific_heat_j_kgk": 1600.0,
+                "thermal_absorptance": 0.9,
+                "visible_absorptance": 0.7
+              },
+              "thickness_m": 0.015
+            },
+            {
+              "material": {
+                "conductivity_w_mk": 0.05,
+                "density_kg_m3": 230.0,
+                "roughness": "MediumRough",
+                "solar_absorptance": 0.65,
+                "specific_heat_j_kgk": 2100.0,
+                "thermal_absorptance": 0.9,
+                "visible_absorptance": 0.65
+              },
+              "thickness_m": 0.005
+            },
+            {
+              "material": {
+                "conductivity_w_mk": 2.3,
+                "density_kg_m3": 2300.0,
+                "roughness": "MediumRough",
+                "solar_absorptance": 0.7,
+                "specific_heat_j_kgk": 900.0,
+                "thermal_absorptance": 0.9,
+                "visible_absorptance": 0.7
+              },
+              "thickness_m": 0.2
+            },
+            {
+              "material": {
+                "conductivity_w_mk": 1.0,
+                "density_kg_m3": 1800.0,
+                "roughness": "Smooth",
+                "solar_absorptance": 0.7,
+                "specific_heat_j_kgk": 836.0,
+                "thermal_absorptance": 0.9,
+                "visible_absorptance": 0.92
+              },
+              "thickness_m": 0.01
+            }
+          ],
+          "surface_resistance_m2k_w": 0.26
+        },
+        "INT_WALL_NONLOADBEARING": {
+          "layers": [
+            {
+              "material": {
+                "conductivity_w_mk": 0.21,
+                "density_kg_m3": 720.0,
+                "roughness": "Smooth",
+                "solar_absorptance": 0.7,
+                "specific_heat_j_kgk": 1000.0,
+                "thermal_absorptance": 0.9,
+                "visible_absorptance": 0.5
+              },
+              "thickness_m": 0.013
+            },
+            {
+              "material": {
+                "conductivity_w_mk": 0.05009999999999999,
+                "density_kg_m3": 99.65,
+                "roughness": "MediumSmooth",
+                "solar_absorptance": 0.53,
+                "specific_heat_j_kgk": 1459.0015052684394,
+                "thermal_absorptance": 0.9,
+                "visible_absorptance": 0.53
+              },
+              "thickness_m": 0.07
+            },
+            {
+              "material": {
+                "conductivity_w_mk": 0.21,
+                "density_kg_m3": 720.0,
+                "roughness": "Smooth",
+                "solar_absorptance": 0.7,
+                "specific_heat_j_kgk": 1000.0,
+                "thermal_absorptance": 0.9,
+                "visible_absorptance": 0.5
+              },
+              "thickness_m": 0.013
+            }
+          ],
+          "surface_resistance_m2k_w": 0.26
+        },
+        "TOP_FLOOR": {
+          "layers": [
+            {
+              "material": {
+                "conductivity_w_mk": 0.042,
+                "density_kg_m3": 28.0,
+                "roughness": "MediumRough",
+                "solar_absorptance": 0.7,
+                "specific_heat_j_kgk": 1030.0,
+                "thermal_absorptance": 0.9,
+                "visible_absorptance": 0.7
+              },
+              "thickness_m": 0.125
+            },
+            {
+              "material": {
+                "conductivity_w_mk": 0.036,
+                "density_kg_m3": 29.0,
+                "roughness": "MediumRough",
+                "solar_absorptance": 0.5,
+                "specific_heat_j_kgk": 1030.0,
+                "thermal_absorptance": 0.9,
+                "visible_absorptance": 0.5
+              },
+              "thickness_m": 0.3
+            },
+            {
+              "material": {
+                "conductivity_w_mk": 2.3,
+                "density_kg_m3": 2300.0,
+                "roughness": "MediumRough",
+                "solar_absorptance": 0.7,
+                "specific_heat_j_kgk": 900.0,
+                "thermal_absorptance": 0.9,
+                "visible_absorptance": 0.7
+              },
+              "thickness_m": 0.18
+            }
+          ],
+          "surface_resistance_m2k_w": 0.17
+        },
+        "WINDOW": {
+          "solar_heat_gain_coefficient": 0.371,
+          "u_value_w_m2k": 0.85,
+          "visible_transmittance": 0.518
+        }
+      },
+      "roles": {
+        "BASEMENT_WALL": {
+          "heat_capacity_j_m2k": 436572.0,
+          "mass_kg_m2": 487.0,
+          "nominal_u_w_m2k": 3.677058353317346,
+          "resistance_m2k_w": 0.10195652173913045,
+          "rse_m2k_w": 0.04,
+          "rsi_m2k_w": 0.13,
+          "thickness_m": 0.21500000000000002
+        },
+        "EXT_WALL": {
+          "heat_capacity_j_m2k": 471895.4,
+          "mass_kg_m2": 526.38,
+          "nominal_u_w_m2k": 0.11532967979172787,
+          "resistance_m2k_w": 8.500794905577514,
+          "rse_m2k_w": 0.04,
+          "rsi_m2k_w": 0.13,
+          "thickness_m": 0.525
+        },
+        "GROUND_FLOOR": {
+          "heat_capacity_j_m2k": 262200.0,
+          "mass_kg_m2": 285.0,
+          "nominal_u_w_m2k": 0.17530012798509748,
+          "resistance_m2k_w": 5.534502395371962,
+          "rse_m2k_w": 0.04,
+          "rsi_m2k_w": 0.13,
+          "thickness_m": 0.33
+        },
+        "INTERMEDIATE_FLOOR": {
+          "heat_capacity_j_m2k": 443463.0,
+          "mass_kg_m2": 486.65,
+          "nominal_u_w_m2k": 1.7472097236019397,
+          "resistance_m2k_w": 0.31234113712374584,
+          "rse_m2k_w": 0.13,
+          "rsi_m2k_w": 0.13,
+          "thickness_m": 0.23
+        },
+        "INT_WALL_NONLOADBEARING": {
+          "heat_capacity_j_m2k": 28897.265,
+          "mass_kg_m2": 25.6955,
+          "nominal_u_w_m2k": 0.5614775489031414,
+          "resistance_m2k_w": 1.5210151126318794,
+          "rse_m2k_w": 0.13,
+          "rsi_m2k_w": 0.13,
+          "thickness_m": 0.096
+        },
+        "TOP_FLOOR": {
+          "heat_capacity_j_m2k": 385166.0,
+          "mass_kg_m2": 426.2,
+          "nominal_u_w_m2k": 0.0865217710630355,
+          "resistance_m2k_w": 11.387784679089027,
+          "rse_m2k_w": 0.04,
+          "rsi_m2k_w": 0.13,
+          "thickness_m": 0.605
+        },
+        "WINDOW": {
+          "heat_capacity_j_m2k": null,
+          "mass_kg_m2": null,
+          "nominal_u_w_m2k": 0.85
+        }
+      }
+    },
+    "office_se05:advanced": {
+      "core": {
+        "BASEMENT_WALL": {
+          "layers": [
+            {
+              "material": {
+                "conductivity_w_mk": 2.3,
+                "density_kg_m3": 2300.0,
+                "roughness": "MediumRough",
+                "solar_absorptance": 0.7,
+                "specific_heat_j_kgk": 900.0,
+                "thermal_absorptance": 0.9,
+                "visible_absorptance": 0.7
+              },
+              "thickness_m": 0.2
+            },
+            {
+              "material": {
+                "conductivity_w_mk": 1.0,
+                "density_kg_m3": 1800.0,
+                "roughness": "Smooth",
+                "solar_absorptance": 0.7,
+                "specific_heat_j_kgk": 836.0,
+                "thermal_absorptance": 0.9,
+                "visible_absorptance": 0.92
+              },
+              "thickness_m": 0.015
+            }
+          ],
+          "surface_resistance_m2k_w": 0.17
+        },
+        "EXT_WALL": {
+          "layers": [
+            {
+              "material": {
+                "conductivity_w_mk": 0.033,
+                "density_kg_m3": 80.0,
+                "roughness": "MediumRough",
+                "solar_absorptance": 0.7,
+                "specific_heat_j_kgk": 1030.0,
+                "thermal_absorptance": 0.9,
+                "visible_absorptance": 0.7
+              },
+              "thickness_m": 0.18
+            },
+            {
+              "material": {
+                "conductivity_w_mk": 1.0,
+                "density_kg_m3": 1800.0,
+                "roughness": "Smooth",
+                "solar_absorptance": 0.7,
+                "specific_heat_j_kgk": 836.0,
+                "thermal_absorptance": 0.9,
+                "visible_absorptance": 0.92
+              },
+              "thickness_m": 0.02
+            },
+            {
+              "material": {
+                "conductivity_w_mk": 0.036,
+                "density_kg_m3": 29.0,
+                "roughness": "MediumRough",
+                "solar_absorptance": 0.5,
+                "specific_heat_j_kgk": 1030.0,
+                "thermal_absorptance": 0.9,
+                "visible_absorptance": 0.5
+              },
+              "thickness_m": 0.15
+            },
+            {
+              "material": {
+                "conductivity_w_mk": 2.3,
+                "density_kg_m3": 2300.0,
+                "roughness": "MediumRough",
+                "solar_absorptance": 0.7,
+                "specific_heat_j_kgk": 900.0,
+                "thermal_absorptance": 0.9,
+                "visible_absorptance": 0.7
+              },
+              "thickness_m": 0.18
+            },
+            {
+              "material": {
+                "conductivity_w_mk": 1.0,
+                "density_kg_m3": 1800.0,
+                "roughness": "Smooth",
+                "solar_absorptance": 0.7,
+                "specific_heat_j_kgk": 836.0,
+                "thermal_absorptance": 0.9,
+                "visible_absorptance": 0.92
+              },
+              "thickness_m": 0.01
+            }
+          ],
+          "surface_resistance_m2k_w": 0.17
+        },
+        "GROUND_FLOOR": {
+          "layers": [
+            {
+              "material": {
+                "conductivity_w_mk": 0.035,
+                "density_kg_m3": 20.0,
+                "roughness": "MediumRough",
+                "solar_absorptance": 0.7,
+                "specific_heat_j_kgk": 1700.0,
+                "thermal_absorptance": 0.9,
+                "visible_absorptance": 0.7
+              },
+              "thickness_m": 0.1
+            },
+            {
+              "material": {
+                "conductivity_w_mk": 1.7,
+                "density_kg_m3": 2300.0,
+                "roughness": "MediumRough",
+                "solar_absorptance": 0.65,
+                "specific_heat_j_kgk": 900.0,
+                "thermal_absorptance": 0.9,
+                "visible_absorptance": 0.65
+              },
+              "thickness_m": 0.1
+            },
+            {
+              "material": {
+                "conductivity_w_mk": 0.17,
+                "density_kg_m3": 1200.0,
+                "roughness": "MediumRough",
+                "solar_absorptance": 0.7,
+                "specific_heat_j_kgk": 1260.0,
+                "thermal_absorptance": 0.9,
+                "visible_absorptance": 0.7
+              },
+              "thickness_m": 0.0025
+            }
+          ],
+          "surface_resistance_m2k_w": 0.17
+        },
+        "INTERMEDIATE_FLOOR": {
+          "layers": [
+            {
+              "material": {
+                "conductivity_w_mk": 0.076,
+                "density_kg_m3": 463.0,
+                "roughness": "MediumRough",
+                "solar_absorptance": 0.7,
+                "specific_heat_j_kgk": 837.0,
+                "thermal_absorptance": 0.9,
+                "visible_absorptance": 0.7
+              },
+              "thickness_m": 0.025
+            },
+            {
+              "material": {
+                "conductivity_w_mk": 2.3,
+                "density_kg_m3": 2300.0,
+                "roughness": "MediumRough",
+                "solar_absorptance": 0.7,
+                "specific_heat_j_kgk": 900.0,
+                "thermal_absorptance": 0.9,
+                "visible_absorptance": 0.7
+              },
+              "thickness_m": 0.2
+            },
+            {
+              "material": {
+                "conductivity_w_mk": 0.17,
+                "density_kg_m3": 1200.0,
+                "roughness": "MediumRough",
+                "solar_absorptance": 0.7,
+                "specific_heat_j_kgk": 1260.0,
+                "thermal_absorptance": 0.9,
+                "visible_absorptance": 0.7
+              },
+              "thickness_m": 0.0025
+            }
+          ],
+          "surface_resistance_m2k_w": 0.26
+        },
+        "INT_WALL_NONLOADBEARING": {
+          "layers": [
+            {
+              "material": {
+                "conductivity_w_mk": 0.21,
+                "density_kg_m3": 720.0,
+                "roughness": "Smooth",
+                "solar_absorptance": 0.7,
+                "specific_heat_j_kgk": 1000.0,
+                "thermal_absorptance": 0.9,
+                "visible_absorptance": 0.5
+              },
+              "thickness_m": 0.026
+            },
+            {
+              "material": {
+                "conductivity_w_mk": 0.1471,
+                "density_kg_m3": 1.2,
+                "roughness": "MediumRough",
+                "solar_absorptance": 0.7,
+                "specific_heat_j_kgk": 1006.0000000000001,
+                "thermal_absorptance": 0.9,
+                "visible_absorptance": 0.7
+              },
+              "thickness_m": 0.025
+            },
+            {
+              "material": {
+                "conductivity_w_mk": 0.036,
+                "density_kg_m3": 20.0,
+                "roughness": "MediumRough",
+                "solar_absorptance": 0.7,
+                "specific_heat_j_kgk": 1030.0,
+                "thermal_absorptance": 0.9,
+                "visible_absorptance": 0.7
+              },
+              "thickness_m": 0.03
+            },
+            {
+              "material": {
+                "conductivity_w_mk": 0.1471,
+                "density_kg_m3": 1.2,
+                "roughness": "MediumRough",
+                "solar_absorptance": 0.7,
+                "specific_heat_j_kgk": 1006.0000000000001,
+                "thermal_absorptance": 0.9,
+                "visible_absorptance": 0.7
+              },
+              "thickness_m": 0.025
+            },
+            {
+              "material": {
+                "conductivity_w_mk": 0.21,
+                "density_kg_m3": 720.0,
+                "roughness": "Smooth",
+                "solar_absorptance": 0.7,
+                "specific_heat_j_kgk": 1000.0,
+                "thermal_absorptance": 0.9,
+                "visible_absorptance": 0.5
+              },
+              "thickness_m": 0.026
+            }
+          ],
+          "surface_resistance_m2k_w": 0.26
+        },
+        "ROOF": {
+          "layers": [
+            {
+              "material": {
+                "conductivity_w_mk": 0.038,
+                "density_kg_m3": 130.0,
+                "roughness": "MediumRough",
+                "solar_absorptance": 0.5,
+                "specific_heat_j_kgk": 1030.0,
+                "thermal_absorptance": 0.9,
+                "visible_absorptance": 0.5
+              },
+              "thickness_m": 0.2
+            },
+            {
+              "material": {
+                "conductivity_w_mk": 0.038,
+                "density_kg_m3": 130.0,
+                "roughness": "MediumRough",
+                "solar_absorptance": 0.5,
+                "specific_heat_j_kgk": 1030.0,
+                "thermal_absorptance": 0.9,
+                "visible_absorptance": 0.5
+              },
+              "thickness_m": 0.2
+            },
+            {
+              "material": {
+                "conductivity_w_mk": 2.3,
+                "density_kg_m3": 2300.0,
+                "roughness": "MediumRough",
+                "solar_absorptance": 0.7,
+                "specific_heat_j_kgk": 900.0,
+                "thermal_absorptance": 0.9,
+                "visible_absorptance": 0.7
+              },
+              "thickness_m": 0.18
+            }
+          ],
+          "surface_resistance_m2k_w": 0.17
+        },
+        "WINDOW": {
+          "solar_heat_gain_coefficient": 0.35,
+          "u_value_w_m2k": 0.9,
+          "visible_transmittance": 0.518
+        }
+      },
+      "roles": {
+        "BASEMENT_WALL": {
+          "heat_capacity_j_m2k": 436572.0,
+          "mass_kg_m2": 487.0,
+          "nominal_u_w_m2k": 3.677058353317346,
+          "resistance_m2k_w": 0.10195652173913045,
+          "rse_m2k_w": 0.04,
+          "rsi_m2k_w": 0.13,
+          "thickness_m": 0.21500000000000002
+        },
+        "EXT_WALL": {
+          "heat_capacity_j_m2k": 437056.5,
+          "mass_kg_m2": 486.75,
+          "nominal_u_w_m2k": 0.10101547839280248,
+          "resistance_m2k_w": 9.729472990777339,
+          "rse_m2k_w": 0.04,
+          "rsi_m2k_w": 0.13,
+          "thickness_m": 0.54
+        },
+        "GROUND_FLOOR": {
+          "heat_capacity_j_m2k": 214180.0,
+          "mass_kg_m2": 235.0,
+          "nominal_u_w_m2k": 0.322510705187273,
+          "resistance_m2k_w": 2.9306722689075633,
+          "rse_m2k_w": 0.04,
+          "rsi_m2k_w": 0.13,
+          "thickness_m": 0.2025
+        },
+        "INTERMEDIATE_FLOOR": {
+          "heat_capacity_j_m2k": 427468.275,
+          "mass_kg_m2": 474.575,
+          "nominal_u_w_m2k": 1.4479957275452486,
+          "resistance_m2k_w": 0.43060977251312427,
+          "rse_m2k_w": 0.13,
+          "rsi_m2k_w": 0.13,
+          "thickness_m": 0.2275
+        },
+        "INT_WALL_NONLOADBEARING": {
+          "heat_capacity_j_m2k": 38118.36,
+          "mass_kg_m2": 38.099999999999994,
+          "nominal_u_w_m2k": 0.5949345342828354,
+          "resistance_m2k_w": 1.4208572076009194,
+          "rse_m2k_w": 0.13,
+          "rsi_m2k_w": 0.13,
+          "thickness_m": 0.132
+        },
+        "ROOF": {
+          "heat_capacity_j_m2k": 426160.0,
+          "mass_kg_m2": 466.0,
+          "nominal_u_w_m2k": 0.09281107106524596,
+          "resistance_m2k_w": 10.604576659038903,
+          "rse_m2k_w": 0.04,
+          "rsi_m2k_w": 0.13,
+          "thickness_m": 0.5800000000000001
+        },
+        "WINDOW": {
+          "heat_capacity_j_m2k": null,
+          "mass_kg_m2": null,
+          "nominal_u_w_m2k": 0.9
+        }
+      }
+    },
+    "office_se05:existing": {
+      "core": {
+        "BASEMENT_WALL": {
+          "layers": [
+            {
+              "material": {
+                "conductivity_w_mk": 2.3,
+                "density_kg_m3": 2300.0,
+                "roughness": "MediumRough",
+                "solar_absorptance": 0.7,
+                "specific_heat_j_kgk": 900.0,
+                "thermal_absorptance": 0.9,
+                "visible_absorptance": 0.7
+              },
+              "thickness_m": 0.2
+            },
+            {
+              "material": {
+                "conductivity_w_mk": 1.0,
+                "density_kg_m3": 1800.0,
+                "roughness": "Smooth",
+                "solar_absorptance": 0.7,
+                "specific_heat_j_kgk": 836.0,
+                "thermal_absorptance": 0.9,
+                "visible_absorptance": 0.92
+              },
+              "thickness_m": 0.015
+            }
+          ],
+          "surface_resistance_m2k_w": 0.17
+        },
+        "EXT_WALL": {
+          "layers": [
+            {
+              "material": {
+                "conductivity_w_mk": 1.0,
+                "density_kg_m3": 1800.0,
+                "roughness": "Smooth",
+                "solar_absorptance": 0.7,
+                "specific_heat_j_kgk": 836.0,
+                "thermal_absorptance": 0.9,
+                "visible_absorptance": 0.92
+              },
+              "thickness_m": 0.02
+            },
+            {
+              "material": {
+                "conductivity_w_mk": 0.036,
+                "density_kg_m3": 29.0,
+                "roughness": "MediumRough",
+                "solar_absorptance": 0.5,
+                "specific_heat_j_kgk": 1030.0,
+                "thermal_absorptance": 0.9,
+                "visible_absorptance": 0.5
+              },
+              "thickness_m": 0.15
+            },
+            {
+              "material": {
+                "conductivity_w_mk": 2.3,
+                "density_kg_m3": 2300.0,
+                "roughness": "MediumRough",
+                "solar_absorptance": 0.7,
+                "specific_heat_j_kgk": 900.0,
+                "thermal_absorptance": 0.9,
+                "visible_absorptance": 0.7
+              },
+              "thickness_m": 0.18
+            },
+            {
+              "material": {
+                "conductivity_w_mk": 1.0,
+                "density_kg_m3": 1800.0,
+                "roughness": "Smooth",
+                "solar_absorptance": 0.7,
+                "specific_heat_j_kgk": 836.0,
+                "thermal_absorptance": 0.9,
+                "visible_absorptance": 0.92
+              },
+              "thickness_m": 0.01
+            }
+          ],
+          "surface_resistance_m2k_w": 0.17
+        },
+        "GROUND_FLOOR": {
+          "layers": [
+            {
+              "material": {
+                "conductivity_w_mk": 0.035,
+                "density_kg_m3": 20.0,
+                "roughness": "MediumRough",
+                "solar_absorptance": 0.7,
+                "specific_heat_j_kgk": 1700.0,
+                "thermal_absorptance": 0.9,
+                "visible_absorptance": 0.7
+              },
+              "thickness_m": 0.1
+            },
+            {
+              "material": {
+                "conductivity_w_mk": 1.7,
+                "density_kg_m3": 2300.0,
+                "roughness": "MediumRough",
+                "solar_absorptance": 0.65,
+                "specific_heat_j_kgk": 900.0,
+                "thermal_absorptance": 0.9,
+                "visible_absorptance": 0.65
+              },
+              "thickness_m": 0.1
+            },
+            {
+              "material": {
+                "conductivity_w_mk": 0.17,
+                "density_kg_m3": 1200.0,
+                "roughness": "MediumRough",
+                "solar_absorptance": 0.7,
+                "specific_heat_j_kgk": 1260.0,
+                "thermal_absorptance": 0.9,
+                "visible_absorptance": 0.7
+              },
+              "thickness_m": 0.0025
+            }
+          ],
+          "surface_resistance_m2k_w": 0.17
+        },
+        "INTERMEDIATE_FLOOR": {
+          "layers": [
+            {
+              "material": {
+                "conductivity_w_mk": 0.076,
+                "density_kg_m3": 463.0,
+                "roughness": "MediumRough",
+                "solar_absorptance": 0.7,
+                "specific_heat_j_kgk": 837.0,
+                "thermal_absorptance": 0.9,
+                "visible_absorptance": 0.7
+              },
+              "thickness_m": 0.025
+            },
+            {
+              "material": {
+                "conductivity_w_mk": 2.3,
+                "density_kg_m3": 2300.0,
+                "roughness": "MediumRough",
+                "solar_absorptance": 0.7,
+                "specific_heat_j_kgk": 900.0,
+                "thermal_absorptance": 0.9,
+                "visible_absorptance": 0.7
+              },
+              "thickness_m": 0.2
+            },
+            {
+              "material": {
+                "conductivity_w_mk": 0.17,
+                "density_kg_m3": 1200.0,
+                "roughness": "MediumRough",
+                "solar_absorptance": 0.7,
+                "specific_heat_j_kgk": 1260.0,
+                "thermal_absorptance": 0.9,
+                "visible_absorptance": 0.7
+              },
+              "thickness_m": 0.0025
+            }
+          ],
+          "surface_resistance_m2k_w": 0.26
+        },
+        "INT_WALL_NONLOADBEARING": {
+          "layers": [
+            {
+              "material": {
+                "conductivity_w_mk": 0.21,
+                "density_kg_m3": 720.0,
+                "roughness": "Smooth",
+                "solar_absorptance": 0.7,
+                "specific_heat_j_kgk": 1000.0,
+                "thermal_absorptance": 0.9,
+                "visible_absorptance": 0.5
+              },
+              "thickness_m": 0.026
+            },
+            {
+              "material": {
+                "conductivity_w_mk": 0.1471,
+                "density_kg_m3": 1.2,
+                "roughness": "MediumRough",
+                "solar_absorptance": 0.7,
+                "specific_heat_j_kgk": 1006.0000000000001,
+                "thermal_absorptance": 0.9,
+                "visible_absorptance": 0.7
+              },
+              "thickness_m": 0.025
+            },
+            {
+              "material": {
+                "conductivity_w_mk": 0.036,
+                "density_kg_m3": 20.0,
+                "roughness": "MediumRough",
+                "solar_absorptance": 0.7,
+                "specific_heat_j_kgk": 1030.0,
+                "thermal_absorptance": 0.9,
+                "visible_absorptance": 0.7
+              },
+              "thickness_m": 0.03
+            },
+            {
+              "material": {
+                "conductivity_w_mk": 0.1471,
+                "density_kg_m3": 1.2,
+                "roughness": "MediumRough",
+                "solar_absorptance": 0.7,
+                "specific_heat_j_kgk": 1006.0000000000001,
+                "thermal_absorptance": 0.9,
+                "visible_absorptance": 0.7
+              },
+              "thickness_m": 0.025
+            },
+            {
+              "material": {
+                "conductivity_w_mk": 0.21,
+                "density_kg_m3": 720.0,
+                "roughness": "Smooth",
+                "solar_absorptance": 0.7,
+                "specific_heat_j_kgk": 1000.0,
+                "thermal_absorptance": 0.9,
+                "visible_absorptance": 0.5
+              },
+              "thickness_m": 0.026
+            }
+          ],
+          "surface_resistance_m2k_w": 0.26
+        },
+        "ROOF": {
+          "layers": [
+            {
+              "material": {
+                "conductivity_w_mk": 0.038,
+                "density_kg_m3": 130.0,
+                "roughness": "MediumRough",
+                "solar_absorptance": 0.5,
+                "specific_heat_j_kgk": 1030.0,
+                "thermal_absorptance": 0.9,
+                "visible_absorptance": 0.5
+              },
+              "thickness_m": 0.2
+            },
+            {
+              "material": {
+                "conductivity_w_mk": 2.3,
+                "density_kg_m3": 2300.0,
+                "roughness": "MediumRough",
+                "solar_absorptance": 0.7,
+                "specific_heat_j_kgk": 900.0,
+                "thermal_absorptance": 0.9,
+                "visible_absorptance": 0.7
+              },
+              "thickness_m": 0.18
+            }
+          ],
+          "surface_resistance_m2k_w": 0.17
+        },
+        "WINDOW": {
+          "solar_heat_gain_coefficient": 0.4857214787019664,
+          "u_value_w_m2k": 1.9882926829268293,
+          "visible_transmittance": 0.5101413579674405
+        }
+      },
+      "roles": {
+        "BASEMENT_WALL": {
+          "heat_capacity_j_m2k": 436572.0,
+          "mass_kg_m2": 487.0,
+          "nominal_u_w_m2k": 3.677058353317346,
+          "resistance_m2k_w": 0.10195652173913045,
+          "rse_m2k_w": 0.04,
+          "rsi_m2k_w": 0.13,
+          "thickness_m": 0.21500000000000002
+        },
+        "EXT_WALL": {
+          "heat_capacity_j_m2k": 422224.5,
+          "mass_kg_m2": 472.35,
+          "nominal_u_w_m2k": 0.2249755461362895,
+          "resistance_m2k_w": 4.274927536231885,
+          "rse_m2k_w": 0.04,
+          "rsi_m2k_w": 0.13,
+          "thickness_m": 0.36
+        },
+        "GROUND_FLOOR": {
+          "heat_capacity_j_m2k": 214180.0,
+          "mass_kg_m2": 235.0,
+          "nominal_u_w_m2k": 0.322510705187273,
+          "resistance_m2k_w": 2.9306722689075633,
+          "rse_m2k_w": 0.04,
+          "rsi_m2k_w": 0.13,
+          "thickness_m": 0.2025
+        },
+        "INTERMEDIATE_FLOOR": {
+          "heat_capacity_j_m2k": 427468.275,
+          "mass_kg_m2": 474.575,
+          "nominal_u_w_m2k": 1.4479957275452486,
+          "resistance_m2k_w": 0.43060977251312427,
+          "rse_m2k_w": 0.13,
+          "rsi_m2k_w": 0.13,
+          "thickness_m": 0.2275
+        },
+        "INT_WALL_NONLOADBEARING": {
+          "heat_capacity_j_m2k": 38118.36,
+          "mass_kg_m2": 38.099999999999994,
+          "nominal_u_w_m2k": 0.5949345342828354,
+          "resistance_m2k_w": 1.4208572076009194,
+          "rse_m2k_w": 0.13,
+          "rsi_m2k_w": 0.13,
+          "thickness_m": 0.132
+        },
+        "ROOF": {
+          "heat_capacity_j_m2k": 399380.0,
+          "mass_kg_m2": 440.0,
+          "nominal_u_w_m2k": 0.18144148408338834,
+          "resistance_m2k_w": 5.34141876430206,
+          "rse_m2k_w": 0.04,
+          "rsi_m2k_w": 0.13,
+          "thickness_m": 0.38
+        },
+        "WINDOW": {
+          "heat_capacity_j_m2k": null,
+          "mass_kg_m2": null,
+          "nominal_u_w_m2k": 1.9882926829268293
+        }
+      }
+    },
+    "office_se05:standard": {
+      "core": {
+        "BASEMENT_WALL": {
+          "layers": [
+            {
+              "material": {
+                "conductivity_w_mk": 2.3,
+                "density_kg_m3": 2300.0,
+                "roughness": "MediumRough",
+                "solar_absorptance": 0.7,
+                "specific_heat_j_kgk": 900.0,
+                "thermal_absorptance": 0.9,
+                "visible_absorptance": 0.7
+              },
+              "thickness_m": 0.2
+            },
+            {
+              "material": {
+                "conductivity_w_mk": 1.0,
+                "density_kg_m3": 1800.0,
+                "roughness": "Smooth",
+                "solar_absorptance": 0.7,
+                "specific_heat_j_kgk": 836.0,
+                "thermal_absorptance": 0.9,
+                "visible_absorptance": 0.92
+              },
+              "thickness_m": 0.015
+            }
+          ],
+          "surface_resistance_m2k_w": 0.17
+        },
+        "EXT_WALL": {
+          "layers": [
+            {
+              "material": {
+                "conductivity_w_mk": 0.033,
+                "density_kg_m3": 80.0,
+                "roughness": "MediumRough",
+                "solar_absorptance": 0.7,
+                "specific_heat_j_kgk": 1030.0,
+                "thermal_absorptance": 0.9,
+                "visible_absorptance": 0.7
+              },
+              "thickness_m": 0.1
+            },
+            {
+              "material": {
+                "conductivity_w_mk": 1.0,
+                "density_kg_m3": 1800.0,
+                "roughness": "Smooth",
+                "solar_absorptance": 0.7,
+                "specific_heat_j_kgk": 836.0,
+                "thermal_absorptance": 0.9,
+                "visible_absorptance": 0.92
+              },
+              "thickness_m": 0.02
+            },
+            {
+              "material": {
+                "conductivity_w_mk": 0.036,
+                "density_kg_m3": 29.0,
+                "roughness": "MediumRough",
+                "solar_absorptance": 0.5,
+                "specific_heat_j_kgk": 1030.0,
+                "thermal_absorptance": 0.9,
+                "visible_absorptance": 0.5
+              },
+              "thickness_m": 0.15
+            },
+            {
+              "material": {
+                "conductivity_w_mk": 2.3,
+                "density_kg_m3": 2300.0,
+                "roughness": "MediumRough",
+                "solar_absorptance": 0.7,
+                "specific_heat_j_kgk": 900.0,
+                "thermal_absorptance": 0.9,
+                "visible_absorptance": 0.7
+              },
+              "thickness_m": 0.18
+            },
+            {
+              "material": {
+                "conductivity_w_mk": 1.0,
+                "density_kg_m3": 1800.0,
+                "roughness": "Smooth",
+                "solar_absorptance": 0.7,
+                "specific_heat_j_kgk": 836.0,
+                "thermal_absorptance": 0.9,
+                "visible_absorptance": 0.92
+              },
+              "thickness_m": 0.01
+            }
+          ],
+          "surface_resistance_m2k_w": 0.17
+        },
+        "GROUND_FLOOR": {
+          "layers": [
+            {
+              "material": {
+                "conductivity_w_mk": 0.035,
+                "density_kg_m3": 20.0,
+                "roughness": "MediumRough",
+                "solar_absorptance": 0.7,
+                "specific_heat_j_kgk": 1700.0,
+                "thermal_absorptance": 0.9,
+                "visible_absorptance": 0.7
+              },
+              "thickness_m": 0.1
+            },
+            {
+              "material": {
+                "conductivity_w_mk": 1.7,
+                "density_kg_m3": 2300.0,
+                "roughness": "MediumRough",
+                "solar_absorptance": 0.65,
+                "specific_heat_j_kgk": 900.0,
+                "thermal_absorptance": 0.9,
+                "visible_absorptance": 0.65
+              },
+              "thickness_m": 0.1
+            },
+            {
+              "material": {
+                "conductivity_w_mk": 0.17,
+                "density_kg_m3": 1200.0,
+                "roughness": "MediumRough",
+                "solar_absorptance": 0.7,
+                "specific_heat_j_kgk": 1260.0,
+                "thermal_absorptance": 0.9,
+                "visible_absorptance": 0.7
+              },
+              "thickness_m": 0.0025
+            }
+          ],
+          "surface_resistance_m2k_w": 0.17
+        },
+        "INTERMEDIATE_FLOOR": {
+          "layers": [
+            {
+              "material": {
+                "conductivity_w_mk": 0.076,
+                "density_kg_m3": 463.0,
+                "roughness": "MediumRough",
+                "solar_absorptance": 0.7,
+                "specific_heat_j_kgk": 837.0,
+                "thermal_absorptance": 0.9,
+                "visible_absorptance": 0.7
+              },
+              "thickness_m": 0.025
+            },
+            {
+              "material": {
+                "conductivity_w_mk": 2.3,
+                "density_kg_m3": 2300.0,
+                "roughness": "MediumRough",
+                "solar_absorptance": 0.7,
+                "specific_heat_j_kgk": 900.0,
+                "thermal_absorptance": 0.9,
+                "visible_absorptance": 0.7
+              },
+              "thickness_m": 0.2
+            },
+            {
+              "material": {
+                "conductivity_w_mk": 0.17,
+                "density_kg_m3": 1200.0,
+                "roughness": "MediumRough",
+                "solar_absorptance": 0.7,
+                "specific_heat_j_kgk": 1260.0,
+                "thermal_absorptance": 0.9,
+                "visible_absorptance": 0.7
+              },
+              "thickness_m": 0.0025
+            }
+          ],
+          "surface_resistance_m2k_w": 0.26
+        },
+        "INT_WALL_NONLOADBEARING": {
+          "layers": [
+            {
+              "material": {
+                "conductivity_w_mk": 0.21,
+                "density_kg_m3": 720.0,
+                "roughness": "Smooth",
+                "solar_absorptance": 0.7,
+                "specific_heat_j_kgk": 1000.0,
+                "thermal_absorptance": 0.9,
+                "visible_absorptance": 0.5
+              },
+              "thickness_m": 0.026
+            },
+            {
+              "material": {
+                "conductivity_w_mk": 0.1471,
+                "density_kg_m3": 1.2,
+                "roughness": "MediumRough",
+                "solar_absorptance": 0.7,
+                "specific_heat_j_kgk": 1006.0000000000001,
+                "thermal_absorptance": 0.9,
+                "visible_absorptance": 0.7
+              },
+              "thickness_m": 0.025
+            },
+            {
+              "material": {
+                "conductivity_w_mk": 0.036,
+                "density_kg_m3": 20.0,
+                "roughness": "MediumRough",
+                "solar_absorptance": 0.7,
+                "specific_heat_j_kgk": 1030.0,
+                "thermal_absorptance": 0.9,
+                "visible_absorptance": 0.7
+              },
+              "thickness_m": 0.03
+            },
+            {
+              "material": {
+                "conductivity_w_mk": 0.1471,
+                "density_kg_m3": 1.2,
+                "roughness": "MediumRough",
+                "solar_absorptance": 0.7,
+                "specific_heat_j_kgk": 1006.0000000000001,
+                "thermal_absorptance": 0.9,
+                "visible_absorptance": 0.7
+              },
+              "thickness_m": 0.025
+            },
+            {
+              "material": {
+                "conductivity_w_mk": 0.21,
+                "density_kg_m3": 720.0,
+                "roughness": "Smooth",
+                "solar_absorptance": 0.7,
+                "specific_heat_j_kgk": 1000.0,
+                "thermal_absorptance": 0.9,
+                "visible_absorptance": 0.5
+              },
+              "thickness_m": 0.026
+            }
+          ],
+          "surface_resistance_m2k_w": 0.26
+        },
+        "ROOF": {
+          "layers": [
+            {
+              "material": {
+                "conductivity_w_mk": 0.038,
+                "density_kg_m3": 130.0,
+                "roughness": "MediumRough",
+                "solar_absorptance": 0.5,
+                "specific_heat_j_kgk": 1030.0,
+                "thermal_absorptance": 0.9,
+                "visible_absorptance": 0.5
+              },
+              "thickness_m": 0.15
+            },
+            {
+              "material": {
+                "conductivity_w_mk": 0.038,
+                "density_kg_m3": 130.0,
+                "roughness": "MediumRough",
+                "solar_absorptance": 0.5,
+                "specific_heat_j_kgk": 1030.0,
+                "thermal_absorptance": 0.9,
+                "visible_absorptance": 0.5
+              },
+              "thickness_m": 0.2
+            },
+            {
+              "material": {
+                "conductivity_w_mk": 2.3,
+                "density_kg_m3": 2300.0,
+                "roughness": "MediumRough",
+                "solar_absorptance": 0.7,
+                "specific_heat_j_kgk": 900.0,
+                "thermal_absorptance": 0.9,
+                "visible_absorptance": 0.7
+              },
+              "thickness_m": 0.18
+            }
+          ],
+          "surface_resistance_m2k_w": 0.17
+        },
+        "WINDOW": {
+          "solar_heat_gain_coefficient": 0.42,
+          "u_value_w_m2k": 1.22,
+          "visible_transmittance": 0.525
+        }
+      },
+      "roles": {
+        "BASEMENT_WALL": {
+          "heat_capacity_j_m2k": 436572.0,
+          "mass_kg_m2": 487.0,
+          "nominal_u_w_m2k": 3.677058353317346,
+          "resistance_m2k_w": 0.10195652173913045,
+          "rse_m2k_w": 0.04,
+          "rsi_m2k_w": 0.13,
+          "thickness_m": 0.21500000000000002
+        },
+        "EXT_WALL": {
+          "heat_capacity_j_m2k": 430464.5,
+          "mass_kg_m2": 480.35,
+          "nominal_u_w_m2k": 0.1337751379170559,
+          "resistance_m2k_w": 7.305230566534915,
+          "rse_m2k_w": 0.04,
+          "rsi_m2k_w": 0.13,
+          "thickness_m": 0.46
+        },
+        "GROUND_FLOOR": {
+          "heat_capacity_j_m2k": 214180.0,
+          "mass_kg_m2": 235.0,
+          "nominal_u_w_m2k": 0.322510705187273,
+          "resistance_m2k_w": 2.9306722689075633,
+          "rse_m2k_w": 0.04,
+          "rsi_m2k_w": 0.13,
+          "thickness_m": 0.2025
+        },
+        "INTERMEDIATE_FLOOR": {
+          "heat_capacity_j_m2k": 427468.275,
+          "mass_kg_m2": 474.575,
+          "nominal_u_w_m2k": 1.4479957275452486,
+          "resistance_m2k_w": 0.43060977251312427,
+          "rse_m2k_w": 0.13,
+          "rsi_m2k_w": 0.13,
+          "thickness_m": 0.2275
+        },
+        "INT_WALL_NONLOADBEARING": {
+          "heat_capacity_j_m2k": 38118.36,
+          "mass_kg_m2": 38.099999999999994,
+          "nominal_u_w_m2k": 0.5949345342828354,
+          "resistance_m2k_w": 1.4208572076009194,
+          "rse_m2k_w": 0.13,
+          "rsi_m2k_w": 0.13,
+          "thickness_m": 0.132
+        },
+        "ROOF": {
+          "heat_capacity_j_m2k": 419465.0,
+          "mass_kg_m2": 459.5,
+          "nominal_u_w_m2k": 0.1057217992543831,
+          "resistance_m2k_w": 9.28878718535469,
+          "rse_m2k_w": 0.04,
+          "rsi_m2k_w": 0.13,
+          "thickness_m": 0.53
+        },
+        "WINDOW": {
+          "heat_capacity_j_m2k": null,
+          "mass_kg_m2": null,
+          "nominal_u_w_m2k": 1.22
+        }
+      }
+    },
+    "school_se05:advanced": {
+      "core": {
+        "BASEMENT_WALL": {
+          "layers": [
+            {
+              "material": {
+                "conductivity_w_mk": 2.3,
+                "density_kg_m3": 2300.0,
+                "roughness": "MediumRough",
+                "solar_absorptance": 0.7,
+                "specific_heat_j_kgk": 900.0,
+                "thermal_absorptance": 0.9,
+                "visible_absorptance": 0.7
+              },
+              "thickness_m": 0.2
+            },
+            {
+              "material": {
+                "conductivity_w_mk": 1.0,
+                "density_kg_m3": 1800.0,
+                "roughness": "Smooth",
+                "solar_absorptance": 0.7,
+                "specific_heat_j_kgk": 836.0,
+                "thermal_absorptance": 0.9,
+                "visible_absorptance": 0.92
+              },
+              "thickness_m": 0.015
+            }
+          ],
+          "surface_resistance_m2k_w": 0.17
+        },
+        "EXT_WALL": {
+          "layers": [
+            {
+              "material": {
+                "conductivity_w_mk": 0.033,
+                "density_kg_m3": 80.0,
+                "roughness": "MediumRough",
+                "solar_absorptance": 0.7,
+                "specific_heat_j_kgk": 1030.0,
+                "thermal_absorptance": 0.9,
+                "visible_absorptance": 0.7
+              },
+              "thickness_m": 0.2
+            },
+            {
+              "material": {
+                "conductivity_w_mk": 0.053500000000000006,
+                "density_kg_m3": 99.65,
+                "roughness": "MediumSmooth",
+                "solar_absorptance": 0.53,
+                "specific_heat_j_kgk": 1459.0015052684394,
+                "thermal_absorptance": 0.9,
+                "visible_absorptance": 0.53
+              },
+              "thickness_m": 0.195
+            },
+            {
+              "material": {
+                "conductivity_w_mk": 0.21,
+                "density_kg_m3": 720.0,
+                "roughness": "Smooth",
+                "solar_absorptance": 0.7,
+                "specific_heat_j_kgk": 1000.0,
+                "thermal_absorptance": 0.9,
+                "visible_absorptance": 0.5
+              },
+              "thickness_m": 0.013
+            }
+          ],
+          "surface_resistance_m2k_w": 0.17
+        },
+        "GROUND_FLOOR": {
+          "layers": [
+            {
+              "material": {
+                "conductivity_w_mk": 0.037,
+                "density_kg_m3": 20.0,
+                "roughness": "MediumRough",
+                "solar_absorptance": 0.6,
+                "specific_heat_j_kgk": 1450.0,
+                "thermal_absorptance": 0.9,
+                "visible_absorptance": 0.6
+              },
+              "thickness_m": 0.15
+            },
+            {
+              "material": {
+                "conductivity_w_mk": 2.3,
+                "density_kg_m3": 2300.0,
+                "roughness": "MediumRough",
+                "solar_absorptance": 0.7,
+                "specific_heat_j_kgk": 900.0,
+                "thermal_absorptance": 0.9,
+                "visible_absorptance": 0.7
+              },
+              "thickness_m": 0.12
+            },
+            {
+              "material": {
+                "conductivity_w_mk": 0.13,
+                "density_kg_m3": 500.0,
+                "roughness": "MediumSmooth",
+                "solar_absorptance": 0.7,
+                "specific_heat_j_kgk": 1600.0,
+                "thermal_absorptance": 0.9,
+                "visible_absorptance": 0.7
+              },
+              "thickness_m": 0.01
+            }
+          ],
+          "surface_resistance_m2k_w": 0.17
+        },
+        "INTERMEDIATE_FLOOR": {
+          "layers": [
+            {
+              "material": {
+                "conductivity_w_mk": 0.076,
+                "density_kg_m3": 463.0,
+                "roughness": "MediumRough",
+                "solar_absorptance": 0.7,
+                "specific_heat_j_kgk": 837.0,
+                "thermal_absorptance": 0.9,
+                "visible_absorptance": 0.7
+              },
+              "thickness_m": 0.025
+            },
+            {
+              "material": {
+                "conductivity_w_mk": 2.3,
+                "density_kg_m3": 2300.0,
+                "roughness": "MediumRough",
+                "solar_absorptance": 0.7,
+                "specific_heat_j_kgk": 900.0,
+                "thermal_absorptance": 0.9,
+                "visible_absorptance": 0.7
+              },
+              "thickness_m": 0.2
+            },
+            {
+              "material": {
+                "conductivity_w_mk": 0.17,
+                "density_kg_m3": 1200.0,
+                "roughness": "MediumRough",
+                "solar_absorptance": 0.7,
+                "specific_heat_j_kgk": 1260.0,
+                "thermal_absorptance": 0.9,
+                "visible_absorptance": 0.7
+              },
+              "thickness_m": 0.0025
+            }
+          ],
+          "surface_resistance_m2k_w": 0.26
+        },
+        "INT_WALL_NONLOADBEARING": {
+          "layers": [
+            {
+              "material": {
+                "conductivity_w_mk": 0.21,
+                "density_kg_m3": 720.0,
+                "roughness": "Smooth",
+                "solar_absorptance": 0.7,
+                "specific_heat_j_kgk": 1000.0,
+                "thermal_absorptance": 0.9,
+                "visible_absorptance": 0.5
+              },
+              "thickness_m": 0.013
+            },
+            {
+              "material": {
+                "conductivity_w_mk": 0.053500000000000006,
+                "density_kg_m3": 99.65,
+                "roughness": "MediumSmooth",
+                "solar_absorptance": 0.53,
+                "specific_heat_j_kgk": 1459.0015052684394,
+                "thermal_absorptance": 0.9,
+                "visible_absorptance": 0.53
+              },
+              "thickness_m": 0.061881
+            },
+            {
+              "material": {
+                "conductivity_w_mk": 0.21,
+                "density_kg_m3": 720.0,
+                "roughness": "Smooth",
+                "solar_absorptance": 0.7,
+                "specific_heat_j_kgk": 1000.0,
+                "thermal_absorptance": 0.9,
+                "visible_absorptance": 0.5
+              },
+              "thickness_m": 0.013
+            }
+          ],
+          "surface_resistance_m2k_w": 0.26
+        },
+        "ROOF": {
+          "layers": [
+            {
+              "material": {
+                "conductivity_w_mk": 0.23,
+                "density_kg_m3": 1190.0,
+                "roughness": "MediumRough",
+                "solar_absorptance": 0.7,
+                "specific_heat_j_kgk": 1300.0,
+                "thermal_absorptance": 0.9,
+                "visible_absorptance": 0.7
+              },
+              "thickness_m": 0.003
+            },
+            {
+              "material": {
+                "conductivity_w_mk": 0.13,
+                "density_kg_m3": 500.0,
+                "roughness": "MediumSmooth",
+                "solar_absorptance": 0.7,
+                "specific_heat_j_kgk": 1600.0,
+                "thermal_absorptance": 0.9,
+                "visible_absorptance": 0.7
+              },
+              "thickness_m": 0.022
+            }
+          ],
+          "surface_resistance_m2k_w": 0.17
+        },
+        "TOP_FLOOR": {
+          "layers": [
+            {
+              "material": {
+                "conductivity_w_mk": 0.042,
+                "density_kg_m3": 28.0,
+                "roughness": "MediumRough",
+                "solar_absorptance": 0.7,
+                "specific_heat_j_kgk": 1030.0,
+                "thermal_absorptance": 0.9,
+                "visible_absorptance": 0.7
+              },
+              "thickness_m": 0.2
+            },
+            {
+              "material": {
+                "conductivity_w_mk": 0.04,
+                "density_kg_m3": 29.0,
+                "roughness": "MediumRough",
+                "solar_absorptance": 0.5,
+                "specific_heat_j_kgk": 1030.0,
+                "thermal_absorptance": 0.9,
+                "visible_absorptance": 0.5
+              },
+              "thickness_m": 0.1
+            },
+            {
+              "material": {
+                "conductivity_w_mk": 0.053500000000000006,
+                "density_kg_m3": 99.65,
+                "roughness": "MediumSmooth",
+                "solar_absorptance": 0.53,
+                "specific_heat_j_kgk": 1459.0015052684394,
+                "thermal_absorptance": 0.9,
+                "visible_absorptance": 0.53
+              },
+              "thickness_m": 0.2
+            },
+            {
+              "material": {
+                "conductivity_w_mk": 0.13,
+                "density_kg_m3": 500.0,
+                "roughness": "MediumSmooth",
+                "solar_absorptance": 0.7,
+                "specific_heat_j_kgk": 1600.0,
+                "thermal_absorptance": 0.9,
+                "visible_absorptance": 0.7
+              },
+              "thickness_m": 0.022
+            },
+            {
+              "material": {
+                "conductivity_w_mk": 0.21,
+                "density_kg_m3": 720.0,
+                "roughness": "Smooth",
+                "solar_absorptance": 0.7,
+                "specific_heat_j_kgk": 1000.0,
+                "thermal_absorptance": 0.9,
+                "visible_absorptance": 0.5
+              },
+              "thickness_m": 0.013
+            }
+          ],
+          "surface_resistance_m2k_w": 0.17
+        },
+        "WINDOW": {
+          "solar_heat_gain_coefficient": 0.35,
+          "u_value_w_m2k": 0.9,
+          "visible_transmittance": 0.518
+        }
+      },
+      "roles": {
+        "BASEMENT_WALL": {
+          "heat_capacity_j_m2k": 436572.0,
+          "mass_kg_m2": 487.0,
+          "nominal_u_w_m2k": 3.677058353317346,
+          "resistance_m2k_w": 0.10195652173913045,
+          "rse_m2k_w": 0.04,
+          "rsi_m2k_w": 0.13,
+          "thickness_m": 0.21500000000000002
+        },
+        "EXT_WALL": {
+          "heat_capacity_j_m2k": 54190.9525,
+          "mass_kg_m2": 44.79175,
+          "nominal_u_w_m2k": 0.10063024080213664,
+          "resistance_m2k_w": 9.767370635594935,
+          "rse_m2k_w": 0.04,
+          "rsi_m2k_w": 0.13,
+          "thickness_m": 0.40800000000000003
+        },
+        "GROUND_FLOOR": {
+          "heat_capacity_j_m2k": 260750.0,
+          "mass_kg_m2": 284.0,
+          "nominal_u_w_m2k": 0.22971865434662037,
+          "resistance_m2k_w": 4.18315104402061,
+          "rse_m2k_w": 0.04,
+          "rsi_m2k_w": 0.13,
+          "thickness_m": 0.27999999999999997
+        },
+        "INTERMEDIATE_FLOOR": {
+          "heat_capacity_j_m2k": 427468.275,
+          "mass_kg_m2": 474.575,
+          "nominal_u_w_m2k": 1.4479957275452486,
+          "resistance_m2k_w": 0.43060977251312427,
+          "rse_m2k_w": 0.13,
+          "rsi_m2k_w": 0.13,
+          "thickness_m": 0.2275
+        },
+        "INT_WALL_NONLOADBEARING": {
+          "heat_capacity_j_m2k": 27716.8476495,
+          "mass_kg_m2": 24.88644165,
+          "nominal_u_w_m2k": 0.6491551737985142,
+          "resistance_m2k_w": 1.2804637294170003,
+          "rse_m2k_w": 0.13,
+          "rsi_m2k_w": 0.13,
+          "thickness_m": 0.087881
+        },
+        "ROOF": {
+          "heat_capacity_j_m2k": 22241.0,
+          "mass_kg_m2": 14.57,
+          "nominal_u_w_m2k": 2.8386974271337704,
+          "resistance_m2k_w": 0.18227424749163879,
+          "rse_m2k_w": 0.04,
+          "rsi_m2k_w": 0.13,
+          "thickness_m": 0.024999999999999998
+        },
+        "TOP_FLOOR": {
+          "heat_capacity_j_m2k": 64792.9,
+          "mass_kg_m2": 48.790000000000006,
+          "nominal_u_w_m2k": 0.08770884973616333,
+          "resistance_m2k_w": 11.23135805004964,
+          "rse_m2k_w": 0.04,
+          "rsi_m2k_w": 0.13,
+          "thickness_m": 0.535
+        },
+        "WINDOW": {
+          "heat_capacity_j_m2k": null,
+          "mass_kg_m2": null,
+          "nominal_u_w_m2k": 0.9
+        }
+      }
+    },
+    "school_se05:existing": {
+      "core": {
+        "BASEMENT_WALL": {
+          "layers": [
+            {
+              "material": {
+                "conductivity_w_mk": 2.3,
+                "density_kg_m3": 2300.0,
+                "roughness": "MediumRough",
+                "solar_absorptance": 0.7,
+                "specific_heat_j_kgk": 900.0,
+                "thermal_absorptance": 0.9,
+                "visible_absorptance": 0.7
+              },
+              "thickness_m": 0.2
+            },
+            {
+              "material": {
+                "conductivity_w_mk": 1.0,
+                "density_kg_m3": 1800.0,
+                "roughness": "Smooth",
+                "solar_absorptance": 0.7,
+                "specific_heat_j_kgk": 836.0,
+                "thermal_absorptance": 0.9,
+                "visible_absorptance": 0.92
+              },
+              "thickness_m": 0.015
+            }
+          ],
+          "surface_resistance_m2k_w": 0.17
+        },
+        "EXT_WALL": {
+          "layers": [
+            {
+              "material": {
+                "conductivity_w_mk": 0.053500000000000006,
+                "density_kg_m3": 99.65,
+                "roughness": "MediumSmooth",
+                "solar_absorptance": 0.53,
+                "specific_heat_j_kgk": 1459.0015052684394,
+                "thermal_absorptance": 0.9,
+                "visible_absorptance": 0.53
+              },
+              "thickness_m": 0.195
+            },
+            {
+              "material": {
+                "conductivity_w_mk": 0.21,
+                "density_kg_m3": 720.0,
+                "roughness": "Smooth",
+                "solar_absorptance": 0.7,
+                "specific_heat_j_kgk": 1000.0,
+                "thermal_absorptance": 0.9,
+                "visible_absorptance": 0.5
+              },
+              "thickness_m": 0.013
+            }
+          ],
+          "surface_resistance_m2k_w": 0.17
+        },
+        "GROUND_FLOOR": {
+          "layers": [
+            {
+              "material": {
+                "conductivity_w_mk": 0.037,
+                "density_kg_m3": 20.0,
+                "roughness": "MediumRough",
+                "solar_absorptance": 0.6,
+                "specific_heat_j_kgk": 1450.0,
+                "thermal_absorptance": 0.9,
+                "visible_absorptance": 0.6
+              },
+              "thickness_m": 0.15
+            },
+            {
+              "material": {
+                "conductivity_w_mk": 2.3,
+                "density_kg_m3": 2300.0,
+                "roughness": "MediumRough",
+                "solar_absorptance": 0.7,
+                "specific_heat_j_kgk": 900.0,
+                "thermal_absorptance": 0.9,
+                "visible_absorptance": 0.7
+              },
+              "thickness_m": 0.12
+            },
+            {
+              "material": {
+                "conductivity_w_mk": 0.13,
+                "density_kg_m3": 500.0,
+                "roughness": "MediumSmooth",
+                "solar_absorptance": 0.7,
+                "specific_heat_j_kgk": 1600.0,
+                "thermal_absorptance": 0.9,
+                "visible_absorptance": 0.7
+              },
+              "thickness_m": 0.01
+            }
+          ],
+          "surface_resistance_m2k_w": 0.17
+        },
+        "INTERMEDIATE_FLOOR": {
+          "layers": [
+            {
+              "material": {
+                "conductivity_w_mk": 0.076,
+                "density_kg_m3": 463.0,
+                "roughness": "MediumRough",
+                "solar_absorptance": 0.7,
+                "specific_heat_j_kgk": 837.0,
+                "thermal_absorptance": 0.9,
+                "visible_absorptance": 0.7
+              },
+              "thickness_m": 0.025
+            },
+            {
+              "material": {
+                "conductivity_w_mk": 2.3,
+                "density_kg_m3": 2300.0,
+                "roughness": "MediumRough",
+                "solar_absorptance": 0.7,
+                "specific_heat_j_kgk": 900.0,
+                "thermal_absorptance": 0.9,
+                "visible_absorptance": 0.7
+              },
+              "thickness_m": 0.2
+            },
+            {
+              "material": {
+                "conductivity_w_mk": 0.17,
+                "density_kg_m3": 1200.0,
+                "roughness": "MediumRough",
+                "solar_absorptance": 0.7,
+                "specific_heat_j_kgk": 1260.0,
+                "thermal_absorptance": 0.9,
+                "visible_absorptance": 0.7
+              },
+              "thickness_m": 0.0025
+            }
+          ],
+          "surface_resistance_m2k_w": 0.26
+        },
+        "INT_WALL_NONLOADBEARING": {
+          "layers": [
+            {
+              "material": {
+                "conductivity_w_mk": 0.21,
+                "density_kg_m3": 720.0,
+                "roughness": "Smooth",
+                "solar_absorptance": 0.7,
+                "specific_heat_j_kgk": 1000.0,
+                "thermal_absorptance": 0.9,
+                "visible_absorptance": 0.5
+              },
+              "thickness_m": 0.013
+            },
+            {
+              "material": {
+                "conductivity_w_mk": 0.053500000000000006,
+                "density_kg_m3": 99.65,
+                "roughness": "MediumSmooth",
+                "solar_absorptance": 0.53,
+                "specific_heat_j_kgk": 1459.0015052684394,
+                "thermal_absorptance": 0.9,
+                "visible_absorptance": 0.53
+              },
+              "thickness_m": 0.061881
+            },
+            {
+              "material": {
+                "conductivity_w_mk": 0.21,
+                "density_kg_m3": 720.0,
+                "roughness": "Smooth",
+                "solar_absorptance": 0.7,
+                "specific_heat_j_kgk": 1000.0,
+                "thermal_absorptance": 0.9,
+                "visible_absorptance": 0.5
+              },
+              "thickness_m": 0.013
+            }
+          ],
+          "surface_resistance_m2k_w": 0.26
+        },
+        "ROOF": {
+          "layers": [
+            {
+              "material": {
+                "conductivity_w_mk": 0.23,
+                "density_kg_m3": 1190.0,
+                "roughness": "MediumRough",
+                "solar_absorptance": 0.7,
+                "specific_heat_j_kgk": 1300.0,
+                "thermal_absorptance": 0.9,
+                "visible_absorptance": 0.7
+              },
+              "thickness_m": 0.003
+            },
+            {
+              "material": {
+                "conductivity_w_mk": 0.13,
+                "density_kg_m3": 500.0,
+                "roughness": "MediumSmooth",
+                "solar_absorptance": 0.7,
+                "specific_heat_j_kgk": 1600.0,
+                "thermal_absorptance": 0.9,
+                "visible_absorptance": 0.7
+              },
+              "thickness_m": 0.022
+            }
+          ],
+          "surface_resistance_m2k_w": 0.17
+        },
+        "TOP_FLOOR": {
+          "layers": [
+            {
+              "material": {
+                "conductivity_w_mk": 0.04,
+                "density_kg_m3": 29.0,
+                "roughness": "MediumRough",
+                "solar_absorptance": 0.5,
+                "specific_heat_j_kgk": 1030.0,
+                "thermal_absorptance": 0.9,
+                "visible_absorptance": 0.5
+              },
+              "thickness_m": 0.1
+            },
+            {
+              "material": {
+                "conductivity_w_mk": 0.053500000000000006,
+                "density_kg_m3": 99.65,
+                "roughness": "MediumSmooth",
+                "solar_absorptance": 0.53,
+                "specific_heat_j_kgk": 1459.0015052684394,
+                "thermal_absorptance": 0.9,
+                "visible_absorptance": 0.53
+              },
+              "thickness_m": 0.2
+            },
+            {
+              "material": {
+                "conductivity_w_mk": 0.13,
+                "density_kg_m3": 500.0,
+                "roughness": "MediumSmooth",
+                "solar_absorptance": 0.7,
+                "specific_heat_j_kgk": 1600.0,
+                "thermal_absorptance": 0.9,
+                "visible_absorptance": 0.7
+              },
+              "thickness_m": 0.022
+            },
+            {
+              "material": {
+                "conductivity_w_mk": 0.21,
+                "density_kg_m3": 720.0,
+                "roughness": "Smooth",
+                "solar_absorptance": 0.7,
+                "specific_heat_j_kgk": 1000.0,
+                "thermal_absorptance": 0.9,
+                "visible_absorptance": 0.5
+              },
+              "thickness_m": 0.013
+            }
+          ],
+          "surface_resistance_m2k_w": 0.17
+        },
+        "WINDOW": {
+          "solar_heat_gain_coefficient": 0.49,
+          "u_value_w_m2k": 1.6,
+          "visible_transmittance": 0.525
+        }
+      },
+      "roles": {
+        "BASEMENT_WALL": {
+          "heat_capacity_j_m2k": 436572.0,
+          "mass_kg_m2": 487.0,
+          "nominal_u_w_m2k": 3.677058353317346,
+          "resistance_m2k_w": 0.10195652173913045,
+          "rse_m2k_w": 0.04,
+          "rsi_m2k_w": 0.13,
+          "thickness_m": 0.21500000000000002
+        },
+        "EXT_WALL": {
+          "heat_capacity_j_m2k": 37710.9525,
+          "mass_kg_m2": 28.79175,
+          "nominal_u_w_m2k": 0.25794705369821685,
+          "resistance_m2k_w": 3.706764574988874,
+          "rse_m2k_w": 0.04,
+          "rsi_m2k_w": 0.13,
+          "thickness_m": 0.20800000000000002
+        },
+        "GROUND_FLOOR": {
+          "heat_capacity_j_m2k": 260750.0,
+          "mass_kg_m2": 284.0,
+          "nominal_u_w_m2k": 0.22971865434662037,
+          "resistance_m2k_w": 4.18315104402061,
+          "rse_m2k_w": 0.04,
+          "rsi_m2k_w": 0.13,
+          "thickness_m": 0.27999999999999997
+        },
+        "INTERMEDIATE_FLOOR": {
+          "heat_capacity_j_m2k": 427468.275,
+          "mass_kg_m2": 474.575,
+          "nominal_u_w_m2k": 1.4479957275452486,
+          "resistance_m2k_w": 0.43060977251312427,
+          "rse_m2k_w": 0.13,
+          "rsi_m2k_w": 0.13,
+          "thickness_m": 0.2275
+        },
+        "INT_WALL_NONLOADBEARING": {
+          "heat_capacity_j_m2k": 27716.8476495,
+          "mass_kg_m2": 24.88644165,
+          "nominal_u_w_m2k": 0.6491551737985142,
+          "resistance_m2k_w": 1.2804637294170003,
+          "rse_m2k_w": 0.13,
+          "rsi_m2k_w": 0.13,
+          "thickness_m": 0.087881
+        },
+        "ROOF": {
+          "heat_capacity_j_m2k": 22241.0,
+          "mass_kg_m2": 14.57,
+          "nominal_u_w_m2k": 2.8386974271337704,
+          "resistance_m2k_w": 0.18227424749163879,
+          "rse_m2k_w": 0.04,
+          "rsi_m2k_w": 0.13,
+          "thickness_m": 0.024999999999999998
+        },
+        "TOP_FLOOR": {
+          "heat_capacity_j_m2k": 59024.9,
+          "mass_kg_m2": 43.190000000000005,
+          "nominal_u_w_m2k": 0.15061481067809562,
+          "resistance_m2k_w": 6.4694532881448765,
+          "rse_m2k_w": 0.04,
+          "rsi_m2k_w": 0.13,
+          "thickness_m": 0.335
+        },
+        "WINDOW": {
+          "heat_capacity_j_m2k": null,
+          "mass_kg_m2": null,
+          "nominal_u_w_m2k": 1.6
+        }
+      }
+    },
+    "school_se05:standard": {
+      "core": {
+        "BASEMENT_WALL": {
+          "layers": [
+            {
+              "material": {
+                "conductivity_w_mk": 2.3,
+                "density_kg_m3": 2300.0,
+                "roughness": "MediumRough",
+                "solar_absorptance": 0.7,
+                "specific_heat_j_kgk": 900.0,
+                "thermal_absorptance": 0.9,
+                "visible_absorptance": 0.7
+              },
+              "thickness_m": 0.2
+            },
+            {
+              "material": {
+                "conductivity_w_mk": 1.0,
+                "density_kg_m3": 1800.0,
+                "roughness": "Smooth",
+                "solar_absorptance": 0.7,
+                "specific_heat_j_kgk": 836.0,
+                "thermal_absorptance": 0.9,
+                "visible_absorptance": 0.92
+              },
+              "thickness_m": 0.015
+            }
+          ],
+          "surface_resistance_m2k_w": 0.17
+        },
+        "EXT_WALL": {
+          "layers": [
+            {
+              "material": {
+                "conductivity_w_mk": 0.033,
+                "density_kg_m3": 80.0,
+                "roughness": "MediumRough",
+                "solar_absorptance": 0.7,
+                "specific_heat_j_kgk": 1030.0,
+                "thermal_absorptance": 0.9,
+                "visible_absorptance": 0.7
+              },
+              "thickness_m": 0.1
+            },
+            {
+              "material": {
+                "conductivity_w_mk": 0.053500000000000006,
+                "density_kg_m3": 99.65,
+                "roughness": "MediumSmooth",
+                "solar_absorptance": 0.53,
+                "specific_heat_j_kgk": 1459.0015052684394,
+                "thermal_absorptance": 0.9,
+                "visible_absorptance": 0.53
+              },
+              "thickness_m": 0.195
+            },
+            {
+              "material": {
+                "conductivity_w_mk": 0.21,
+                "density_kg_m3": 720.0,
+                "roughness": "Smooth",
+                "solar_absorptance": 0.7,
+                "specific_heat_j_kgk": 1000.0,
+                "thermal_absorptance": 0.9,
+                "visible_absorptance": 0.5
+              },
+              "thickness_m": 0.013
+            }
+          ],
+          "surface_resistance_m2k_w": 0.17
+        },
+        "GROUND_FLOOR": {
+          "layers": [
+            {
+              "material": {
+                "conductivity_w_mk": 0.037,
+                "density_kg_m3": 20.0,
+                "roughness": "MediumRough",
+                "solar_absorptance": 0.6,
+                "specific_heat_j_kgk": 1450.0,
+                "thermal_absorptance": 0.9,
+                "visible_absorptance": 0.6
+              },
+              "thickness_m": 0.15
+            },
+            {
+              "material": {
+                "conductivity_w_mk": 2.3,
+                "density_kg_m3": 2300.0,
+                "roughness": "MediumRough",
+                "solar_absorptance": 0.7,
+                "specific_heat_j_kgk": 900.0,
+                "thermal_absorptance": 0.9,
+                "visible_absorptance": 0.7
+              },
+              "thickness_m": 0.12
+            },
+            {
+              "material": {
+                "conductivity_w_mk": 0.13,
+                "density_kg_m3": 500.0,
+                "roughness": "MediumSmooth",
+                "solar_absorptance": 0.7,
+                "specific_heat_j_kgk": 1600.0,
+                "thermal_absorptance": 0.9,
+                "visible_absorptance": 0.7
+              },
+              "thickness_m": 0.01
+            }
+          ],
+          "surface_resistance_m2k_w": 0.17
+        },
+        "INTERMEDIATE_FLOOR": {
+          "layers": [
+            {
+              "material": {
+                "conductivity_w_mk": 0.076,
+                "density_kg_m3": 463.0,
+                "roughness": "MediumRough",
+                "solar_absorptance": 0.7,
+                "specific_heat_j_kgk": 837.0,
+                "thermal_absorptance": 0.9,
+                "visible_absorptance": 0.7
+              },
+              "thickness_m": 0.025
+            },
+            {
+              "material": {
+                "conductivity_w_mk": 2.3,
+                "density_kg_m3": 2300.0,
+                "roughness": "MediumRough",
+                "solar_absorptance": 0.7,
+                "specific_heat_j_kgk": 900.0,
+                "thermal_absorptance": 0.9,
+                "visible_absorptance": 0.7
+              },
+              "thickness_m": 0.2
+            },
+            {
+              "material": {
+                "conductivity_w_mk": 0.17,
+                "density_kg_m3": 1200.0,
+                "roughness": "MediumRough",
+                "solar_absorptance": 0.7,
+                "specific_heat_j_kgk": 1260.0,
+                "thermal_absorptance": 0.9,
+                "visible_absorptance": 0.7
+              },
+              "thickness_m": 0.0025
+            }
+          ],
+          "surface_resistance_m2k_w": 0.26
+        },
+        "INT_WALL_NONLOADBEARING": {
+          "layers": [
+            {
+              "material": {
+                "conductivity_w_mk": 0.21,
+                "density_kg_m3": 720.0,
+                "roughness": "Smooth",
+                "solar_absorptance": 0.7,
+                "specific_heat_j_kgk": 1000.0,
+                "thermal_absorptance": 0.9,
+                "visible_absorptance": 0.5
+              },
+              "thickness_m": 0.013
+            },
+            {
+              "material": {
+                "conductivity_w_mk": 0.053500000000000006,
+                "density_kg_m3": 99.65,
+                "roughness": "MediumSmooth",
+                "solar_absorptance": 0.53,
+                "specific_heat_j_kgk": 1459.0015052684394,
+                "thermal_absorptance": 0.9,
+                "visible_absorptance": 0.53
+              },
+              "thickness_m": 0.061881
+            },
+            {
+              "material": {
+                "conductivity_w_mk": 0.21,
+                "density_kg_m3": 720.0,
+                "roughness": "Smooth",
+                "solar_absorptance": 0.7,
+                "specific_heat_j_kgk": 1000.0,
+                "thermal_absorptance": 0.9,
+                "visible_absorptance": 0.5
+              },
+              "thickness_m": 0.013
+            }
+          ],
+          "surface_resistance_m2k_w": 0.26
+        },
+        "ROOF": {
+          "layers": [
+            {
+              "material": {
+                "conductivity_w_mk": 0.23,
+                "density_kg_m3": 1190.0,
+                "roughness": "MediumRough",
+                "solar_absorptance": 0.7,
+                "specific_heat_j_kgk": 1300.0,
+                "thermal_absorptance": 0.9,
+                "visible_absorptance": 0.7
+              },
+              "thickness_m": 0.003
+            },
+            {
+              "material": {
+                "conductivity_w_mk": 0.13,
+                "density_kg_m3": 500.0,
+                "roughness": "MediumSmooth",
+                "solar_absorptance": 0.7,
+                "specific_heat_j_kgk": 1600.0,
+                "thermal_absorptance": 0.9,
+                "visible_absorptance": 0.7
+              },
+              "thickness_m": 0.022
+            }
+          ],
+          "surface_resistance_m2k_w": 0.17
+        },
+        "TOP_FLOOR": {
+          "layers": [
+            {
+              "material": {
+                "conductivity_w_mk": 0.042,
+                "density_kg_m3": 28.0,
+                "roughness": "MediumRough",
+                "solar_absorptance": 0.7,
+                "specific_heat_j_kgk": 1030.0,
+                "thermal_absorptance": 0.9,
+                "visible_absorptance": 0.7
+              },
+              "thickness_m": 0.15
+            },
+            {
+              "material": {
+                "conductivity_w_mk": 0.04,
+                "density_kg_m3": 29.0,
+                "roughness": "MediumRough",
+                "solar_absorptance": 0.5,
+                "specific_heat_j_kgk": 1030.0,
+                "thermal_absorptance": 0.9,
+                "visible_absorptance": 0.5
+              },
+              "thickness_m": 0.1
+            },
+            {
+              "material": {
+                "conductivity_w_mk": 0.053500000000000006,
+                "density_kg_m3": 99.65,
+                "roughness": "MediumSmooth",
+                "solar_absorptance": 0.53,
+                "specific_heat_j_kgk": 1459.0015052684394,
+                "thermal_absorptance": 0.9,
+                "visible_absorptance": 0.53
+              },
+              "thickness_m": 0.2
+            },
+            {
+              "material": {
+                "conductivity_w_mk": 0.13,
+                "density_kg_m3": 500.0,
+                "roughness": "MediumSmooth",
+                "solar_absorptance": 0.7,
+                "specific_heat_j_kgk": 1600.0,
+                "thermal_absorptance": 0.9,
+                "visible_absorptance": 0.7
+              },
+              "thickness_m": 0.022
+            },
+            {
+              "material": {
+                "conductivity_w_mk": 0.21,
+                "density_kg_m3": 720.0,
+                "roughness": "Smooth",
+                "solar_absorptance": 0.7,
+                "specific_heat_j_kgk": 1000.0,
+                "thermal_absorptance": 0.9,
+                "visible_absorptance": 0.5
+              },
+              "thickness_m": 0.013
+            }
+          ],
+          "surface_resistance_m2k_w": 0.17
+        },
+        "WINDOW": {
+          "solar_heat_gain_coefficient": 0.42,
+          "u_value_w_m2k": 1.22,
+          "visible_transmittance": 0.525
+        }
+      },
+      "roles": {
+        "BASEMENT_WALL": {
+          "heat_capacity_j_m2k": 436572.0,
+          "mass_kg_m2": 487.0,
+          "nominal_u_w_m2k": 3.677058353317346,
+          "resistance_m2k_w": 0.10195652173913045,
+          "rse_m2k_w": 0.04,
+          "rsi_m2k_w": 0.13,
+          "thickness_m": 0.21500000000000002
+        },
+        "EXT_WALL": {
+          "heat_capacity_j_m2k": 45950.9525,
+          "mass_kg_m2": 36.79175,
+          "nominal_u_w_m2k": 0.1447792402138705,
+          "resistance_m2k_w": 6.737067605291904,
+          "rse_m2k_w": 0.04,
+          "rsi_m2k_w": 0.13,
+          "thickness_m": 0.308
+        },
+        "GROUND_FLOOR": {
+          "heat_capacity_j_m2k": 260750.0,
+          "mass_kg_m2": 284.0,
+          "nominal_u_w_m2k": 0.22971865434662037,
+          "resistance_m2k_w": 4.18315104402061,
+          "rse_m2k_w": 0.04,
+          "rsi_m2k_w": 0.13,
+          "thickness_m": 0.27999999999999997
+        },
+        "INTERMEDIATE_FLOOR": {
+          "heat_capacity_j_m2k": 427468.275,
+          "mass_kg_m2": 474.575,
+          "nominal_u_w_m2k": 1.4479957275452486,
+          "resistance_m2k_w": 0.43060977251312427,
+          "rse_m2k_w": 0.13,
+          "rsi_m2k_w": 0.13,
+          "thickness_m": 0.2275
+        },
+        "INT_WALL_NONLOADBEARING": {
+          "heat_capacity_j_m2k": 27716.8476495,
+          "mass_kg_m2": 24.88644165,
+          "nominal_u_w_m2k": 0.6491551737985142,
+          "resistance_m2k_w": 1.2804637294170003,
+          "rse_m2k_w": 0.13,
+          "rsi_m2k_w": 0.13,
+          "thickness_m": 0.087881
+        },
+        "ROOF": {
+          "heat_capacity_j_m2k": 22241.0,
+          "mass_kg_m2": 14.57,
+          "nominal_u_w_m2k": 2.8386974271337704,
+          "resistance_m2k_w": 0.18227424749163879,
+          "rse_m2k_w": 0.04,
+          "rsi_m2k_w": 0.13,
+          "thickness_m": 0.024999999999999998
+        },
+        "TOP_FLOOR": {
+          "heat_capacity_j_m2k": 63350.9,
+          "mass_kg_m2": 47.39,
+          "nominal_u_w_m2k": 0.09793473411529358,
+          "resistance_m2k_w": 10.040881859573448,
+          "rse_m2k_w": 0.04,
+          "rsi_m2k_w": 0.13,
+          "thickness_m": 0.485
+        },
+        "WINDOW": {
+          "heat_capacity_j_m2k": null,
+          "mass_kg_m2": null,
+          "nominal_u_w_m2k": 1.22
+        }
+      }
+    },
+    "sf_se02:advanced": {
+      "core": {
+        "BASEMENT_WALL": {
+          "layers": [
+            {
+              "material": {
+                "conductivity_w_mk": 2.3,
+                "density_kg_m3": 2300.0,
+                "roughness": "MediumRough",
+                "solar_absorptance": 0.7,
+                "specific_heat_j_kgk": 900.0,
+                "thermal_absorptance": 0.9,
+                "visible_absorptance": 0.7
+              },
+              "thickness_m": 0.2
+            },
+            {
+              "material": {
+                "conductivity_w_mk": 1.0,
+                "density_kg_m3": 1800.0,
+                "roughness": "Smooth",
+                "solar_absorptance": 0.7,
+                "specific_heat_j_kgk": 836.0,
+                "thermal_absorptance": 0.9,
+                "visible_absorptance": 0.92
+              },
+              "thickness_m": 0.015
+            }
+          ],
+          "surface_resistance_m2k_w": 0.17
+        },
+        "EXT_WALL": {
+          "layers": [
+            {
+              "material": {
+                "conductivity_w_mk": 0.13,
+                "density_kg_m3": 500.0,
+                "roughness": "MediumSmooth",
+                "solar_absorptance": 0.7,
+                "specific_heat_j_kgk": 1600.0,
+                "thermal_absorptance": 0.9,
+                "visible_absorptance": 0.7
+              },
+              "thickness_m": 0.022
+            },
+            {
+              "material": {
+                "conductivity_w_mk": 0.033,
+                "density_kg_m3": 80.0,
+                "roughness": "MediumRough",
+                "solar_absorptance": 0.7,
+                "specific_heat_j_kgk": 1030.0,
+                "thermal_absorptance": 0.9,
+                "visible_absorptance": 0.7
+              },
+              "thickness_m": 0.07
+            },
+            {
+              "material": {
+                "conductivity_w_mk": 0.05,
+                "density_kg_m3": 230.0,
+                "roughness": "MediumRough",
+                "solar_absorptance": 0.65,
+                "specific_heat_j_kgk": 2100.0,
+                "thermal_absorptance": 0.9,
+                "visible_absorptance": 0.65
+              },
+              "thickness_m": 0.012
+            },
+            {
+              "material": {
+                "conductivity_w_mk": 0.053500000000000006,
+                "density_kg_m3": 99.65,
+                "roughness": "MediumSmooth",
+                "solar_absorptance": 0.53,
+                "specific_heat_j_kgk": 1459.0015052684394,
+                "thermal_absorptance": 0.9,
+                "visible_absorptance": 0.53
+              },
+              "thickness_m": 0.1
+            },
+            {
+              "material": {
+                "conductivity_w_mk": 0.053500000000000006,
+                "density_kg_m3": 99.65,
+                "roughness": "MediumSmooth",
+                "solar_absorptance": 0.53,
+                "specific_heat_j_kgk": 1459.0015052684394,
+                "thermal_absorptance": 0.9,
+                "visible_absorptance": 0.53
+              },
+              "thickness_m": 0.05
+            },
+            {
+              "material": {
+                "conductivity_w_mk": 0.21,
+                "density_kg_m3": 720.0,
+                "roughness": "Smooth",
+                "solar_absorptance": 0.7,
+                "specific_heat_j_kgk": 1000.0,
+                "thermal_absorptance": 0.9,
+                "visible_absorptance": 0.5
+              },
+              "thickness_m": 0.013
+            }
+          ],
+          "surface_resistance_m2k_w": 0.17
+        },
+        "GROUND_FLOOR": {
+          "layers": [
+            {
+              "material": {
+                "conductivity_w_mk": 0.037,
+                "density_kg_m3": 20.0,
+                "roughness": "MediumRough",
+                "solar_absorptance": 0.6,
+                "specific_heat_j_kgk": 1450.0,
+                "thermal_absorptance": 0.9,
+                "visible_absorptance": 0.6
+              },
+              "thickness_m": 0.05
+            },
+            {
+              "material": {
+                "conductivity_w_mk": 2.3,
+                "density_kg_m3": 2300.0,
+                "roughness": "MediumRough",
+                "solar_absorptance": 0.7,
+                "specific_heat_j_kgk": 900.0,
+                "thermal_absorptance": 0.9,
+                "visible_absorptance": 0.7
+              },
+              "thickness_m": 0.12
+            },
+            {
+              "material": {
+                "conductivity_w_mk": 1.7,
+                "density_kg_m3": 2300.0,
+                "roughness": "MediumRough",
+                "solar_absorptance": 0.65,
+                "specific_heat_j_kgk": 900.0,
+                "thermal_absorptance": 0.9,
+                "visible_absorptance": 0.65
+              },
+              "thickness_m": 0.04
+            },
+            {
+              "material": {
+                "conductivity_w_mk": 0.036,
+                "density_kg_m3": 20.0,
+                "roughness": "MediumRough",
+                "solar_absorptance": 0.6,
+                "specific_heat_j_kgk": 1450.0,
+                "thermal_absorptance": 0.9,
+                "visible_absorptance": 0.6
+              },
+              "thickness_m": 0.045
+            },
+            {
+              "material": {
+                "conductivity_w_mk": 1.7,
+                "density_kg_m3": 2300.0,
+                "roughness": "MediumRough",
+                "solar_absorptance": 0.65,
+                "specific_heat_j_kgk": 900.0,
+                "thermal_absorptance": 0.9,
+                "visible_absorptance": 0.65
+              },
+              "thickness_m": 0.05
+            }
+          ],
+          "surface_resistance_m2k_w": 0.17
+        },
+        "INTERMEDIATE_FLOOR": {
+          "layers": [
+            {
+              "material": {
+                "conductivity_w_mk": 0.13,
+                "density_kg_m3": 500.0,
+                "roughness": "MediumSmooth",
+                "solar_absorptance": 0.7,
+                "specific_heat_j_kgk": 1600.0,
+                "thermal_absorptance": 0.9,
+                "visible_absorptance": 0.7
+              },
+              "thickness_m": 0.028
+            },
+            {
+              "material": {
+                "conductivity_w_mk": 0.816375,
+                "density_kg_m3": 76.02,
+                "roughness": "MediumSmooth",
+                "solar_absorptance": 0.7,
+                "specific_heat_j_kgk": 1592.0299921073401,
+                "thermal_absorptance": 0.9,
+                "visible_absorptance": 0.7
+              },
+              "thickness_m": 0.15
+            },
+            {
+              "material": {
+                "conductivity_w_mk": 0.053500000000000006,
+                "density_kg_m3": 99.65,
+                "roughness": "MediumSmooth",
+                "solar_absorptance": 0.53,
+                "specific_heat_j_kgk": 1459.0015052684394,
+                "thermal_absorptance": 0.9,
+                "visible_absorptance": 0.53
+              },
+              "thickness_m": 0.07
+            },
+            {
+              "material": {
+                "conductivity_w_mk": 0.13,
+                "density_kg_m3": 500.0,
+                "roughness": "MediumSmooth",
+                "solar_absorptance": 0.7,
+                "specific_heat_j_kgk": 1600.0,
+                "thermal_absorptance": 0.9,
+                "visible_absorptance": 0.7
+              },
+              "thickness_m": 0.022
+            },
+            {
+              "material": {
+                "conductivity_w_mk": 0.21,
+                "density_kg_m3": 720.0,
+                "roughness": "Smooth",
+                "solar_absorptance": 0.7,
+                "specific_heat_j_kgk": 1000.0,
+                "thermal_absorptance": 0.9,
+                "visible_absorptance": 0.5
+              },
+              "thickness_m": 0.013
+            }
+          ],
+          "surface_resistance_m2k_w": 0.26
+        },
+        "INT_WALL_NONLOADBEARING": {
+          "layers": [
+            {
+              "material": {
+                "conductivity_w_mk": 0.21,
+                "density_kg_m3": 720.0,
+                "roughness": "Smooth",
+                "solar_absorptance": 0.7,
+                "specific_heat_j_kgk": 1000.0,
+                "thermal_absorptance": 0.9,
+                "visible_absorptance": 0.5
+              },
+              "thickness_m": 0.013
+            },
+            {
+              "material": {
+                "conductivity_w_mk": 0.053500000000000006,
+                "density_kg_m3": 99.65,
+                "roughness": "MediumSmooth",
+                "solar_absorptance": 0.53,
+                "specific_heat_j_kgk": 1459.0015052684394,
+                "thermal_absorptance": 0.9,
+                "visible_absorptance": 0.53
+              },
+              "thickness_m": 0.07
+            },
+            {
+              "material": {
+                "conductivity_w_mk": 0.21,
+                "density_kg_m3": 720.0,
+                "roughness": "Smooth",
+                "solar_absorptance": 0.7,
+                "specific_heat_j_kgk": 1000.0,
+                "thermal_absorptance": 0.9,
+                "visible_absorptance": 0.5
+              },
+              "thickness_m": 0.013
+            }
+          ],
+          "surface_resistance_m2k_w": 0.26
+        },
+        "TOP_FLOOR": {
+          "layers": [
+            {
+              "material": {
+                "conductivity_w_mk": 0.04,
+                "density_kg_m3": 20.0,
+                "roughness": "MediumRough",
+                "solar_absorptance": 0.7,
+                "specific_heat_j_kgk": 1030.0,
+                "thermal_absorptance": 0.9,
+                "visible_absorptance": 0.7
+              },
+              "thickness_m": 0.5
+            },
+            {
+              "material": {
+                "conductivity_w_mk": 0.04,
+                "density_kg_m3": 29.0,
+                "roughness": "MediumRough",
+                "solar_absorptance": 0.5,
+                "specific_heat_j_kgk": 1030.0,
+                "thermal_absorptance": 0.9,
+                "visible_absorptance": 0.5
+              },
+              "thickness_m": 0.03
+            },
+            {
+              "material": {
+                "conductivity_w_mk": 0.045625,
+                "density_kg_m3": 58.4375,
+                "roughness": "MediumSmooth",
+                "solar_absorptance": 0.5125,
+                "specific_heat_j_kgk": 1334.8128342245989,
+                "thermal_absorptance": 0.9,
+                "visible_absorptance": 0.5125
+              },
+              "thickness_m": 0.15
+            },
+            {
+              "material": {
+                "conductivity_w_mk": 0.13,
+                "density_kg_m3": 500.0,
+                "roughness": "MediumSmooth",
+                "solar_absorptance": 0.7,
+                "specific_heat_j_kgk": 1600.0,
+                "thermal_absorptance": 0.9,
+                "visible_absorptance": 0.7
+              },
+              "thickness_m": 0.022
+            },
+            {
+              "material": {
+                "conductivity_w_mk": 0.21,
+                "density_kg_m3": 720.0,
+                "roughness": "Smooth",
+                "solar_absorptance": 0.7,
+                "specific_heat_j_kgk": 1000.0,
+                "thermal_absorptance": 0.9,
+                "visible_absorptance": 0.5
+              },
+              "thickness_m": 0.013
+            }
+          ],
+          "surface_resistance_m2k_w": 0.17
+        },
+        "WINDOW": {
+          "solar_heat_gain_coefficient": 0.42,
+          "u_value_w_m2k": 0.76,
+          "visible_transmittance": 0.518
+        }
+      },
+      "roles": {
+        "BASEMENT_WALL": {
+          "heat_capacity_j_m2k": 436572.0,
+          "mass_kg_m2": 487.0,
+          "nominal_u_w_m2k": 3.677058353317346,
+          "resistance_m2k_w": 0.10195652173913045,
+          "rse_m2k_w": 0.04,
+          "rsi_m2k_w": 0.13,
+          "thickness_m": 0.21500000000000002
+        },
+        "EXT_WALL": {
+          "heat_capacity_j_m2k": 60332.425,
+          "mass_kg_m2": 43.667500000000004,
+          "nominal_u_w_m2k": 0.1796594600534344,
+          "resistance_m2k_w": 5.396085970104662,
+          "rse_m2k_w": 0.04,
+          "rsi_m2k_w": 0.13,
+          "thickness_m": 0.267
+        },
+        "GROUND_FLOOR": {
+          "heat_capacity_j_m2k": 437455.0,
+          "mass_kg_m2": 484.9,
+          "nominal_u_w_m2k": 0.34764876300769165,
+          "resistance_m2k_w": 2.706466440865418,
+          "rse_m2k_w": 0.04,
+          "rsi_m2k_w": 0.13,
+          "thickness_m": 0.305
+        },
+        "INTERMEDIATE_FLOOR": {
+          "heat_capacity_j_m2k": 77691.183,
+          "mass_kg_m2": 52.7385,
+          "nominal_u_w_m2k": 0.4548203206652979,
+          "resistance_m2k_w": 1.9386704519649194,
+          "rse_m2k_w": 0.13,
+          "rsi_m2k_w": 0.13,
+          "thickness_m": 0.283
+        },
+        "INT_WALL_NONLOADBEARING": {
+          "heat_capacity_j_m2k": 28897.265,
+          "mass_kg_m2": 25.6955,
+          "nominal_u_w_m2k": 0.5909394543474945,
+          "resistance_m2k_w": 1.4322207387627948,
+          "rse_m2k_w": 0.13,
+          "rsi_m2k_w": 0.13,
+          "thickness_m": 0.096
+        },
+        "TOP_FLOOR": {
+          "heat_capacity_j_m2k": 49856.56875,
+          "mass_kg_m2": 39.995625,
+          "nominal_u_w_m2k": 0.059036035650667826,
+          "resistance_m2k_w": 16.768806764012243,
+          "rse_m2k_w": 0.04,
+          "rsi_m2k_w": 0.13,
+          "thickness_m": 0.715
+        },
+        "WINDOW": {
+          "heat_capacity_j_m2k": null,
+          "mass_kg_m2": null,
+          "nominal_u_w_m2k": 0.76
+        }
+      }
+    },
+    "sf_se02:existing": {
+      "core": {
+        "BASEMENT_WALL": {
+          "layers": [
+            {
+              "material": {
+                "conductivity_w_mk": 2.3,
+                "density_kg_m3": 2300.0,
+                "roughness": "MediumRough",
+                "solar_absorptance": 0.7,
+                "specific_heat_j_kgk": 900.0,
+                "thermal_absorptance": 0.9,
+                "visible_absorptance": 0.7
+              },
+              "thickness_m": 0.2
+            },
+            {
+              "material": {
+                "conductivity_w_mk": 1.0,
+                "density_kg_m3": 1800.0,
+                "roughness": "Smooth",
+                "solar_absorptance": 0.7,
+                "specific_heat_j_kgk": 836.0,
+                "thermal_absorptance": 0.9,
+                "visible_absorptance": 0.92
+              },
+              "thickness_m": 0.015
+            }
+          ],
+          "surface_resistance_m2k_w": 0.17
+        },
+        "EXT_WALL": {
+          "layers": [
+            {
+              "material": {
+                "conductivity_w_mk": 0.05,
+                "density_kg_m3": 230.0,
+                "roughness": "MediumRough",
+                "solar_absorptance": 0.65,
+                "specific_heat_j_kgk": 2100.0,
+                "thermal_absorptance": 0.9,
+                "visible_absorptance": 0.65
+              },
+              "thickness_m": 0.012
+            },
+            {
+              "material": {
+                "conductivity_w_mk": 0.053500000000000006,
+                "density_kg_m3": 99.65,
+                "roughness": "MediumSmooth",
+                "solar_absorptance": 0.53,
+                "specific_heat_j_kgk": 1459.0015052684394,
+                "thermal_absorptance": 0.9,
+                "visible_absorptance": 0.53
+              },
+              "thickness_m": 0.1
+            },
+            {
+              "material": {
+                "conductivity_w_mk": 0.053500000000000006,
+                "density_kg_m3": 99.65,
+                "roughness": "MediumSmooth",
+                "solar_absorptance": 0.53,
+                "specific_heat_j_kgk": 1459.0015052684394,
+                "thermal_absorptance": 0.9,
+                "visible_absorptance": 0.53
+              },
+              "thickness_m": 0.05
+            },
+            {
+              "material": {
+                "conductivity_w_mk": 0.21,
+                "density_kg_m3": 720.0,
+                "roughness": "Smooth",
+                "solar_absorptance": 0.7,
+                "specific_heat_j_kgk": 1000.0,
+                "thermal_absorptance": 0.9,
+                "visible_absorptance": 0.5
+              },
+              "thickness_m": 0.013
+            }
+          ],
+          "surface_resistance_m2k_w": 0.17
+        },
+        "GROUND_FLOOR": {
+          "layers": [
+            {
+              "material": {
+                "conductivity_w_mk": 0.037,
+                "density_kg_m3": 20.0,
+                "roughness": "MediumRough",
+                "solar_absorptance": 0.6,
+                "specific_heat_j_kgk": 1450.0,
+                "thermal_absorptance": 0.9,
+                "visible_absorptance": 0.6
+              },
+              "thickness_m": 0.05
+            },
+            {
+              "material": {
+                "conductivity_w_mk": 2.3,
+                "density_kg_m3": 2300.0,
+                "roughness": "MediumRough",
+                "solar_absorptance": 0.7,
+                "specific_heat_j_kgk": 900.0,
+                "thermal_absorptance": 0.9,
+                "visible_absorptance": 0.7
+              },
+              "thickness_m": 0.12
+            },
+            {
+              "material": {
+                "conductivity_w_mk": 1.7,
+                "density_kg_m3": 2300.0,
+                "roughness": "MediumRough",
+                "solar_absorptance": 0.65,
+                "specific_heat_j_kgk": 900.0,
+                "thermal_absorptance": 0.9,
+                "visible_absorptance": 0.65
+              },
+              "thickness_m": 0.04
+            }
+          ],
+          "surface_resistance_m2k_w": 0.17
+        },
+        "INTERMEDIATE_FLOOR": {
+          "layers": [
+            {
+              "material": {
+                "conductivity_w_mk": 0.13,
+                "density_kg_m3": 500.0,
+                "roughness": "MediumSmooth",
+                "solar_absorptance": 0.7,
+                "specific_heat_j_kgk": 1600.0,
+                "thermal_absorptance": 0.9,
+                "visible_absorptance": 0.7
+              },
+              "thickness_m": 0.028
+            },
+            {
+              "material": {
+                "conductivity_w_mk": 0.816375,
+                "density_kg_m3": 76.02,
+                "roughness": "MediumSmooth",
+                "solar_absorptance": 0.7,
+                "specific_heat_j_kgk": 1592.0299921073401,
+                "thermal_absorptance": 0.9,
+                "visible_absorptance": 0.7
+              },
+              "thickness_m": 0.15
+            },
+            {
+              "material": {
+                "conductivity_w_mk": 0.053500000000000006,
+                "density_kg_m3": 99.65,
+                "roughness": "MediumSmooth",
+                "solar_absorptance": 0.53,
+                "specific_heat_j_kgk": 1459.0015052684394,
+                "thermal_absorptance": 0.9,
+                "visible_absorptance": 0.53
+              },
+              "thickness_m": 0.07
+            },
+            {
+              "material": {
+                "conductivity_w_mk": 0.13,
+                "density_kg_m3": 500.0,
+                "roughness": "MediumSmooth",
+                "solar_absorptance": 0.7,
+                "specific_heat_j_kgk": 1600.0,
+                "thermal_absorptance": 0.9,
+                "visible_absorptance": 0.7
+              },
+              "thickness_m": 0.022
+            },
+            {
+              "material": {
+                "conductivity_w_mk": 0.21,
+                "density_kg_m3": 720.0,
+                "roughness": "Smooth",
+                "solar_absorptance": 0.7,
+                "specific_heat_j_kgk": 1000.0,
+                "thermal_absorptance": 0.9,
+                "visible_absorptance": 0.5
+              },
+              "thickness_m": 0.013
+            }
+          ],
+          "surface_resistance_m2k_w": 0.26
+        },
+        "INT_WALL_NONLOADBEARING": {
+          "layers": [
+            {
+              "material": {
+                "conductivity_w_mk": 0.21,
+                "density_kg_m3": 720.0,
+                "roughness": "Smooth",
+                "solar_absorptance": 0.7,
+                "specific_heat_j_kgk": 1000.0,
+                "thermal_absorptance": 0.9,
+                "visible_absorptance": 0.5
+              },
+              "thickness_m": 0.013
+            },
+            {
+              "material": {
+                "conductivity_w_mk": 0.053500000000000006,
+                "density_kg_m3": 99.65,
+                "roughness": "MediumSmooth",
+                "solar_absorptance": 0.53,
+                "specific_heat_j_kgk": 1459.0015052684394,
+                "thermal_absorptance": 0.9,
+                "visible_absorptance": 0.53
+              },
+              "thickness_m": 0.07
+            },
+            {
+              "material": {
+                "conductivity_w_mk": 0.21,
+                "density_kg_m3": 720.0,
+                "roughness": "Smooth",
+                "solar_absorptance": 0.7,
+                "specific_heat_j_kgk": 1000.0,
+                "thermal_absorptance": 0.9,
+                "visible_absorptance": 0.5
+              },
+              "thickness_m": 0.013
+            }
+          ],
+          "surface_resistance_m2k_w": 0.26
+        },
+        "TOP_FLOOR": {
+          "layers": [
+            {
+              "material": {
+                "conductivity_w_mk": 0.04,
+                "density_kg_m3": 29.0,
+                "roughness": "MediumRough",
+                "solar_absorptance": 0.5,
+                "specific_heat_j_kgk": 1030.0,
+                "thermal_absorptance": 0.9,
+                "visible_absorptance": 0.5
+              },
+              "thickness_m": 0.03
+            },
+            {
+              "material": {
+                "conductivity_w_mk": 0.045625,
+                "density_kg_m3": 58.4375,
+                "roughness": "MediumSmooth",
+                "solar_absorptance": 0.5125,
+                "specific_heat_j_kgk": 1334.8128342245989,
+                "thermal_absorptance": 0.9,
+                "visible_absorptance": 0.5125
+              },
+              "thickness_m": 0.15
+            },
+            {
+              "material": {
+                "conductivity_w_mk": 0.13,
+                "density_kg_m3": 500.0,
+                "roughness": "MediumSmooth",
+                "solar_absorptance": 0.7,
+                "specific_heat_j_kgk": 1600.0,
+                "thermal_absorptance": 0.9,
+                "visible_absorptance": 0.7
+              },
+              "thickness_m": 0.022
+            },
+            {
+              "material": {
+                "conductivity_w_mk": 0.21,
+                "density_kg_m3": 720.0,
+                "roughness": "Smooth",
+                "solar_absorptance": 0.7,
+                "specific_heat_j_kgk": 1000.0,
+                "thermal_absorptance": 0.9,
+                "visible_absorptance": 0.5
+              },
+              "thickness_m": 0.013
+            }
+          ],
+          "surface_resistance_m2k_w": 0.17
+        },
+        "WINDOW": {
+          "solar_heat_gain_coefficient": 0.56,
+          "u_value_w_m2k": 2.3,
+          "visible_transmittance": 0.525
+        }
+      },
+      "roles": {
+        "BASEMENT_WALL": {
+          "heat_capacity_j_m2k": 436572.0,
+          "mass_kg_m2": 487.0,
+          "nominal_u_w_m2k": 3.677058353317346,
+          "resistance_m2k_w": 0.10195652173913045,
+          "rse_m2k_w": 0.04,
+          "rsi_m2k_w": 0.13,
+          "thickness_m": 0.21500000000000002
+        },
+        "EXT_WALL": {
+          "heat_capacity_j_m2k": 36964.425,
+          "mass_kg_m2": 27.067500000000003,
+          "nominal_u_w_m2k": 0.3052835659076922,
+          "resistance_m2k_w": 3.105643079661771,
+          "rse_m2k_w": 0.04,
+          "rsi_m2k_w": 0.13,
+          "thickness_m": 0.17500000000000002
+        },
+        "GROUND_FLOOR": {
+          "heat_capacity_j_m2k": 332650.0,
+          "mass_kg_m2": 369.0,
+          "nominal_u_w_m2k": 0.6261526389345146,
+          "resistance_m2k_w": 1.4270546761595357,
+          "rse_m2k_w": 0.04,
+          "rsi_m2k_w": 0.13,
+          "thickness_m": 0.21
+        },
+        "INTERMEDIATE_FLOOR": {
+          "heat_capacity_j_m2k": 77691.183,
+          "mass_kg_m2": 52.7385,
+          "nominal_u_w_m2k": 0.4548203206652979,
+          "resistance_m2k_w": 1.9386704519649194,
+          "rse_m2k_w": 0.13,
+          "rsi_m2k_w": 0.13,
+          "thickness_m": 0.283
+        },
+        "INT_WALL_NONLOADBEARING": {
+          "heat_capacity_j_m2k": 28897.265,
+          "mass_kg_m2": 25.6955,
+          "nominal_u_w_m2k": 0.5909394543474945,
+          "resistance_m2k_w": 1.4322207387627948,
+          "rse_m2k_w": 0.13,
+          "rsi_m2k_w": 0.13,
+          "thickness_m": 0.096
+        },
+        "TOP_FLOOR": {
+          "heat_capacity_j_m2k": 39556.56875,
+          "mass_kg_m2": 29.995625,
+          "nominal_u_w_m2k": 0.22528577006494843,
+          "resistance_m2k_w": 4.268806764012243,
+          "rse_m2k_w": 0.04,
+          "rsi_m2k_w": 0.13,
+          "thickness_m": 0.215
+        },
+        "WINDOW": {
+          "heat_capacity_j_m2k": null,
+          "mass_kg_m2": null,
+          "nominal_u_w_m2k": 2.3
+        }
+      }
+    },
+    "sf_se02:standard": {
+      "core": {
+        "BASEMENT_WALL": {
+          "layers": [
+            {
+              "material": {
+                "conductivity_w_mk": 2.3,
+                "density_kg_m3": 2300.0,
+                "roughness": "MediumRough",
+                "solar_absorptance": 0.7,
+                "specific_heat_j_kgk": 900.0,
+                "thermal_absorptance": 0.9,
+                "visible_absorptance": 0.7
+              },
+              "thickness_m": 0.2
+            },
+            {
+              "material": {
+                "conductivity_w_mk": 1.0,
+                "density_kg_m3": 1800.0,
+                "roughness": "Smooth",
+                "solar_absorptance": 0.7,
+                "specific_heat_j_kgk": 836.0,
+                "thermal_absorptance": 0.9,
+                "visible_absorptance": 0.92
+              },
+              "thickness_m": 0.015
+            }
+          ],
+          "surface_resistance_m2k_w": 0.17
+        },
+        "EXT_WALL": {
+          "layers": [
+            {
+              "material": {
+                "conductivity_w_mk": 0.13,
+                "density_kg_m3": 500.0,
+                "roughness": "MediumSmooth",
+                "solar_absorptance": 0.7,
+                "specific_heat_j_kgk": 1600.0,
+                "thermal_absorptance": 0.9,
+                "visible_absorptance": 0.7
+              },
+              "thickness_m": 0.022
+            },
+            {
+              "material": {
+                "conductivity_w_mk": 0.033,
+                "density_kg_m3": 80.0,
+                "roughness": "MediumRough",
+                "solar_absorptance": 0.7,
+                "specific_heat_j_kgk": 1030.0,
+                "thermal_absorptance": 0.9,
+                "visible_absorptance": 0.7
+              },
+              "thickness_m": 0.045
+            },
+            {
+              "material": {
+                "conductivity_w_mk": 0.05,
+                "density_kg_m3": 230.0,
+                "roughness": "MediumRough",
+                "solar_absorptance": 0.65,
+                "specific_heat_j_kgk": 2100.0,
+                "thermal_absorptance": 0.9,
+                "visible_absorptance": 0.65
+              },
+              "thickness_m": 0.012
+            },
+            {
+              "material": {
+                "conductivity_w_mk": 0.053500000000000006,
+                "density_kg_m3": 99.65,
+                "roughness": "MediumSmooth",
+                "solar_absorptance": 0.53,
+                "specific_heat_j_kgk": 1459.0015052684394,
+                "thermal_absorptance": 0.9,
+                "visible_absorptance": 0.53
+              },
+              "thickness_m": 0.1
+            },
+            {
+              "material": {
+                "conductivity_w_mk": 0.053500000000000006,
+                "density_kg_m3": 99.65,
+                "roughness": "MediumSmooth",
+                "solar_absorptance": 0.53,
+                "specific_heat_j_kgk": 1459.0015052684394,
+                "thermal_absorptance": 0.9,
+                "visible_absorptance": 0.53
+              },
+              "thickness_m": 0.05
+            },
+            {
+              "material": {
+                "conductivity_w_mk": 0.21,
+                "density_kg_m3": 720.0,
+                "roughness": "Smooth",
+                "solar_absorptance": 0.7,
+                "specific_heat_j_kgk": 1000.0,
+                "thermal_absorptance": 0.9,
+                "visible_absorptance": 0.5
+              },
+              "thickness_m": 0.013
+            }
+          ],
+          "surface_resistance_m2k_w": 0.17
+        },
+        "GROUND_FLOOR": {
+          "layers": [
+            {
+              "material": {
+                "conductivity_w_mk": 0.037,
+                "density_kg_m3": 20.0,
+                "roughness": "MediumRough",
+                "solar_absorptance": 0.6,
+                "specific_heat_j_kgk": 1450.0,
+                "thermal_absorptance": 0.9,
+                "visible_absorptance": 0.6
+              },
+              "thickness_m": 0.05
+            },
+            {
+              "material": {
+                "conductivity_w_mk": 2.3,
+                "density_kg_m3": 2300.0,
+                "roughness": "MediumRough",
+                "solar_absorptance": 0.7,
+                "specific_heat_j_kgk": 900.0,
+                "thermal_absorptance": 0.9,
+                "visible_absorptance": 0.7
+              },
+              "thickness_m": 0.12
+            },
+            {
+              "material": {
+                "conductivity_w_mk": 1.7,
+                "density_kg_m3": 2300.0,
+                "roughness": "MediumRough",
+                "solar_absorptance": 0.65,
+                "specific_heat_j_kgk": 900.0,
+                "thermal_absorptance": 0.9,
+                "visible_absorptance": 0.65
+              },
+              "thickness_m": 0.04
+            },
+            {
+              "material": {
+                "conductivity_w_mk": 0.036,
+                "density_kg_m3": 20.0,
+                "roughness": "MediumRough",
+                "solar_absorptance": 0.6,
+                "specific_heat_j_kgk": 1450.0,
+                "thermal_absorptance": 0.9,
+                "visible_absorptance": 0.6
+              },
+              "thickness_m": 0.04
+            },
+            {
+              "material": {
+                "conductivity_w_mk": 1.7,
+                "density_kg_m3": 2300.0,
+                "roughness": "MediumRough",
+                "solar_absorptance": 0.65,
+                "specific_heat_j_kgk": 900.0,
+                "thermal_absorptance": 0.9,
+                "visible_absorptance": 0.65
+              },
+              "thickness_m": 0.05
+            }
+          ],
+          "surface_resistance_m2k_w": 0.17
+        },
+        "INTERMEDIATE_FLOOR": {
+          "layers": [
+            {
+              "material": {
+                "conductivity_w_mk": 0.13,
+                "density_kg_m3": 500.0,
+                "roughness": "MediumSmooth",
+                "solar_absorptance": 0.7,
+                "specific_heat_j_kgk": 1600.0,
+                "thermal_absorptance": 0.9,
+                "visible_absorptance": 0.7
+              },
+              "thickness_m": 0.028
+            },
+            {
+              "material": {
+                "conductivity_w_mk": 0.816375,
+                "density_kg_m3": 76.02,
+                "roughness": "MediumSmooth",
+                "solar_absorptance": 0.7,
+                "specific_heat_j_kgk": 1592.0299921073401,
+                "thermal_absorptance": 0.9,
+                "visible_absorptance": 0.7
+              },
+              "thickness_m": 0.15
+            },
+            {
+              "material": {
+                "conductivity_w_mk": 0.053500000000000006,
+                "density_kg_m3": 99.65,
+                "roughness": "MediumSmooth",
+                "solar_absorptance": 0.53,
+                "specific_heat_j_kgk": 1459.0015052684394,
+                "thermal_absorptance": 0.9,
+                "visible_absorptance": 0.53
+              },
+              "thickness_m": 0.07
+            },
+            {
+              "material": {
+                "conductivity_w_mk": 0.13,
+                "density_kg_m3": 500.0,
+                "roughness": "MediumSmooth",
+                "solar_absorptance": 0.7,
+                "specific_heat_j_kgk": 1600.0,
+                "thermal_absorptance": 0.9,
+                "visible_absorptance": 0.7
+              },
+              "thickness_m": 0.022
+            },
+            {
+              "material": {
+                "conductivity_w_mk": 0.21,
+                "density_kg_m3": 720.0,
+                "roughness": "Smooth",
+                "solar_absorptance": 0.7,
+                "specific_heat_j_kgk": 1000.0,
+                "thermal_absorptance": 0.9,
+                "visible_absorptance": 0.5
+              },
+              "thickness_m": 0.013
+            }
+          ],
+          "surface_resistance_m2k_w": 0.26
+        },
+        "INT_WALL_NONLOADBEARING": {
+          "layers": [
+            {
+              "material": {
+                "conductivity_w_mk": 0.21,
+                "density_kg_m3": 720.0,
+                "roughness": "Smooth",
+                "solar_absorptance": 0.7,
+                "specific_heat_j_kgk": 1000.0,
+                "thermal_absorptance": 0.9,
+                "visible_absorptance": 0.5
+              },
+              "thickness_m": 0.013
+            },
+            {
+              "material": {
+                "conductivity_w_mk": 0.053500000000000006,
+                "density_kg_m3": 99.65,
+                "roughness": "MediumSmooth",
+                "solar_absorptance": 0.53,
+                "specific_heat_j_kgk": 1459.0015052684394,
+                "thermal_absorptance": 0.9,
+                "visible_absorptance": 0.53
+              },
+              "thickness_m": 0.07
+            },
+            {
+              "material": {
+                "conductivity_w_mk": 0.21,
+                "density_kg_m3": 720.0,
+                "roughness": "Smooth",
+                "solar_absorptance": 0.7,
+                "specific_heat_j_kgk": 1000.0,
+                "thermal_absorptance": 0.9,
+                "visible_absorptance": 0.5
+              },
+              "thickness_m": 0.013
+            }
+          ],
+          "surface_resistance_m2k_w": 0.26
+        },
+        "TOP_FLOOR": {
+          "layers": [
+            {
+              "material": {
+                "conductivity_w_mk": 0.04,
+                "density_kg_m3": 20.0,
+                "roughness": "MediumRough",
+                "solar_absorptance": 0.7,
+                "specific_heat_j_kgk": 1030.0,
+                "thermal_absorptance": 0.9,
+                "visible_absorptance": 0.7
+              },
+              "thickness_m": 0.2
+            },
+            {
+              "material": {
+                "conductivity_w_mk": 0.04,
+                "density_kg_m3": 29.0,
+                "roughness": "MediumRough",
+                "solar_absorptance": 0.5,
+                "specific_heat_j_kgk": 1030.0,
+                "thermal_absorptance": 0.9,
+                "visible_absorptance": 0.5
+              },
+              "thickness_m": 0.03
+            },
+            {
+              "material": {
+                "conductivity_w_mk": 0.045625,
+                "density_kg_m3": 58.4375,
+                "roughness": "MediumSmooth",
+                "solar_absorptance": 0.5125,
+                "specific_heat_j_kgk": 1334.8128342245989,
+                "thermal_absorptance": 0.9,
+                "visible_absorptance": 0.5125
+              },
+              "thickness_m": 0.15
+            },
+            {
+              "material": {
+                "conductivity_w_mk": 0.13,
+                "density_kg_m3": 500.0,
+                "roughness": "MediumSmooth",
+                "solar_absorptance": 0.7,
+                "specific_heat_j_kgk": 1600.0,
+                "thermal_absorptance": 0.9,
+                "visible_absorptance": 0.7
+              },
+              "thickness_m": 0.022
+            },
+            {
+              "material": {
+                "conductivity_w_mk": 0.21,
+                "density_kg_m3": 720.0,
+                "roughness": "Smooth",
+                "solar_absorptance": 0.7,
+                "specific_heat_j_kgk": 1000.0,
+                "thermal_absorptance": 0.9,
+                "visible_absorptance": 0.5
+              },
+              "thickness_m": 0.013
+            }
+          ],
+          "surface_resistance_m2k_w": 0.17
+        },
+        "WINDOW": {
+          "solar_heat_gain_coefficient": 0.35,
+          "u_value_w_m2k": 0.9,
+          "visible_transmittance": 0.518
+        }
+      },
+      "roles": {
+        "BASEMENT_WALL": {
+          "heat_capacity_j_m2k": 436572.0,
+          "mass_kg_m2": 487.0,
+          "nominal_u_w_m2k": 3.677058353317346,
+          "resistance_m2k_w": 0.10195652173913045,
+          "rse_m2k_w": 0.04,
+          "rsi_m2k_w": 0.13,
+          "thickness_m": 0.21500000000000002
+        },
+        "EXT_WALL": {
+          "heat_capacity_j_m2k": 58272.425,
+          "mass_kg_m2": 41.667500000000004,
+          "nominal_u_w_m2k": 0.2079646201841126,
+          "resistance_m2k_w": 4.638510212528904,
+          "rse_m2k_w": 0.04,
+          "rsi_m2k_w": 0.13,
+          "thickness_m": 0.242
+        },
+        "GROUND_FLOOR": {
+          "heat_capacity_j_m2k": 437310.0,
+          "mass_kg_m2": 484.8,
+          "nominal_u_w_m2k": 0.3652864552742992,
+          "resistance_m2k_w": 2.5675775519765294,
+          "rse_m2k_w": 0.04,
+          "rsi_m2k_w": 0.13,
+          "thickness_m": 0.3
+        },
+        "INTERMEDIATE_FLOOR": {
+          "heat_capacity_j_m2k": 77691.183,
+          "mass_kg_m2": 52.7385,
+          "nominal_u_w_m2k": 0.4548203206652979,
+          "resistance_m2k_w": 1.9386704519649194,
+          "rse_m2k_w": 0.13,
+          "rsi_m2k_w": 0.13,
+          "thickness_m": 0.283
+        },
+        "INT_WALL_NONLOADBEARING": {
+          "heat_capacity_j_m2k": 28897.265,
+          "mass_kg_m2": 25.6955,
+          "nominal_u_w_m2k": 0.5909394543474945,
+          "resistance_m2k_w": 1.4322207387627948,
+          "rse_m2k_w": 0.13,
+          "rsi_m2k_w": 0.13,
+          "thickness_m": 0.096
+        },
+        "TOP_FLOOR": {
+          "heat_capacity_j_m2k": 43676.56875,
+          "mass_kg_m2": 33.995625,
+          "nominal_u_w_m2k": 0.10594559513737947,
+          "resistance_m2k_w": 9.268806764012243,
+          "rse_m2k_w": 0.04,
+          "rsi_m2k_w": 0.13,
+          "thickness_m": 0.415
+        },
+        "WINDOW": {
+          "heat_capacity_j_m2k": null,
+          "mass_kg_m2": null,
+          "nominal_u_w_m2k": 0.9
+        }
+      }
+    }
+  },
+  "weather_shell": {
+    "layers": [
+      {
+        "material": {
+          "conductivity_w_mk": 0.23,
+          "density_kg_m3": 1190.0,
+          "roughness": "MediumRough",
+          "solar_absorptance": 0.7,
+          "specific_heat_j_kgk": 1300.0,
+          "thermal_absorptance": 0.9,
+          "visible_absorptance": 0.7
+        },
+        "thickness_m": 0.003
+      },
+      {
+        "material": {
+          "conductivity_w_mk": 0.13,
+          "density_kg_m3": 500.0,
+          "roughness": "MediumSmooth",
+          "solar_absorptance": 0.7,
+          "specific_heat_j_kgk": 1600.0,
+          "thermal_absorptance": 0.9,
+          "visible_absorptance": 0.7
+        },
+        "thickness_m": 0.022
+      }
+    ],
+    "surface_resistance_m2k_w": 0.17
+  }
 }
