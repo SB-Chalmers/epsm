@@ -18,12 +18,12 @@
     },
     "epsm_core": {
       "version": "0.9.0",
-      "revision": "8732095a3ee3c176e8e41d2b8cbc0c0fd209523d",
+      "revision": "50c2006eee71295354099121b817a49e4a518f1a",
       "role": "scientific"
     },
     "epsm_rc": {
       "version": "0.11.0",
-      "revision": "5f4c8b98be1d3077353e448a574954072d810650",
+      "revision": "73288cb50ea1dc8c28d43b2b6ba843035bef672c",
       "role": "scientific"
     },
     "epsm_lca": {
