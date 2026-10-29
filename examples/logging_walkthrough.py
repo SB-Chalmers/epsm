@@ -13,9 +13,8 @@ from importlib.resources import files
 from pathlib import Path
 
 from epsm_data import Catalogue
-from epsm_db import BuildingRecord, BuildingType, Stock
+from epsm_db import BuildingRecord, BuildingType, Stock, StockCell
 from renovation_case import make_case, rc_settings
-from epsm_db import StockCell
 
 from epsm import Weather, configure_logging, reset_logging
 
