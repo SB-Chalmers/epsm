@@ -59,9 +59,9 @@ def normalized_physical_values(value):
 def test_legacy_programme_uses_public_definition_conversion_with_same_outputs(
     name, year, monkeypatch
 ):
-    pytest.importorskip("sweden_ubem")
+    pytest.importorskip("epsm_db")
     import epsm_core
-    from sweden_ubem.records import Receipt
+    from epsm_db.records import Receipt
 
     from epsm.legacy_records import ModelPolicy, _operation
 
@@ -139,9 +139,9 @@ def test_programme_preservation_under_python_311_summation(name, year, monkeypat
 @pytest.mark.parametrize("year", [2023, 2024])
 def test_natural_ventilation_preserves_normal_use_closures(name, expected_hours, year):
     """Changing the topology must not turn occupied-hours flow into 24/7 flow."""
-    pytest.importorskip("sweden_ubem")
+    pytest.importorskip("epsm_db")
     import numpy as np
-    from sweden_ubem.records import Receipt
+    from epsm_db.records import Receipt
 
     from epsm.legacy_records import ModelPolicy, _operation
 
@@ -369,8 +369,8 @@ def test_independent_component_evidence_builds_portable_archetype_without_cross_
 def _legacy_record(year=1977):
     from datetime import date
 
-    from sweden_ubem.enums import BuildingType
-    from sweden_ubem.records import BuildingRecord
+    from epsm_db.enums import BuildingType
+    from epsm_db.records import BuildingRecord
 
     footprint = box(0, 0, 10, 10)
     certificate = "synthetic-certificate"
@@ -437,10 +437,10 @@ def _legacy_record(year=1977):
 def test_legacy_record_handoff_preserves_area_evidence_and_portable_definition(
     tmp_path,
 ):
-    pytest.importorskip("sweden_ubem")
+    pytest.importorskip("epsm_db")
     from importlib.resources import files
 
-    from sweden_ubem.weather import WeatherReference
+    from epsm_db.weather import WeatherReference
 
     from epsm.legacy_records import EPSMBuilding
 
@@ -483,10 +483,10 @@ def test_legacy_record_handoff_preserves_area_evidence_and_portable_definition(
 
 
 def test_legacy_record_handoff_runs_se07_without_renovation_state():
-    pytest.importorskip("sweden_ubem")
+    pytest.importorskip("epsm_db")
     from importlib.resources import files
 
-    from sweden_ubem.weather import WeatherReference
+    from epsm_db.weather import WeatherReference
 
     from epsm.legacy_records import EPSMBuilding, ModelAssemblyError
 
@@ -545,11 +545,11 @@ def _lake_record(record):
 
 
 def test_legacy_record_handoff_reads_gis_lake_evidence():
-    pytest.importorskip("sweden_ubem")
+    pytest.importorskip("epsm_db")
     from dataclasses import replace
     from importlib.resources import files
 
-    from sweden_ubem.weather import WeatherReference
+    from epsm_db.weather import WeatherReference
 
     from epsm.legacy_records import EPSMBuilding, ModelAssemblyError
 
@@ -585,10 +585,10 @@ def test_legacy_record_handoff_reads_gis_lake_evidence():
 
 
 def test_legacy_record_handoff_uses_catalogue_ventilation_and_facade_templates():
-    pytest.importorskip("sweden_ubem")
+    pytest.importorskip("epsm_db")
     from importlib.resources import files
 
-    from sweden_ubem.weather import WeatherReference
+    from epsm_db.weather import WeatherReference
 
     from epsm.legacy_records import EPSMBuilding, ModelPolicy
 

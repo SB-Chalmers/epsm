@@ -15,7 +15,7 @@ from pathlib import Path
 from epsm_data import Catalogue
 from epsm_db import BuildingRecord, BuildingType, Stock
 from renovation_case import make_case, rc_settings
-from sweden_ubem.stock import StockCell
+from epsm_db import StockCell
 
 from epsm import Weather, configure_logging, reset_logging
 
@@ -81,7 +81,7 @@ def run(directory):
         json.loads(line)
         for line in (directory / "logs/study.jsonl").read_text().splitlines()
     ]
-    assert any(record["logger"].startswith("sweden_ubem") for record in records)
+    assert any(record["logger"].startswith("epsm_db") for record in records)
     assert any(record["event"] == "energy.rc.completed" for record in records)
     assert any(record["event"] == "lca.assessment.completed" for record in records)
     starts = {

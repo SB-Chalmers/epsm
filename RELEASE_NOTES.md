@@ -11,8 +11,11 @@ each system's airflow and heat recovery from Data's ventilation templates and
 window ratios from its facade assumptions, maps EPC exhaust-with-recovery by
 heating carrier, and forwards the catalogue's thermal-bridge surcharge to Core.
 
+Record assembly reads `epsm_db` directly (`epsm_db.records`, `epsm_db.enums`,
+`epsm_db.weather`); the retired `sweden_ubem` package is no longer imported.
+
 EPSM 0.5.0 requires Data 0.7.0, Core 0.9.0 and LCA 0.3.0; the `rc` extra
-requires RC 0.11.0. `compatibility-candidate.json` names that cohort for the
+requires RC 0.11.0 and the `database` extra Database 0.5.0. `compatibility-candidate.json` names that cohort for the
 candidate release verification. `compatibility.json` keeps the 0.4.0 supported
 combination until the candidate's installed checks pass and the cohort is
 released; Workflows 0.4.0 and Studies 0.4.0 declare `epsm_core<0.9`, so the

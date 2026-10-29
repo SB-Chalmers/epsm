@@ -10,14 +10,14 @@ from dataclasses import asdict, dataclass, field
 from datetime import date, timedelta
 from pathlib import Path
 
-from sweden_ubem.enums import BuildingType
-from sweden_ubem.records import (
+from epsm_db.enums import BuildingType
+from epsm_db.records import (
     BuildingRecord,
     Receipt,
     implementation_hash,
     json_default,
 )
-from sweden_ubem.weather import WeatherReference
+from epsm_db.weather import WeatherReference
 
 
 @dataclass(frozen=True)
@@ -1097,7 +1097,7 @@ class EPSMBuilding:
                 receipt.identities[package] = version
             receipt.identities["implementation_sha256"] = {
                 name: implementation_hash(name)
-                for name in ("epsm", "sweden_ubem", "epsm_core", "epsm_data")
+                for name in ("epsm", "epsm_db", "epsm_core", "epsm_data")
             }
             if preflight:
                 _, compiled = EnergyPlusCompiler(energyplus).compile(spec)
