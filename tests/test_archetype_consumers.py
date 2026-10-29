@@ -59,9 +59,9 @@ def normalized_physical_values(value):
 def test_legacy_programme_uses_public_definition_conversion_with_same_outputs(
     name, year, monkeypatch
 ):
-    pytest.importorskip("sweden_ubem")
+    pytest.importorskip("epsm_db")
     import epsm_core
-    from sweden_ubem.records import Receipt
+    from epsm_db.records import Receipt
 
     from epsm.legacy_records import ModelPolicy, _operation
 
@@ -135,6 +135,46 @@ def test_programme_preservation_under_python_311_summation(name, year, monkeypat
     )
 
 
+@pytest.mark.parametrize("name,expected_hours", [("office", 2700), ("school", 2200)])
+@pytest.mark.parametrize("year", [2023, 2024])
+def test_natural_ventilation_preserves_normal_use_closures(name, expected_hours, year):
+    """Changing the topology must not turn occupied-hours flow into 24/7 flow."""
+    pytest.importorskip("epsm_db")
+    import numpy as np
+    from epsm_db.records import Receipt
+
+    from epsm.legacy_records import ModelPolicy, _operation
+
+    geometry = GeometrySpec.from_footprint(
+        Footprint.rectangle(10, 10), storeys=1, storey_height_m=3
+    )
+    options = dict(
+        infiltration={"envelope_infiltration_ach": 0.2},
+        geometry=geometry,
+        area=90,
+        policy=ModelPolicy(),
+    )
+    _, mechanical, _ = _operation(
+        name, year, ventilation="FTX", receipt=Receipt("mechanical"), **options
+    )
+    receipt = Receipt("natural")
+    _, natural, _ = _operation(name, year, ventilation="S", receipt=receipt, **options)
+    schedule = natural.natural_exchange_fraction.hourly(year)
+    np.testing.assert_array_equal(
+        schedule, mechanical.mechanical_vent_fraction.hourly(year)
+    )
+    assert sum(schedule) == expected_hours
+    assert schedule[0] == 0  # Midnight is outside either operating programme.
+    assert natural.mechanical_vent_l_s_m2 == 0
+    assert (
+        natural.natural_exchange_ach * geometry.conditioned_volume_m3 / 3.6
+        == pytest.approx(mechanical.mechanical_vent_l_s_m2 * 90)
+    )
+    assert natural.sensible_recovery_effectiveness == 0
+    assert natural.envelope_infiltration_ach == 0.2
+    assert any("equivalent-flow assumption" in item for item in receipt.assumptions)
+
+
 def test_record_archetype_route_preserves_independent_evidence_and_area():
     record = {
         "building_id": "survey-one",
@@ -155,7 +195,12 @@ def test_record_archetype_route_preserves_independent_evidence_and_area():
     assert building.load_reference_area_m2 == 125
     assert building._source_record["observations"] == record["observations"]
     assert building.archetype_applications[0].archetype_id == archetype.archetype_id
-    assert building.operation is not None and building.hvac is None
+    assert building.operation is not None
+    assert (
+        building.hvac.airflow.topology
+        == archetype.hvac_template.to_dict()["values"]["airflow"]["topology"]
+    )
+    assert building.hvac.delivery.heating is None
     assert record == original
     assert (
         Building.from_dict(building.to_dict()).archetype_applications[0].to_dict()
@@ -172,11 +217,22 @@ def test_record_without_archetype_remains_unassigned():
         )
 
 
-# Expected from the original catalogue_release.core_inputs route, after verifying
-# every raw fingerprint; normalize only float representation as for programmes.
-HANDOFF_BASELINES = json.loads(
+# Captured from the original Data handovers before canonicalizing IDs and names.
+# Preserve all physical layer/glazing fields and numeric role metrics; curation
+# metadata and generated material names do not determine the physical model.
+_HANDOFF_FIXTURE = json.loads(
     (Path(__file__).parent / "fixtures/archetype-consumer-baseline.json").read_text()
 )
+HANDOFF_BASELINES = _HANDOFF_FIXTURE["configurations"]
+
+
+def construction_physics(record):
+    """Retain every physical construction value while ignoring display identity."""
+    result = json.loads(json.dumps(record))
+    if "layers" in result:
+        for layer in result["layers"]:
+            layer["material"].pop("name", None)
+    return normalized_physical_values(result)
 
 
 @pytest.mark.parametrize("key", HANDOFF_BASELINES)
@@ -199,8 +255,8 @@ def test_nominal_handoff_uses_common_authoring_without_calibration_dependency(
     )
     selected, described, exported = [], [], []
 
-    def select(self, identifier, *, state=None):
-        result = get(self, identifier, state=state)
+    def select(self, identifier, *, state=None, ventilation=None):
+        result = get(self, identifier, state=state, ventilation=ventilation)
         selected.append((identifier, state, result))
         return result
 
@@ -237,20 +293,32 @@ def test_nominal_handoff_uses_common_authoring_without_calibration_dependency(
     assert len(exported) == 1
     assert exported[0][0] is selected[0][2] is result["archetype"]
     assert exported[0][1] is described[0][2]
-    payload = {
-        name: result[name].model_dump(mode="json") for name in ("envelope", "glazing")
-    }
-    payload.update(
-        core=result["nominal_bundle"]["core"], roles=result["nominal_bundle"]["roles"]
-    )
-    assert (
-        hashlib.sha256(
-            json.dumps(
-                normalized_physical_values(payload), sort_keys=True, allow_nan=False
-            ).encode()
-        ).hexdigest()
-        == HANDOFF_BASELINES[key]
-    )
+    expected = HANDOFF_BASELINES[key]
+    actual = result["nominal_bundle"]
+    assert {
+        role: construction_physics(record) for role, record in actual["core"].items()
+    } == normalized_physical_values(expected["core"])
+    assert {
+        role: {field: normalized_physical_values(record[field]) for field in metrics}
+        for role, metrics in expected["roles"].items()
+        for record in (actual["roles"][role],)
+    } == normalized_physical_values(expected["roles"])
+    top_role = "TOP_FLOOR" if "TOP_FLOOR" in expected["core"] else "ROOF"
+    for field, role in {
+        "wall": "EXT_WALL",
+        "top": top_role,
+        "ground": "GROUND_FLOOR",
+        "intermediate_floor": "INTERMEDIATE_FLOOR",
+        "basement_wall": "BASEMENT_WALL",
+    }.items():
+        assert construction_physics(
+            getattr(result["envelope"], field).model_dump(mode="json")
+        ) == normalized_physical_values(expected["core"][role])
+    assert construction_physics(
+        result["envelope"].weather_shell.model_dump(mode="json")
+    ) == normalized_physical_values(_HANDOFF_FIXTURE["weather_shell"])
+    for field, value in expected["core"]["WINDOW"].items():
+        assert getattr(result["glazing"], field) == value
 
 
 def test_independent_component_evidence_builds_portable_archetype_without_cross_changes():
@@ -292,20 +360,17 @@ def test_independent_component_evidence_builds_portable_archetype_without_cross_
     assert selected["assignment"]["components"]["airtightness"]["status"] == "assumed"
     with pytest.raises(ValueError, match="independent source"):
         resolve_building_archetype(**options, component_states={"window": "advanced"})
+    with pytest.raises(ValueError, match="Unknown component"):
+        resolve_building_archetype(
+            **options, component_states={"best_heating_error": "advanced"}
+        )
 
 
-def test_legacy_record_handoff_preserves_area_evidence_and_portable_definition(
-    tmp_path,
-):
-    pytest.importorskip("sweden_ubem")
+def _legacy_record(year=1977):
     from datetime import date
-    from importlib.resources import files
 
-    from sweden_ubem.enums import BuildingType
-    from sweden_ubem.records import BuildingRecord
-    from sweden_ubem.weather import WeatherReference
-
-    from epsm.legacy_records import EPSMBuilding
+    from epsm_db.enums import BuildingType
+    from epsm_db.records import BuildingRecord
 
     footprint = box(0, 0, 10, 10)
     certificate = "synthetic-certificate"
@@ -320,7 +385,7 @@ def test_legacy_record_handoff_preserves_area_evidence_and_portable_definition(
             "EgenAtemp": 90,
             "EgenAntalPlan": 1,
             "EgenAntalKallarplan": 0,
-            "EgenNybyggAr": 1977,
+            "EgenNybyggAr": year,
             "EgenAtempBostad": 100,
         }.items()
     )
@@ -331,7 +396,7 @@ def test_legacy_record_handoff_preserves_area_evidence_and_portable_definition(
         footprint,
         facts=dict(
             geometry_status="resolved",
-            construction_year=1977,
+            construction_year=year,
             status_verified=True,
             is_existing=True,
         ),
@@ -366,6 +431,20 @@ def test_legacy_record_handoff_preserves_area_evidence_and_portable_definition(
         ),
         observations=observations,
     )
+    return record
+
+
+def test_legacy_record_handoff_preserves_area_evidence_and_portable_definition(
+    tmp_path,
+):
+    pytest.importorskip("epsm_db")
+    from importlib.resources import files
+
+    from epsm_db.weather import WeatherReference
+
+    from epsm.legacy_records import EPSMBuilding
+
+    record = _legacy_record()
     before = record.to_dict()
     weather = WeatherReference.from_epw(
         files("epsm_rc") / "data/epw/goteborg.epw", calendar_year=2023
@@ -401,6 +480,146 @@ def test_legacy_record_handoff_preserves_area_evidence_and_portable_definition(
         json.loads(paths[1].read_text())["identities"]["archetype_definition"]
         == receipt.identities["archetype_definition"]
     )
+
+
+def test_legacy_record_handoff_runs_se07_without_renovation_state():
+    pytest.importorskip("epsm_db")
+    from importlib.resources import files
+
+    from epsm_db.weather import WeatherReference
+
+    from epsm.legacy_records import EPSMBuilding, ModelAssemblyError
+
+    weather = WeatherReference.from_epw(
+        files("epsm_rc") / "data/epw/goteborg.epw", calendar_year=2023
+    )
+    record = _legacy_record(2023)
+    _, receipt = EPSMBuilding.from_record(record, weather=weather, preflight=False)
+    assert receipt.identities["archetype_assignment"]["era"] == "SE.07"
+    with pytest.raises(
+        ModelAssemblyError, match="SE.07 has one catalogue configuration"
+    ):
+        EPSMBuilding.from_record(
+            record,
+            weather=weather,
+            preflight=False,
+            overrides={"renovation_state": "existing"},
+        )
+    _, older = EPSMBuilding.from_record(
+        _legacy_record(), weather=weather, preflight=False
+    )
+    assert (
+        older.identities["archetype_assignment"]["components"]["wall"]["state"]
+        == "existing"
+    )
+
+
+def _lake_record(record):
+    """The same evidence as a GIS-lake (epsm_db schema 2) record."""
+    from dataclasses import replace
+
+    facts = dict(
+        construction_year=record.facts["construction_year"],
+        geometry_valid=True,
+        object_status="Gällande",
+    )
+    components = tuple(
+        dict(
+            {
+                k: v
+                for k, v in c.items()
+                if k not in {"geometry_hash", "outline_labels"}
+            },
+            attributes={"outline_labels": c["outline_labels"]},
+        )
+        for c in record.components
+    )
+    heights = tuple(
+        dict(
+            {k: v for k, v in h.items() if k not in {"input_geometry_hash", "details"}},
+            attributes={"geometry_status": "consistent_source_component"},
+        )
+        for h in record.heights
+    )
+    return replace(record, facts=facts, components=components, heights=heights)
+
+
+def test_legacy_record_handoff_reads_gis_lake_evidence():
+    pytest.importorskip("epsm_db")
+    from dataclasses import replace
+    from importlib.resources import files
+
+    from epsm_db.weather import WeatherReference
+
+    from epsm.legacy_records import EPSMBuilding, ModelAssemblyError
+
+    weather = WeatherReference.from_epw(
+        files("epsm_rc") / "data/epw/goteborg.epw", calendar_year=2023
+    )
+    record = _legacy_record()
+    lake = _lake_record(record)
+    legacy, _ = EPSMBuilding.from_record(record, weather=weather, preflight=False)
+    built, _ = EPSMBuilding.from_record(lake, weather=weather, preflight=False)
+    assert built.spec.physical_hash() == legacy.spec.physical_hash()
+    for facts, heights, message in (
+        (
+            {**lake.facts, "object_status": "Avregistrerad"},
+            lake.heights,
+            "existing-building",
+        ),
+        (
+            lake.facts,
+            tuple(
+                dict(h, attributes={"geometry_status": "unresolved_roof_evidence"})
+                for h in lake.heights
+            ),
+            "Unresolved height",
+        ),
+    ):
+        with pytest.raises(ModelAssemblyError, match=message):
+            EPSMBuilding.from_record(
+                replace(lake, facts=facts, heights=heights),
+                weather=weather,
+                preflight=False,
+            )
+
+
+def test_legacy_record_handoff_uses_catalogue_ventilation_and_facade_templates():
+    pytest.importorskip("epsm_db")
+    from importlib.resources import files
+
+    from epsm_db.weather import WeatherReference
+
+    from epsm.legacy_records import EPSMBuilding, ModelPolicy
+
+    weather = WeatherReference.from_epw(
+        files("epsm_rc") / "data/epw/goteborg.epw", calendar_year=2023
+    )
+    record = _legacy_record()  # 1977 multifamily, no reported ventilation
+    existing, receipt = EPSMBuilding.from_record(
+        record, weather=weather, preflight=False
+    )
+    assert receipt.identities["ventilation_template"] == "epsm.ventilation.F"
+    assert existing.spec.airflow.topology == "F"
+    assert existing.spec.facade.default_wwr == 0.24
+    assert {o.wwr for o in existing.spec.facade.overrides} <= {0.22, 0.23, 0.28}
+    assert existing.spec.facade.overrides
+    advanced, receipt = EPSMBuilding.from_record(
+        record,
+        weather=weather,
+        preflight=False,
+        overrides={"renovation_state": "advanced"},
+    )
+    assert receipt.identities["ventilation_template"] == "epsm.ventilation.FTX_080"
+    assert advanced.spec.airflow.sensible_recovery_effectiveness == 0.8
+    earlier, receipt = EPSMBuilding.from_record(
+        record,
+        weather=weather,
+        preflight=False,
+        policy=ModelPolicy(version="3", catalogue_templates=False),
+    )
+    assert "ventilation_template" not in receipt.identities
+    assert earlier.spec.facade.default_wwr == 0.2 and not earlier.spec.facade.overrides
 
 
 def test_missing_basement_recipe_requires_explicit_input_without_floor_substitution(

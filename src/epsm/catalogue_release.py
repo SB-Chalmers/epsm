@@ -1,4 +1,4 @@
-"""Explicit v1 construction handover; optional core dependencies are imported lazily."""
+"""Frozen LoD2 construction handover; Core dependencies are imported lazily."""
 from __future__ import annotations
 
 import math
@@ -10,68 +10,102 @@ from epsm._logging import call_with_context
 
 
 def _catalogue_view(catalogue=None, detailed=None):
-    """Adapt explicit advanced inspection inputs to the one public library."""
-    if isinstance(catalogue, Catalogue):
-        return (catalogue if detailed is None or detailed is catalogue.detailed else
-                Catalogue(parametric=catalogue.parametric, detailed=detailed))
-    loaded = call_with_context(Catalogue.load)
-    return (loaded if catalogue is None and detailed is None else
-            Catalogue(parametric=catalogue or loaded.parametric, detailed=detailed or loaded.detailed))
+    """Use the one frozen LoD2 catalogue; legacy inspection objects are retired."""
+    if detailed is not None:
+        raise TypeError("detailed is retired; pass a LoD2 Catalogue as catalogue")
+    if catalogue is None:
+        return call_with_context(Catalogue.load)
+    if not isinstance(catalogue, Catalogue):
+        raise TypeError("catalogue must be a LoD2 Catalogue")
+    return catalogue
 
 
-def core_inputs(archetype_id, state=None, *, detailed=None, catalogue=None, basement_wall=None):
-    """Return native core envelope/glazing plus topology and boundary requirements.
+def _weather_shell(library, metadata, supplied):
+    """Retain the declared representative shell until a caller supplies a roof."""
+    from epsm_core.specs import ConstructionSpec
 
-    Callers supply geometry, weather, use, HVAC and ground temperatures. An explicit
-    attic outdoor-air rate is required for cold attics. Current Core accepts
-    UnconditionedExchangeSpec; apply_attic_ventilation supports legacy compilers.
-    Baseline and renovation describe independent states, not sequential operations.
+    if supplied is not None:
+        return (supplied if isinstance(supplied, ConstructionSpec)
+                else ConstructionSpec(**supplied)), "Caller-supplied weather-shell construction."
+    if metadata.get("weather_shell") is not None:
+        return ConstructionSpec(**metadata["weather_shell"]), (
+            "Recorded representative weather shell; verify against the actual roof."
+        )
+    raise ValueError(
+        "No recorded representative weather shell; supply an explicit weather_shell construction"
+    )
+
+
+def core_inputs(archetype_id, state=None, *, detailed=None, catalogue=None,
+                basement_wall=None, weather_shell=None, ventilation=None):
+    """Return native Core constructions from the frozen physical catalogue.
+
+    The caller supplies geometry, weather, use, HVAC and ground boundaries.
+    Cold-attic ventilation remains an explicit building input. The default
+    weather shell is the recorded representative assumption, independently of
+    the insulated ceiling; override it with a supplied ConstructionSpec.
+    ``ventilation`` (S, F, FT or FTX) is the building's observed system; it
+    selects only the archetype's airflow-only ventilation template.
     """
     from epsm_core.specs import ConstructionSpec, EnvelopeSpec, GlazingSpec
 
     library = _catalogue_view(catalogue, detailed)
-    detailed = library.detailed
-    if detailed.archetypes[archetype_id]['era'] == 'SE.07':
-        if state is not None:
-            raise ValueError('SE.07 has no renovation states; use state=None')
-    elif state is None:
-        state = 'existing'
-    definition = detailed.archetypes[archetype_id]['states'][state]
-    if definition.get('release_profile') not in {'lod2-v1', 'complete_recipe'}:
-        raise ValueError('This adapter requires a reviewed v1 state')
-    archetype = call_with_context(library.get, archetype_id, state=state)
-    bundle = export_nominal_constructions(archetype,
-        metadata=library.nominal_metadata(archetype_id, state=state))
-    core = bundle['core']
-    roof = definition['v1_review']['roof_topology']
-    # Representative non-insulated weather shell: outside felt, then roof boarding.
-    # Required only for an attic; it must never carry the ceiling insulation again.
-    stack = []
-    for mid, thickness in [('office_under_felt', .003), ('wooden_stud', .022)]:
-        p = detailed.resolve_material(mid)['properties']
-        stack.append({'thickness_m': thickness, 'material': {
-            'name': f'v1_weather_{mid}', 'conductivity_w_mk': p['conductivity'],
-            'density_kg_m3': p['density'], 'specific_heat_j_kgk': p['specific_heat'],
-            'roughness': p['roughness'], 'thermal_absorptance': p['thermal_absorptance'],
-            'solar_absorptance': p['solar_absorptance'], 'visible_absorptance': p['visible_absorptance']}})
-    top = ConstructionSpec(**core.get('TOP_FLOOR', core.get('ROOF')))
-    ground = ConstructionSpec(**core['GROUND_FLOOR'])
-    if 'BASEMENT_WALL' in core:
-        basement_wall = ConstructionSpec(**core['BASEMENT_WALL'])
+    # Catalogue selection resolves legacy aliases and the explicit generic/MF
+    # assumption without inserting another authored construction family.
+    # An observed ventilation system selects the archetype's airflow template;
+    # without one, Data applies the era default. Constructions do not change.
+    archetype = call_with_context(library.get, archetype_id, state=state,
+                                  ventilation=ventilation)
+    metadata = library.nominal_metadata(archetype_id, state=state)
+    bundle = export_nominal_constructions(archetype, metadata=metadata)
+    core = bundle["core"]
+    required = {"EXT_WALL", "GROUND_FLOOR", "INTERMEDIATE_FLOOR", "WINDOW"}
+    missing = sorted(required - core.keys())
+    if "TOP_FLOOR" not in core and "ROOF" not in core:
+        missing.append("TOP_FLOOR or ROOF")
+    if missing:
+        raise ValueError("Core handover is missing physical roles: " + ", ".join(missing))
+    roof = metadata.get("roof_topology")
+    if roof not in {"cold_attic", "compact"}:
+        raise ValueError("Core handover requires a declared roof_topology")
+    shell, shell_note = _weather_shell(library, metadata, weather_shell)
+    top = ConstructionSpec(**core.get("TOP_FLOOR", core.get("ROOF")))
+    if "BASEMENT_WALL" in core:
+        basement_wall = ConstructionSpec(**core["BASEMENT_WALL"])
     elif basement_wall is None:
-        raise ValueError('No basement-wall recipe: this core requires an explicit basement_wall construction; no floor substitution is made.')
-    envelope = EnvelopeSpec(wall=ConstructionSpec(**core['EXT_WALL']), top=top,
-        ground=ground, intermediate_floor=ConstructionSpec(**core['INTERMEDIATE_FLOOR']),
-        weather_shell=ConstructionSpec(layers=tuple(stack)),
-        basement_wall=basement_wall)
-    return {'archetype': archetype, 'envelope': envelope, 'glazing': GlazingSpec(**core['WINDOW']),
-            'roof_topology': roof, 'nominal_bundle': bundle,
-            'requirements': {
-                'attic_outdoor_air_ach': 'required explicit assumption' if roof == 'cold_attic' else 'not applicable',
-                'weather_shell': 'Representative 3 mm felt + 22 mm timber; assumed, not inferred from ceiling U.',
-                'ground_temperature': 'Caller must supply ground boundary; core default is not validated.',
-                'basement': 'Optional construction; geometry determines presence. No floor substitution is supplied.',
-                'empirical_validation': 'pending'}}
+        raise ValueError(
+            "No basement-wall recipe: supply an explicit basement_wall construction; "
+            "no floor substitution is made."
+        )
+    elif not isinstance(basement_wall, ConstructionSpec):
+        basement_wall = ConstructionSpec(**basement_wall)
+    # The catalogue's thermal-bridge assumption; an unknown one stays no allowance.
+    performance = archetype.envelope_performance
+    uplift = performance.thermal_bridge_uplift_fraction if performance else None
+    delta_u = performance.thermal_bridge_delta_u_w_m2k if performance else None
+    envelope = EnvelopeSpec(
+        wall=ConstructionSpec(**core["EXT_WALL"]), top=top,
+        ground=ConstructionSpec(**core.get("BASEMENT_FLOOR", core["GROUND_FLOOR"])),
+        basement_ceiling=(ConstructionSpec(**core["GROUND_FLOOR"])
+                          if "BASEMENT_FLOOR" in core else None),
+        intermediate_floor=ConstructionSpec(**core["INTERMEDIATE_FLOOR"]),
+        weather_shell=shell, basement_wall=basement_wall,
+        thermal_bridge_uplift_fraction=uplift or 0,
+        thermal_bridge_delta_u_w_m2k=delta_u,
+    )
+    return {
+        "archetype": archetype, "envelope": envelope,
+        "glazing": GlazingSpec(**core["WINDOW"]), "roof_topology": roof,
+        "nominal_bundle": bundle,
+        **({"selection": deepcopy(metadata["selection"])} if "selection" in metadata else {}),
+        "requirements": {
+            "attic_outdoor_air_ach": "required explicit assumption"
+            if roof == "cold_attic" else "not applicable",
+            "weather_shell": shell_note,
+            "ground_temperature": "Caller must supply a ground boundary appropriate to the building.",
+            "basement": "Geometry determines presence; no floor substitution is supplied.",
+        },
+    }
 
 
 def apply_attic_ventilation(epjson, *, outdoor_air_ach):

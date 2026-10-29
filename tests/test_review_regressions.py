@@ -18,7 +18,7 @@ def test_portable_record_and_explicit_override_keep_source_evidence():
     from shapely.geometry import box
 
     db = pytest.importorskip("epsm_db")
-    from sweden_ubem.enums import BuildingType
+    from epsm_db.enums import BuildingType
 
     record = db.BuildingRecord(
         "source",

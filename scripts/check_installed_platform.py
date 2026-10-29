@@ -141,9 +141,8 @@ def main():
             raise RuntimeError(f"{name} imported outside the wheel environment: {path}")
         installed[name] = {"version": metadata.version(name), "import_path": str(path)}
 
-    from epsm_db import BuildingRecord, BuildingType, Stock
+    from epsm_db import BuildingRecord, BuildingType, Stock, StockCell
     from epsm_studies import PaperStudy
-    from sweden_ubem.stock import StockCell
 
     from epsm import Building, Evaluation, Weather, assess_renovation
 
