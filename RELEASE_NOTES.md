@@ -1,4 +1,4 @@
-# Release 0.5.0 — LoD2 catalogue handoffs (candidate, 29 October 2026)
+# Release 0.5.0 — LoD2 catalogue handoffs (29 October 2026)
 
 EPSM consumes the frozen LoD2 catalogue through `core_inputs` and
 `resolve_building_archetype`; legacy aliases and SE.07 resolve in Data. Generic
