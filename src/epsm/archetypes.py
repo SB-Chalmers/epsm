@@ -8,10 +8,16 @@ from __future__ import annotations
 import json
 from collections.abc import Mapping
 
-from epsm_core import HVACSystem, SourceRecord, resolve_operating_profile
+from epsm_core import (
+    HVACSystem,
+    SourceRecord,
+    natural_exchange_for_total,
+    resolve_operating_profile,
+)
 from epsm_data import Archetype, archetype_to_dict
 
 from ._logging import context_logger
+from ._programme_airflow import measured_air_change
 from .results import _FrozenJSON, encode
 
 logger = context_logger(__name__)
@@ -336,6 +342,7 @@ def apply_archetype(building, archetype, *, mode="replace", calendar=None):
                 records.append(_source(name, envelope))
     template = archetype.hvac_template
     template_airflow = {}
+    netted = ()
     if template is not None:
         sources.extend(template.source_references)
         template_values = template.to_dict()["values"]
@@ -352,6 +359,26 @@ def apply_archetype(building, archetype, *, mode="replace", calendar=None):
             resolution = HVACSystem.resolve_template(
                 template.with_changes(values=composed), previous=building.hvac
             )
+            total = (
+                measured_air_change(profile, composed["airflow"].get("topology"))
+                if profile is not None and resolution.hvac is not None
+                else None
+            )
+            if total is not None and building.geometry is None:
+                requirements.append(
+                    "operating_profile.measured_use.total_air_change_ach (geometry)"
+                )
+            elif total is not None:
+                composed["airflow"]["natural_exchange_ach"] = natural_exchange_for_total(
+                    total,
+                    resolution.hvac.airflow,
+                    volume_m3=building.geometry.conditioned_volume_m3,
+                    reference_area_m2=building.load_reference_area_m2,
+                )
+                netted = ("hvac.airflow.natural_exchange_ach",)
+                resolution = HVACSystem.resolve_template(
+                    template.with_changes(values=composed), previous=building.hvac
+                )
             if resolution.hvac is None:
                 requirements.extend(
                     "hvac_template." + item for item in resolution.requirements
@@ -377,9 +404,11 @@ def apply_archetype(building, archetype, *, mode="replace", calendar=None):
                     _source(path, template)
                     for path in explicit
                     if not _covered(
-                        path, ("hvac.airflow." + key for key in envelope_airflow)
+                        path,
+                        (*("hvac.airflow." + key for key in envelope_airflow), *netted),
                     )
                 )
+                records.extend(_source(path, profile) for path in netted)
         else:
             retained.append("hvac")
         del supplied

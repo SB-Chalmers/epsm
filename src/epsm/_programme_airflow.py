@@ -3,6 +3,12 @@
 from epsm_core import AirflowSpec, ScheduleSpec
 
 
+def measured_air_change(profile, topology):
+    """The measured total air change a profile gives this ventilation system, if any."""
+    measured = profile.values.get("measured_use", {})
+    return measured.get("ventilation", {}).get(topology, {}).get("total_air_change_ach")
+
+
 def normal_use_airflow(
     *, ventilation, infiltration, flow_l_s_m2, fraction,
     reference_area_m2, conditioned_volume_m3, recovery_effectiveness,
