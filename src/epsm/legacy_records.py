@@ -11,6 +11,7 @@ from datetime import date, timedelta
 from pathlib import Path
 
 from epsm_db.enums import BuildingType
+from epsm_db.epc_systems import observed_systems_from_record
 from epsm_db.records import (
     BuildingRecord,
     Receipt,
@@ -23,7 +24,7 @@ from epsm_db.weather import WeatherReference
 @dataclass(frozen=True)
 class ModelPolicy:
     name: str = "ubem_v1"
-    version: str = "4"
+    version: str = "5"
     minimum_programme_blend_share: float = 0.05
     typical_floor_height_m: float = 3.0
     minimum_full_floor_height_m: float = 2.0
@@ -38,13 +39,15 @@ class ModelPolicy:
     maximum_component_omission_fraction: float = 0.01
     attic_outdoor_air_ach: float = 0.5
     ftx_recovery: float = 0.7
-    heat_pump_cop: float = 3.0
     fuel_efficiency: float = 0.9
     calendar_year: int = 2023
     catalogue_climate_zone: str = "SE.Zone3"
     # Version 4: catalogue ventilation templates and facade window ratios. False
     # restores version 3's type defaults below (one WWR and one FTX recovery).
     catalogue_templates: bool = True
+    # Version 5: heat-pump COP from Data's delivery template. "measured" selects
+    # Data's observed stock operation for existing buildings; "sveby" is normal use.
+    operating_standard: str = "sveby"
     wwr_by_type: dict = field(
         default_factory=lambda: {
             "single_family": 0.2,
@@ -73,10 +76,9 @@ class ModelPolicy:
             self.minimum_full_floor_height_m,
             self.maximum_full_floor_height_m,
             self.basement_depth_m,
-            self.heat_pump_cop,
         ]
         if any(not math.isfinite(x) or x <= 0 for x in positive):
-            raise ValueError("Height, depth and COP assumptions must be finite and positive")
+            raise ValueError("Height and depth assumptions must be finite and positive")
         if self.minimum_full_floor_height_m >= self.maximum_full_floor_height_m:
             raise ValueError("Floor-height bounds must increase")
         if not 0 <= self.ftx_recovery <= 1 or not 0 < self.fuel_efficiency <= 1:
@@ -99,6 +101,8 @@ class ModelPolicy:
             raise ValueError("WWR must be between 0 and 1")
         if any(x not in {"S", "F", "FT", "FTX"} for x in self.ventilation_by_type.values()):
             raise ValueError("Unsupported ventilation default")
+        if self.operating_standard not in {"sveby", "measured"}:
+            raise ValueError("operating_standard must be sveby or measured")
 
 
 class ModelAssemblyError(ValueError):
@@ -188,43 +192,27 @@ def _effective_programme_shares(shares, *, primary, minimum_share, receipt):
     return retained
 
 
+def _observed_systems(record):
+    """What the selected EPC reports, when it describes this building alone."""
+    return observed_systems_from_record(record) if record.single_building_epc else None
+
+
 def _ventilation(record, policy, receipt, override):
     if override:
         if override not in {"S", "F", "FT", "FTX"}:
             raise ValueError("Ventilation must be S, F, FT or FTX")
         _field(receipt, "ventilation", override, "assumed", "Caller-supplied ventilation topology")
         return override
-    cert = record.selected_certificate if record.single_building_epc else None
-    positive = set()
-    for name, kind in {
-        "VentTypSjalvdrag": "S",
-        "VentTypF": "F",
-        "VentTypFmed": "Fmed",
-        "VentTypFT": "FT",
-        "VentTypFTX": "FTX",
-    }.items():
-        values = [
-            o["raw_values"]
-            for o in record.observations
-            if cert and o["certificate_id"] == cert["certificate_id"] and o["source_field"] == name
-        ]
-        if (
-            len(values) == 1
-            and len(values[0]) == 1
-            and str(values[0][0]).strip().casefold() in {"ja", "true", "1"}
-        ):
-            positive.add(kind)
-    if positive == {"F", "Fmed"}:
-        positive = {"Fmed"}  # exhaust, with recovery
-    if len(positive) == 1:
-        result = positive.pop()
+    observed = _observed_systems(record)
+    result = observed.ventilation if observed else None
+    if result:
         if result == "Fmed":
             # Exhaust with heat recovery, in practice an exhaust-air heat pump. With heat-pump
             # heating the exhaust air is the pump's source and its COP carries the recovery,
             # so the building is modelled as F. Otherwise the pump's electricity is not in the
             # heating carrier and the recovered heat lowers it: modelled as recovery on the
             # exhaust flow, FTX at the catalogue's observed-FTX effectiveness.
-            result = "F" if _heating_carriers(record) == ["heat_pump"] else "FTX"
+            result = "F" if observed.heating_carrier == "heat_pump" else "FTX"
             receipt.assumptions.append(
                 f"EPC ventilation F with heat recovery modelled as {result}: "
                 + ("recovery carried by the heat pump's COP" if result == "F" else "no heat-pump heating carrier")
@@ -237,7 +225,7 @@ def _ventilation(record, policy, receipt, override):
             "ventilation",
             result,
             "assumed",
-            f"Ventilation {'conflicting' if positive else 'unavailable'}; type default {result}",
+            f"Ventilation {observed.ventilation_status if observed else 'unavailable'}; type default {result}",
         )
     return result
 
@@ -615,19 +603,31 @@ def _operation(
     area,
     policy,
     receipt,
+    era=None,
     residential_type="single_family",
 ):
-    from epsm_core import ScheduleSpec, resolve_operating_profile
+    from epsm_core import (
+        ScheduleSpec,
+        natural_exchange_for_total,
+        resolve_operating_profile,
+    )
     from epsm_data import (
         load_operating_profile,
         select_dhw_profile,
         select_operating_profile,
     )
 
-    from ._programme_airflow import normal_use_airflow
+    from ._programme_airflow import measured_air_change, normal_use_airflow
+
+    def selected(use):
+        if policy.operating_standard == "sveby":
+            return select_operating_profile(use)
+        profile = select_operating_profile(use, standard="measured", era=era)
+        receipt.assumptions.append(profile.notes[-1])
+        return profile
 
     if name == "residential":
-        profile = select_operating_profile(residential_type)
+        profile = selected(residential_type)
         resolved = resolve_operating_profile(profile, calendar={"calendar_year": year})
         use = resolved.operation
         dhw = select_dhw_profile(residential_type, purpose="epc_normal_use")
@@ -638,7 +638,7 @@ def _operation(
         flow = resolved.assumptions["airflow"]["mechanical_vent_l_s_m2"]
         fraction = ScheduleSpec.constant(1)
     elif name in {"office", "school"}:
-        profile = select_operating_profile(name)
+        profile = selected(name)
         dates = _active_dates(year, profile.values["reference_active_days"], school=name == "school")
         resolved = resolve_operating_profile(profile, calendar={
             "calendar_year": year, "active_dates": dates,
@@ -678,6 +678,15 @@ def _operation(
         conditioned_volume_m3=geometry.conditioned_volume_m3,
         recovery_effectiveness=airflow_template.get("sensible_recovery_effectiveness", 0),
     )
+    total = measured_air_change(profile, topology)
+    if total is not None:
+        # Per programme, so a mixed-use building keeps the other uses' exchange.
+        air = air.updated(natural_exchange_ach=natural_exchange_for_total(
+            total, air, volume_m3=geometry.conditioned_volume_m3, reference_area_m2=area,
+        ))
+        receipt.assumptions.append(
+            f"Natural exchange from a measured total air change of {total} ACH, net of infiltration"
+        )
     if topology == "S":
         receipt.assumptions.append(
             "Natural ventilation uses the source normal-use outdoor-air timetable "
@@ -687,70 +696,31 @@ def _operation(
     return use, air, source
 
 
-_CARRIER_FIELDS = {
-    "district_heat": ["EgiFjarrvarme", "EgiFjarrvarmeUPPV"],
-    "electric_direct": [
-        "EgiElVatten",
-        "EgiElDirekt",
-        "EgiElLuft",
-        "EgiElVattenUPPV",
-        "EgiElDirektUPPV",
-        "EgiElLuftUPPV",
-    ],
-    "heat_pump": [
-        "EgiPumpMark",
-        "EgiPumpFranluft",
-        "EgiPumpLuftLuft",
-        "EgiPumpLuftVatten",
-        "EgiPumpMarkUPPV",
-        "EgiPumpFranluftUPPV",
-        "EgiPumpLuftLuftUPPV",
-        "EgiPumpLuftVattenUPPV",
-    ],
-    "fuel": [
-        "EgiOlja",
-        "EgiGas",
-        "EgiVed",
-        "EgiFlis",
-        "EgiOvrBiobransle",
-        "EgiOljaUPPV",
-        "EgiGasUPPV",
-        "EgiVedUPPV",
-        "EgiFlisUPPV",
-        "EgiOvrBiobransleUPPV",
-    ],
-}
-
-
-def _heating_carriers(record):
-    """Carrier families with positive reported energy on a single-building EPC."""
-    return [
-        name
-        for name, sources in _CARRIER_FIELDS.items()
-        if record.single_building_epc and any(_positive(record.observation(s)[0]) for s in sources)
-    ]
-
-
 def _delivery(record, policy, receipt):
-    from epsm_core import DeliverySpec, HeatingDeliverySpec, ScheduleSpec
+    from epsm_core import DeliverySpec, HeatingDeliverySpec
+    from epsm_data.templates import heating_delivery_template
 
-    present = _heating_carriers(record)
-    if len(present) != 1:
+    observed = _observed_systems(record)
+    carrier = observed.heating_carrier if observed else None
+    if carrier is None:
         receipt.quality.append(
             "Heating carrier mixed/unavailable: model reports ideal thermal demand; no purchased-energy conversion"
         )
         return DeliverySpec()
-    carrier = present[0]
     options = {
         "carrier": carrier,
         "source": "ubem_v1: carrier indicated by raw EPC energy fields; effective efficiency/COP assumption",
     }
     if carrier == "heat_pump":
-        options["heat_pump_cop"] = ScheduleSpec.constant(policy.heat_pump_cop)
+        template = heating_delivery_template(carrier)
+        options = dict(template.values["delivery"]["heating"])
+        receipt.identities["heating_delivery_template"] = template.template_id
     if carrier == "fuel":
         options["efficiency"] = policy.fuel_efficiency
     receipt.assumptions.append(
-        f"Heating carrier {carrier}; effective delivery parameters from policy, not calibrated performance"
+        f"Heating carrier {carrier}; effective delivery parameters from "
+        + ("the catalogue's field-average template" if carrier == "heat_pump" else "policy")
+        + ", not calibrated performance"
     )
     return DeliverySpec(heating=HeatingDeliverySpec(**options))
 
@@ -884,6 +854,7 @@ class EPSMBuilding:
                 component_sources=overrides.get("component_sources"),
                 tabula_reference_area_m2=area,
                 conditioned_volume_m3=geometry.conditioned_volume_m3,
+                operating_standard=policy.operating_standard,
             )
             airflow_template = _ventilation_template(
                 record,
@@ -934,6 +905,7 @@ class EPSMBuilding:
                     area=area,
                     policy=policy,
                     receipt=receipt,
+                    era=fabric["assignment"]["era"],
                     residential_type="single_family"
                     if record.type == BuildingType.RESIDENTIAL_SINGLE_FAMILY
                     else "multi_family",
@@ -950,6 +922,7 @@ class EPSMBuilding:
                 area=area,
                 policy=policy,
                 receipt=receipt,
+                era=fabric["assignment"]["era"],
                 residential_type="single_family"
                 if record.type == BuildingType.RESIDENTIAL_SINGLE_FAMILY
                 else "multi_family",

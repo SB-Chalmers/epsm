@@ -1,3 +1,19 @@
+# Unreleased
+
+Sveby normal use stays the default. `ModelPolicy(operating_standard="measured")` and
+`resolve_building_archetype(..., operating_standard="measured")` select Data's
+observed stock operation: the multifamily setpoint by era, a self-draught total air
+change net of the building's infiltration, and office flow and hours. Uses with no
+adopted value keep normal use and say so.
+
+`ubem_v1` moves to policy version 5. Heat-pump delivery takes the seasonal COP from
+Data's `heating_delivery_template`, so modelled heat-pump electricity rises by about
+9 % (COP 2.75 against 3.0), and `ModelPolicy.heat_pump_cop` is removed. Ventilation and
+heating carriers are read through `epsm_db.epc_systems`; on 94,189 certificates from
+the lake, including 23,835 with mixed carriers, carriers are unchanged.
+
+Requires the next releases of Data, Core and Database, which add these interfaces.
+
 # Release 0.5.1 — Core 0.9.1 and LCA 0.4.0 in the supported combination (30 October 2026)
 
 The supported manifest moves to Core 0.9.1 (`9a0f02f`, the installing measure

@@ -12,6 +12,7 @@ from epsm_data import (
     ConstructionSet,
     EnvelopePerformance,
     export_nominal_constructions,
+    select_operating_profile,
 )
 from epsm_data.domain import BuildingElement as Role
 
@@ -87,6 +88,7 @@ def resolve_building_archetype(
     tabula_reference_area_m2=None,
     conditioned_volume_m3=None,
     weather_shell=None,
+    operating_standard="sveby",
 ):
     """Select shared physical definitions and independently chosen components.
 
@@ -99,6 +101,11 @@ def resolve_building_archetype(
     ventilation template; without it Data applies the era default. It never
     selects another catalogue slot or construction.
 
+    ``operating_standard`` is ``"sveby"`` for the catalogue's normal use, or
+    ``"measured"`` for Data's observed stock operation, for simulating existing
+    buildings against measured energy. Types with no adopted measured value keep
+    normal use, with a note on the profile saying so.
+
     ``component_states`` selects wall, roof, window, ground, basement_wall,
     intermediate_floor or airtightness independently. Each choice requires an
     explicit ``component_sources`` description. Defaults remain assumptions
@@ -109,6 +116,8 @@ def resolve_building_archetype(
     area rates keep their declared reference basis. Use core_airflow_inputs when
     constructing Core airflow, and choose its load-reference area explicitly.
     """
+    if operating_standard not in {"sveby", "measured"}:
+        raise ValueError("operating_standard must be sveby or measured")
     cat = _catalogue_view(catalogue, detailed)
     era = cat.era_for_year(construction_year)
     if era == "SE.07":
@@ -210,6 +219,13 @@ def resolve_building_archetype(
     archetype = reference.with_changes(
         construction_set=construction_set,
         envelope_performance=envelope_definition,
+        operating_profile=(
+            reference.operating_profile if operating_standard == "sveby"
+            else select_operating_profile(
+                "multi_family" if category == "generic" else category,
+                standard="measured", era=era,
+            )
+        ),
         source_references=tuple(dict.fromkeys(
             ref for selected in cache.values() for ref in selected["archetype"].source_references
         )) + tuple(role + ": " + source for role, source in sorted(sources.items())),

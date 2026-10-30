@@ -51,6 +51,21 @@ can load. `epsm.catalogue_release.core_inputs` uses `Catalogue.get` and the publ
 portable nominal exporter; loading a physical recipe requires no calibration
 assessment. The existing function names remain during the coordinated migration.
 
+## Measured stock operation
+
+Sveby normal use is the default on both routes. To compare a model with measured
+energy, select Data's observed stock operation explicitly, with
+`ModelPolicy(operating_standard="measured")` on the `ubem_v1` route or
+`resolve_building_archetype(..., operating_standard="measured")` on the maintained
+route. The construction era selects the multifamily setpoint. A self-draught
+multifamily building takes its natural exchange from the measured total air change,
+net of its own infiltration and at least 0.05 ACH; each programme of a mixed-use
+building keeps its own exchange. Office flow and ventilation hours change too, so the
+office share of a mixed-use building follows them. Single-family buildings, schools
+and generic programmes have no adopted measured value and keep normal use, and the
+receipt or the profile's notes say so. Measured energy also includes terms the model
+does not simulate: `epsm_data.select_epc_comparison_terms` gives those values.
+
 ## Existing stock scenarios
 
 `epsm.legacy_records.EPSMBuilding.from_record` retains its explicit `ubem_v1`
@@ -59,10 +74,12 @@ use Core's public converter. Residential BEN selection, labelled generic
 fallbacks, normal/leap-year schedules, assumed office/school calendars and
 reference-area conversions retain their prior physical values. These policy
 calendars are explicit scenario assumptions; general archetype application does
-not generate holidays or calendars.
+not generate holidays or calendars. Policy version 5 reads ventilation and heating
+carriers through `epsm_db.epc_systems` and takes the heat-pump seasonal COP from
+Data's `heating_delivery_template`, the Swedish field average of 2.75.
 
 Legacy overrides can supply `component_states` and `component_sources` together.
-The receipt keeps the complete version-4 archetype definition as well as the
+The receipt keeps the complete archetype definition as well as the
 component assignment audit. The physical model still distinguishes reported
 Atemp (or its labelled geometric fallback) from geometric conditioned area.
 Compilation remains an explicit preflight; `preflight=False` never claims
