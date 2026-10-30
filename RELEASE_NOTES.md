@@ -1,3 +1,16 @@
+# Release 0.5.1 — Core 0.9.1 and LCA 0.4.0 in the supported combination (30 October 2026)
+
+The supported manifest moves to Core 0.9.1 (`9a0f02f`, the installing measure
+recorded per material occurrence) and LCA 0.4.0 (`62e78df`: carbon and cost
+payback, discounting, factor trajectories and B4 replacements). Data 0.7.0,
+RC 0.11.0, Database 0.5.0, Workflows 0.5.0, Studies 0.5.0, smhi2epw 1.3.0 and
+Viewer 0.1.0 are unchanged. No EPSM code changes: `AssessmentSettings` saved by
+EPSM buildings in format 1 still load, and EPSM does not read LCA renovation
+reports, whose format 2 rejects older files. Dependency lower bounds stay at
+Core 0.9.0 and LCA 0.3.0. Consumers that install the supported wheels from the
+EPSM release pick up the new combination on their next `ci` run; LCA's
+replacement-carbon checks need Core 0.9.1 and no longer skip.
+
 # Release 0.5.0 — LoD2 catalogue handoffs (29 October 2026)
 
 EPSM consumes the frozen LoD2 catalogue through `core_inputs` and
