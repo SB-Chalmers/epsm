@@ -1,3 +1,17 @@
+# Release 0.6.0 — Core 0.10.0 and Workflows 0.6.0 in the supported combination (31 October 2026)
+
+The supported manifest moves to Core 0.10.0 (`8a26072`: `solve_element_insulation`
+and `Building.assign_element_u_value`, material-backed U-value authoring for
+physical elements, and a self-draught natural exchange set from a measured total
+air change) and Workflows 0.6.0 (`0537909`: dataset authoring with owner-backed
+physical bindings, bounded Vera execution and the `epsm_workflows.campaign`
+training-data packer and runner, extra `campaign`, CLI `epsm-campaign`). Data
+0.7.0, RC 0.11.0, LCA 0.4.0, Database 0.5.0, Studies 0.5.0, smhi2epw 1.3.0 and
+Viewer 0.1.0 are unchanged. No EPSM code changes; dependency lower bounds stay at
+Core 0.9.0 and Workflows 0.5.0. A Vera environment installs the released wheels
+`epsm_core`, `epsm_data` and `epsm_workflows[campaign]` from this release;
+Workflows 0.6.0 requires Core 0.10.0 for envelope U-value solving.
+
 # Release 0.5.1 — Core 0.9.1 and LCA 0.4.0 in the supported combination (30 October 2026)
 
 The supported manifest moves to Core 0.9.1 (`9a0f02f`, the installing measure

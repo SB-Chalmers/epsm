@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "epsm"
-version = "0.5.1"
+version = "0.6.0"
 description = "Researcher-facing EPSM Building, simulations and assessment"
 requires-python = ">=3.11"
 dependencies = ["epsm_core>=0.9.0", "epsm_data>=0.7.0", "epsm_lca>=0.3.0", "numpy>=2,<3"]
