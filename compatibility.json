@@ -6,7 +6,7 @@
   ],
   "packages": {
     "epsm": {
-      "version": "0.5.1",
+      "version": "0.6.0",
       "revision": "self",
       "role": "scientific"
     },
@@ -16,8 +16,8 @@
       "role": "scientific"
     },
     "epsm_core": {
-      "version": "0.9.1",
-      "revision": "9a0f02f1ea944f49e200faac9b87d1ca81439e89",
+      "version": "0.10.0",
+      "revision": "8a260726e354b049e7459aeb7c167aeca4e6ef5d",
       "role": "scientific"
     },
     "epsm_rc": {
@@ -36,8 +36,8 @@
       "role": "scientific"
     },
     "epsm_workflows": {
-      "version": "0.5.0",
-      "revision": "1ea589e27728345b0c5ade866f6f4398d1f17db9",
+      "version": "0.6.0",
+      "revision": "05379096963ba9809008e41ea3aaedb00f487211",
       "role": "scientific"
     },
     "epsm_studies": {

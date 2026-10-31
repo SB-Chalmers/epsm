@@ -75,15 +75,15 @@ commits. See the [detailed guide](docs/guide.md#tested-package-combination) for 
 <!-- compatibility-table:start -->
 | Package | Version | Tested commit |
 | --- | --- | --- |
-| `epsm` | 0.5.1 | `self` |
-| `epsm_core` | 0.9.1 | `9a0f02f1ea944f49e200faac9b87d1ca81439e89` |
+| `epsm` | 0.6.0 | `self` |
+| `epsm_core` | 0.10.0 | `8a260726e354b049e7459aeb7c167aeca4e6ef5d` |
 | `epsm_data` | 0.7.0 | `7fb68171e95ef32b59872e5d01bfc85b04aea56b` |
 | `epsm_db` | 0.5.0 | `a3dcdb76a8505826b10492189da4b0ea74f7aeb5` |
 | `epsm_lca` | 0.4.0 | `62e78df8cca8e11a3bb87effb6501ab055867fe0` |
 | `epsm_rc` | 0.11.0 | `dcb47ba9e8a5ce8919e84017822d7f2d7e55af00` |
 | `epsm_studies` | 0.5.0 | `6bccba1a5195002beeb23573172ae3ccedc6368b` |
 | `epsm_viewer` | 0.1.0 | `f2c847b9cd44280b7cf21803acfefa6e49e78b1b` |
-| `epsm_workflows` | 0.5.0 | `1ea589e27728345b0c5ade866f6f4398d1f17db9` |
+| `epsm_workflows` | 0.6.0 | `05379096963ba9809008e41ea3aaedb00f487211` |
 | `smhi2epw` | 1.3.0 | `6792b2a4d1bc6a7bdcd1bd77b35dd0ff704f2b29` |
 <!-- compatibility-table:end -->
 
