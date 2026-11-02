@@ -1,3 +1,15 @@
+# Release 0.6.1 — Workflows 0.6.1 in the supported combination (2 November 2026)
+
+The supported manifest moves to Workflows 0.6.1 (`690831d`: the campaign fixes
+from the first Vera smoke run — packing a `stock_diversity` study with more
+than one context passes the strata check, and the campaign worker acknowledges
+the RC 0.11 approximations so RC columns are populated instead of NULL). Core
+0.10.0, Data 0.7.0, RC 0.11.0, LCA 0.4.0, Database 0.5.0, Studies 0.5.0,
+smhi2epw 1.3.0 and Viewer 0.1.0 are unchanged. No EPSM code changes; dependency
+lower bounds stay at Core 0.9.0 and Workflows 0.5.0. A Vera environment installs
+the released wheels `epsm_core`, `epsm_data` and `epsm_workflows[campaign]` from
+this release.
+
 # Release 0.6.0 — Core 0.10.0 and Workflows 0.6.0 in the supported combination (31 October 2026)
 
 The supported manifest moves to Core 0.10.0 (`8a26072`: `solve_element_insulation`

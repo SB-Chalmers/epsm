@@ -6,7 +6,7 @@
   ],
   "packages": {
     "epsm": {
-      "version": "0.6.0",
+      "version": "0.6.1",
       "revision": "self",
       "role": "scientific"
     },
@@ -36,8 +36,8 @@
       "role": "scientific"
     },
     "epsm_workflows": {
-      "version": "0.6.0",
-      "revision": "05379096963ba9809008e41ea3aaedb00f487211",
+      "version": "0.6.1",
+      "revision": "690831de4c577e971700d10170471308eff888ed",
       "role": "scientific"
     },
     "epsm_studies": {
