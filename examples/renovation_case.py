@@ -116,11 +116,13 @@ def make_case():
 
 
 def rc_settings():
-    """Explicitly select unlimited sensible airflow and a ground approximation."""
+    """Explicitly select unlimited sensible airflow and a ground approximation.
+
+    The thermal model and solar options are RC's defaults (ISO 52016-1).
+    """
     from epsm_rc import RCSettings
 
-    return RCSettings.from_policy(
-        "epsm_rc_5r1c_v1",
+    return RCSettings(
         airflow_policy="sensible_only_unlimited_supply",
         ground_policy="conductance_multiplier",
     )

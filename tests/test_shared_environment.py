@@ -147,5 +147,5 @@ def test_verification_rejects_an_old_rc_api(setup_script, monkeypatch):
         "import_module",
         lambda _: SimpleNamespace(RCSettings=type("OldSettings", (), {})),
     )
-    with pytest.raises(RuntimeError, match="epsm_rc.*from_policy.*setup_shared_venv"):
+    with pytest.raises(RuntimeError, match="epsm_rc.*ThermalModel.*setup_shared_venv"):
         setup_script.verify_capabilities()

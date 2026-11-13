@@ -46,8 +46,8 @@ the actual modelling settings. The notebooks also show optional Matplotlib
 figures. LCA receives annual purchased energy from each saved evaluation and
 does not launch an engine itself.
 
-RC explicitly omits latent recovery and supply-temperature limits in these
-examples, and approximates ground heat transfer with a conductance multiplier.
+RC runs its default ISO 52016-1 hourly model from RC 0.12.0. It explicitly omits
+latent recovery and supply-temperature limits in these examples, and approximates ground heat transfer with a conductance multiplier.
 The default rejection of unsupported shading remains active for this simple
 rectangular building. Results describe these chosen assumptions, not measured
 building accuracy. Recalculate old teaching outputs after updating Core or RC;
@@ -57,7 +57,9 @@ changed airflow, gain and ground handling can change annual energy.
 
 The [15 October 2026 result snapshot](results/current-package-results.json)
 records the exact package commits, wheel identity, assumptions and annual
-carrier amounts from actual RC and EnergyPlus 24.2 runs:
+carrier amounts from actual RC and EnergyPlus 24.2 runs. It predates RC 0.12.0 and used the
+former 5R1C profile `epsm_rc_5r1c_v1`; current RC defaults give different RC
+results:
 
 | Engine | Baseline purchased energy (kWh/year) | After windows and insulation (kWh/year) | Climate savings over 30 years (kg CO₂e) |
 | --- | ---: | ---: | ---: |

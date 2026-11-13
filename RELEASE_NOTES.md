@@ -1,5 +1,14 @@
 # Unreleased
 
+RC 0.12.0 (`59102e1`) joins the supported combination. Its default thermal model
+is ISO 52016-1 with named settings (`thermal_model`, `window_optics`,
+`solar_time`, `heat_recovery`), so default RC results change: about +11 % space
+heating on the illustrative reference building. Examples, the guide and tests pass
+explicit airflow and ground choices to `RCSettings` instead of the deprecated
+`RCSettings.from_policy("epsm_rc_5r1c_v1", ...)`; the `rc` and `all` extras
+require RC 0.12.0. Settings saved with the former profile still load and keep
+their 5R1C results.
+
 Sveby normal use stays the default. `ModelPolicy(operating_standard="measured")` and
 `resolve_building_archetype(..., operating_standard="measured")` select Data's
 observed stock operation: the multifamily setpoint by era, a self-draught total air

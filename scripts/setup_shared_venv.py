@@ -98,7 +98,7 @@ def verify_checkout(distribution: str, module: str, checkout: Path) -> None:
 def verify_capabilities() -> None:
     """Check public handoffs without running an engine, reading weather or using Git."""
     requirements = {
-        "epsm_rc": ("RCSettings.from_policy", "simulate_building"),
+        "epsm_rc": ("ThermalModel", "RCSettings", "simulate_building"),
         "epsm_core": ("Building.resolve", "resolve_internal_gains"),
         "epsm_lca": ("AnnualEnergy.for_building", "assess_renovation"),
     }
