@@ -168,8 +168,7 @@ def test_record_is_gradual_and_comparison_preserves_missing():
 def test_real_rc_repeat_runs_are_independent(tmp_path, weather):
     from epsm_rc import RCSettings
 
-    settings = RCSettings.from_policy(
-        "epsm_rc_5r1c_v1",
+    settings = RCSettings(
         airflow_policy="sensible_only_unlimited_supply",
         ground_policy="conductance_multiplier",
     )

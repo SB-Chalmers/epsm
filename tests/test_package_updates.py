@@ -114,8 +114,7 @@ def test_engine_choices_and_core_physical_changes_invalidate_energy_cache(
     from epsm_rc import RCSettings
 
     building = reference()
-    settings = RCSettings.from_policy(
-        "epsm_rc_5r1c_v1",
+    settings = RCSettings(
         airflow_policy="sensible_only_unlimited_supply",
         ground_policy="conductance_multiplier",
     )
