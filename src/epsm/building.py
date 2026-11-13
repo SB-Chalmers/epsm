@@ -146,7 +146,7 @@ class Building(CoreBuilding):
         separate energy/LCA calculations, so changing factors reuses energy.
         Each call still appends a distinct evaluation. Artifacts are retained in
         a unique evaluation subdirectory below the supplied directory, or ``outputs/epsm``.
-        RC requires explicit ``settings=RCSettings.from_policy(...)``. These are
+        RC requires explicit ``settings=RCSettings(...)`` with airflow and ground choices. These are
         energy model choices, separate from ``building.assessment``. The automatic
         LCA is one reached state's cumulative material and energy result. Use
         ``assess_renovation`` with each evaluation's ``annual_energy()`` to compare

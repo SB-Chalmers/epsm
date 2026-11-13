@@ -6,7 +6,7 @@
   ],
   "packages": {
     "epsm": {
-      "version": "0.6.1",
+      "version": "0.6.2",
       "revision": "self",
       "role": "scientific"
     },
@@ -21,13 +21,13 @@
       "role": "scientific"
     },
     "epsm_rc": {
-      "version": "0.11.0",
-      "revision": "dcb47ba9e8a5ce8919e84017822d7f2d7e55af00",
+      "version": "0.12.0",
+      "revision": "59102e13e3eeb3bd6ea461ceab6e8b492aeade99",
       "role": "scientific"
     },
     "epsm_lca": {
-      "version": "0.4.0",
-      "revision": "62e78df8cca8e11a3bb87effb6501ab055867fe0",
+      "version": "0.5.0",
+      "revision": "0c996ac87e6d818136f119e861b08ad9f048fafc",
       "role": "scientific"
     },
     "epsm_db": {
@@ -36,13 +36,13 @@
       "role": "scientific"
     },
     "epsm_workflows": {
-      "version": "0.6.1",
-      "revision": "690831de4c577e971700d10170471308eff888ed",
+      "version": "0.6.2",
+      "revision": "7249101c9ac8a3500da86ab94ca4f97d71dd1d53",
       "role": "scientific"
     },
     "epsm_studies": {
-      "version": "0.5.0",
-      "revision": "6bccba1a5195002beeb23573172ae3ccedc6368b",
+      "version": "0.5.1",
+      "revision": "2b4742938da12c9bb8b6519747ac2bd53eb4a770",
       "role": "scientific"
     },
     "smhi2epw": {

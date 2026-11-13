@@ -1,3 +1,17 @@
+# Release 0.6.2 — RC 0.12.0 in the supported combination (13 November 2026)
+
+The supported manifest moves to RC 0.12.0 (`59102e1`), LCA 0.5.0 (`0c996ac`),
+Studies 0.5.1 (`2b47429`) and Workflows 0.6.2 (`7249101`). RC's default thermal
+model is now ISO 52016-1 with named settings (`thermal_model`, `window_optics`,
+`solar_time`, `heat_recovery`), so default RC results change: about +11 % space
+heating on the illustrative reference building. Settings saved with the former
+`epsm_rc_5r1c_v1` profile still load and keep their 5R1C results. Examples, the
+guide and tests pass explicit airflow and ground choices to `RCSettings` instead
+of the deprecated `RCSettings.from_policy(...)`, and the `rc` and `all` extras
+require RC 0.12.0. Core 0.10.0, Data 0.7.0, Database 0.5.0, smhi2epw 1.3.0 and
+Viewer 0.1.0 are unchanged. The measured-use and EPC-systems work on `dev`, which
+needs unreleased Data and Database changes, is not part of this release.
+
 # Release 0.6.1 — Workflows 0.6.1 in the supported combination (2 November 2026)
 
 The supported manifest moves to Workflows 0.6.1 (`690831d`: the campaign fixes
