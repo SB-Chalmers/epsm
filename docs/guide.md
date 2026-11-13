@@ -19,8 +19,7 @@ from epsm_rc import RCSettings
 
 building = Building(preset="illustrative-reference")
 weather = Weather.from_epw("weather.epw")
-rc = RCSettings.from_policy(
-    "epsm_rc_5r1c_v1",
+rc = RCSettings(
     airflow_policy="sensible_only_unlimited_supply",
     ground_policy="conductance_multiplier",
 )
