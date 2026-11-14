@@ -1,0 +1,84 @@
+{
+  "version": 1,
+  "grid": 24,
+  "stroke": 1.75,
+  "icons": [
+    {
+      "name": "epsm_core",
+      "label": "Core",
+      "role": "Physical building model",
+      "metaphor": "Cube",
+      "color": "#3159B8"
+    },
+    {
+      "name": "epsm_data",
+      "label": "Data",
+      "role": "Materials & constructions",
+      "metaphor": "Construction layers",
+      "color": "#167B80"
+    },
+    {
+      "name": "epsm_db",
+      "label": "Database",
+      "role": "Building evidence & records",
+      "metaphor": "Database cylinder",
+      "color": "#4C6190"
+    },
+    {
+      "name": "epsm_rc",
+      "label": "RC",
+      "role": "Thermal network simulation",
+      "metaphor": "Resistor and capacitor",
+      "color": "#B75527"
+    },
+    {
+      "name": "epsm_lca",
+      "label": "LCA",
+      "role": "Climate impact assessment",
+      "metaphor": "Leaf",
+      "color": "#377650"
+    },
+    {
+      "name": "epsm_workflows",
+      "label": "Workflows",
+      "role": "Execution & optimisation",
+      "metaphor": "Branching execution graph",
+      "color": "#6C4EAD"
+    },
+    {
+      "name": "epsm_studies",
+      "label": "Studies",
+      "role": "Research protocols & analysis",
+      "metaphor": "Research report",
+      "color": "#A04466"
+    },
+    {
+      "name": "epsm_development",
+      "label": "Development",
+      "role": "Engineering handbook & tools",
+      "metaphor": "Code brackets",
+      "color": "#646750"
+    },
+    {
+      "name": "epsm_studio",
+      "label": "Studio",
+      "role": "Application & workspace",
+      "metaphor": "Application window",
+      "color": "#227E9D"
+    },
+    {
+      "name": "epsm_viewer",
+      "label": "Viewer",
+      "role": "3D display & inspection",
+      "metaphor": "Eye",
+      "color": "#8459AA"
+    },
+    {
+      "name": "epsm",
+      "label": "EPSM",
+      "role": "The integrated platform",
+      "metaphor": "Building",
+      "color": "#273C4C"
+    }
+  ]
+}
