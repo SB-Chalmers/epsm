@@ -1,14 +1,5 @@
 # Unreleased
 
-RC 0.12.0 (`59102e1`) joins the supported combination. Its default thermal model
-is ISO 52016-1 with named settings (`thermal_model`, `window_optics`,
-`solar_time`, `heat_recovery`), so default RC results change: about +11 % space
-heating on the illustrative reference building. Examples, the guide and tests pass
-explicit airflow and ground choices to `RCSettings` instead of the deprecated
-`RCSettings.from_policy("epsm_rc_5r1c_v1", ...)`; the `rc` and `all` extras
-require RC 0.12.0. Settings saved with the former profile still load and keep
-their 5R1C results.
-
 Sveby normal use stays the default. `ModelPolicy(operating_standard="measured")` and
 `resolve_building_archetype(..., operating_standard="measured")` select Data's
 observed stock operation: the multifamily setpoint by era, a self-draught total air
@@ -22,6 +13,46 @@ heating carriers are read through `epsm_db.epc_systems`; on 94,189 certificates 
 the lake, including 23,835 with mixed carriers, carriers are unchanged.
 
 Requires the next releases of Data, Core and Database, which add these interfaces.
+
+# Release 0.6.2 — RC 0.12.0 in the supported combination (13 November 2026)
+
+The supported manifest moves to RC 0.12.0 (`59102e1`), LCA 0.5.0 (`0c996ac`),
+Studies 0.5.1 (`2b47429`) and Workflows 0.6.2 (`7249101`). RC's default thermal
+model is now ISO 52016-1 with named settings (`thermal_model`, `window_optics`,
+`solar_time`, `heat_recovery`), so default RC results change: about +11 % space
+heating on the illustrative reference building. Settings saved with the former
+`epsm_rc_5r1c_v1` profile still load and keep their 5R1C results. Examples, the
+guide and tests pass explicit airflow and ground choices to `RCSettings` instead
+of the deprecated `RCSettings.from_policy(...)`, and the `rc` and `all` extras
+require RC 0.12.0. Core 0.10.0, Data 0.7.0, Database 0.5.0, smhi2epw 1.3.0 and
+Viewer 0.1.0 are unchanged. The measured-use and EPC-systems work on `dev`, which
+needs unreleased Data and Database changes, is not part of this release.
+
+# Release 0.6.1 — Workflows 0.6.1 in the supported combination (2 November 2026)
+
+The supported manifest moves to Workflows 0.6.1 (`690831d`: the campaign fixes
+from the first Vera smoke run — packing a `stock_diversity` study with more
+than one context passes the strata check, and the campaign worker acknowledges
+the RC 0.11 approximations so RC columns are populated instead of NULL). Core
+0.10.0, Data 0.7.0, RC 0.11.0, LCA 0.4.0, Database 0.5.0, Studies 0.5.0,
+smhi2epw 1.3.0 and Viewer 0.1.0 are unchanged. No EPSM code changes; dependency
+lower bounds stay at Core 0.9.0 and Workflows 0.5.0. A Vera environment installs
+the released wheels `epsm_core`, `epsm_data` and `epsm_workflows[campaign]` from
+this release.
+
+# Release 0.6.0 — Core 0.10.0 and Workflows 0.6.0 in the supported combination (31 October 2026)
+
+The supported manifest moves to Core 0.10.0 (`8a26072`: `solve_element_insulation`
+and `Building.assign_element_u_value`, material-backed U-value authoring for
+physical elements, and a self-draught natural exchange set from a measured total
+air change) and Workflows 0.6.0 (`0537909`: dataset authoring with owner-backed
+physical bindings, bounded Vera execution and the `epsm_workflows.campaign`
+training-data packer and runner, extra `campaign`, CLI `epsm-campaign`). Data
+0.7.0, RC 0.11.0, LCA 0.4.0, Database 0.5.0, Studies 0.5.0, smhi2epw 1.3.0 and
+Viewer 0.1.0 are unchanged. No EPSM code changes; dependency lower bounds stay at
+Core 0.9.0 and Workflows 0.5.0. A Vera environment installs the released wheels
+`epsm_core`, `epsm_data` and `epsm_workflows[campaign]` from this release;
+Workflows 0.6.0 requires Core 0.10.0 for envelope U-value solving.
 
 # Release 0.5.1 — Core 0.9.1 and LCA 0.4.0 in the supported combination (30 October 2026)
 
