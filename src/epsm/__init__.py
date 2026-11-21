@@ -34,7 +34,7 @@ from .requirements import (
 )
 from .results import EnergyResult, Evaluation, Results
 
-__version__ = "0.4.0"
+__version__ = "0.7.0"
 __all__ = [
     "configure_logging",
     "reset_logging",
