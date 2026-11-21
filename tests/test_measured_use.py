@@ -15,14 +15,24 @@ MEASURED = ModelPolicy(operating_standard="measured")
 INFILTRATION = {"envelope_infiltration_ach": 0.1}
 
 
-def operation(name, policy, *, ventilation="S", era="SE.02", residential_type="multi_family"):
+def operation(
+    name, policy, *, ventilation="S", era="SE.02", residential_type="multi_family"
+):
     geometry = GeometrySpec.from_footprint(
         Footprint.rectangle(10, 10), storeys=2, storey_height_m=3
     )
     receipt = Receipt("test")
     use, air, source = _operation(
-        name, 2023, ventilation=ventilation, infiltration=INFILTRATION, geometry=geometry,
-        area=180, policy=policy, receipt=receipt, era=era, residential_type=residential_type,
+        name,
+        2023,
+        ventilation=ventilation,
+        infiltration=INFILTRATION,
+        geometry=geometry,
+        area=180,
+        policy=policy,
+        receipt=receipt,
+        era=era,
+        residential_type=residential_type,
     )
     return use, air, source, receipt
 
@@ -33,7 +43,9 @@ def test_normal_use_stays_the_default():
         ModelPolicy(operating_standard="fitted")
 
 
-@pytest.mark.parametrize(("era", "setpoint"), [("SE.01", 22.2), ("SE.03", 22.5), ("SE.07", 23.0)])
+@pytest.mark.parametrize(
+    ("era", "setpoint"), [("SE.01", 22.2), ("SE.03", 22.5), ("SE.07", 23.0)]
+)
 def test_measured_multifamily_setpoint_follows_the_era(era, setpoint):
     use, *_ = operation("residential", MEASURED, ventilation="F", era=era)
     assert set(use.heating_setpoint.hourly(2023)) == {setpoint}
@@ -76,7 +88,8 @@ def test_a_mixed_building_nets_only_the_use_with_a_total():
 
 def systems(carriers):
     return SimpleNamespace(
-        heating_carrier=carriers[0] if len(carriers) == 1 else None, heating_carriers=carriers
+        heating_carrier=carriers[0] if len(carriers) == 1 else None,
+        heating_carriers=carriers,
     )
 
 
@@ -102,7 +115,9 @@ def test_delivery_takes_the_heat_pump_cop_from_data(monkeypatch, carrier, cop):
 
 @pytest.mark.parametrize("observed", [None, systems(["heat_pump", "fuel"])])
 def test_mixed_or_unknown_carriers_report_ideal_demand(monkeypatch, observed):
-    monkeypatch.setattr("epsm.legacy_records._observed_systems", lambda record: observed)
+    monkeypatch.setattr(
+        "epsm.legacy_records._observed_systems", lambda record: observed
+    )
     receipt = Receipt("test")
     assert _delivery(None, ModelPolicy(), receipt).heating is None
     assert receipt.quality
@@ -118,8 +133,11 @@ def test_catalogue_selection_keeps_normal_use_unless_asked():
     assert (
         selection(category="multi_family").operating_profile
         == resolve_building_archetype(
-            category="multi_family", construction_year=1930, climate_zone="SE.Zone3",
-            ventilation="S", operating_standard="sveby",
+            category="multi_family",
+            construction_year=1930,
+            climate_zone="SE.Zone3",
+            ventilation="S",
+            operating_standard="sveby",
         )["archetype"].operating_profile
     )
     with pytest.raises(ValueError, match="operating_standard"):
@@ -127,21 +145,28 @@ def test_catalogue_selection_keeps_normal_use_unless_asked():
 
 
 def test_catalogue_selection_carries_the_measured_profile():
-    profile = selection(category="multi_family", operating_standard="measured").operating_profile
+    profile = selection(
+        category="multi_family", operating_standard="measured"
+    ).operating_profile
     assert profile.profile_id == "epsm.measured_use.v1.multi_family.SE.01"
     assert measured_air_change(profile, "S") == 0.39
     assert measured_air_change(profile, "F") is None
 
 
 def test_generic_borrows_the_multifamily_measured_profile():
-    profile = selection(category="generic", operating_standard="measured").operating_profile
+    profile = selection(
+        category="generic", operating_standard="measured"
+    ).operating_profile
     assert profile.profile_id == "epsm.measured_use.v1.multi_family.SE.01"
 
 
 def test_apply_archetype_nets_the_measured_total():
     building = Building.from_footprint(
-        Footprint.rectangle(10, 10), storeys=2, storey_height_m=3,
-        identifier="b", load_reference_area_m2=180,
+        Footprint.rectangle(10, 10),
+        storeys=2,
+        storey_height_m=3,
+        identifier="b",
+        load_reference_area_m2=180,
     )
     archetype = selection(category="multi_family", operating_standard="measured")
     building.apply_archetype(archetype, calendar={"calendar_year": 2023})
@@ -149,7 +174,8 @@ def test_apply_archetype_nets_the_measured_total():
     volume = building.geometry.conditioned_volume_m3
     infiltration = (
         airflow.infiltration_design_flow_m3_s(reference_area_m2=180, volume_m3=volume)
-        * 3600 / volume
+        * 3600
+        / volume
     )
     assert airflow.natural_exchange_ach == pytest.approx(max(0.39 - infiltration, 0.05))
     assert [

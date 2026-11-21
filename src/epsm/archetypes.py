@@ -369,11 +369,13 @@ def apply_archetype(building, archetype, *, mode="replace", calendar=None):
                     "operating_profile.measured_use.total_air_change_ach (geometry)"
                 )
             elif total is not None:
-                composed["airflow"]["natural_exchange_ach"] = natural_exchange_for_total(
-                    total,
-                    resolution.hvac.airflow,
-                    volume_m3=building.geometry.conditioned_volume_m3,
-                    reference_area_m2=building.load_reference_area_m2,
+                composed["airflow"]["natural_exchange_ach"] = (
+                    natural_exchange_for_total(
+                        total,
+                        resolution.hvac.airflow,
+                        volume_m3=building.geometry.conditioned_volume_m3,
+                        reference_area_m2=building.load_reference_area_m2,
+                    )
                 )
                 netted = ("hvac.airflow.natural_exchange_ach",)
                 resolution = HVACSystem.resolve_template(
