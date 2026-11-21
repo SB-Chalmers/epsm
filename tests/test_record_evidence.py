@@ -118,12 +118,12 @@ def test_exhaust_with_recovery_follows_heating_carrier():
     def record(vent, energy):
         fields = {**{f: ["Ja"] for f in vent}, **{f: [v] for f, v in energy.items()}}
         observations = [
-            {"certificate_id": "c", "source_field": f, "raw_values": v}
+            {"certificate_id": "efter_v260:c", "source_field": f, "raw_values": v}
             for f, v in fields.items()
         ]
         return SimpleNamespace(
             single_building_epc=True,
-            selected_certificate={"certificate_id": "c"},
+            selected_certificate={"certificate_id": "efter_v260:c"},
             observations=observations,
             observation=lambda f: (float(fields[f][0]) if f in energy else None,),
             type=SimpleNamespace(value="single_family"),

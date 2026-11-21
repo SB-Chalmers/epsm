@@ -75,10 +75,10 @@ commits. See the [detailed guide](docs/guide.md#tested-package-combination) for 
 <!-- compatibility-table:start -->
 | Package | Version | Tested commit |
 | --- | --- | --- |
-| `epsm` | 0.6.2 | `self` |
+| `epsm` | 0.7.0 | `self` |
 | `epsm_core` | 0.10.0 | `8a260726e354b049e7459aeb7c167aeca4e6ef5d` |
-| `epsm_data` | 0.7.0 | `7fb68171e95ef32b59872e5d01bfc85b04aea56b` |
-| `epsm_db` | 0.5.0 | `a3dcdb76a8505826b10492189da4b0ea74f7aeb5` |
+| `epsm_data` | 0.8.0 | `bfcdb4d32ffa25c1b11a15b72534565146c1e085` |
+| `epsm_db` | 0.6.0 | `121ac59e528a0eb9adc3f54382d8eaea1251a0bb` |
 | `epsm_lca` | 0.5.0 | `0c996ac87e6d818136f119e861b08ad9f048fafc` |
 | `epsm_rc` | 0.12.0 | `59102e13e3eeb3bd6ea461ceab6e8b492aeade99` |
 | `epsm_studies` | 0.5.1 | `2b4742938da12c9bb8b6519747ac2bd53eb4a770` |
