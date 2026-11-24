@@ -24,7 +24,7 @@ from epsm_db.weather import WeatherReference
 @dataclass(frozen=True)
 class ModelPolicy:
     name: str = "ubem_v1"
-    version: str = "5"
+    version: str = "6"
     minimum_programme_blend_share: float = 0.05
     typical_floor_height_m: float = 3.0
     minimum_full_floor_height_m: float = 2.0
@@ -48,6 +48,11 @@ class ModelPolicy:
     # Version 5: heat-pump COP from Data's delivery template. "measured" selects
     # Data's observed stock operation for existing buildings; "sveby" is normal use.
     operating_standard: str = "sveby"
+    # Version 6: shading-only neighbours (lake components within this radius, at their
+    # representative height) for database-backed records or caller-supplied rows.
+    # None turns context off (versions 1-5).
+    context_radius_m: float | None = 100.0
+    context_min_height_m: float = 2.0
     wwr_by_type: dict = field(
         default_factory=lambda: {
             "single_family": 0.2,
@@ -66,6 +71,14 @@ class ModelPolicy:
     )
 
     def __post_init__(self):
+        if self.context_radius_m is not None and (
+            isinstance(self.context_radius_m, bool)
+            or not math.isfinite(float(self.context_radius_m))
+            or self.context_radius_m <= 0
+        ):
+            raise ValueError("Context radius must be positive or None")
+        if not math.isfinite(self.context_min_height_m) or self.context_min_height_m < 0:
+            raise ValueError("Context minimum height must be finite and non-negative")
         if (
             not math.isfinite(self.minimum_programme_blend_share)
             or not 0 <= self.minimum_programme_blend_share < 1
@@ -696,6 +709,30 @@ def _operation(
     return use, air, source
 
 
+def _context(record, policy, receipt, geometry, rows):
+    """Shading-only neighbour context (see ``epsm._context``), or an empty context."""
+    from epsm_core.specs.context import ContextSpec
+
+    from ._context import context_spec, lake_context_rows
+
+    if policy.context_radius_m is None:
+        return ContextSpec()
+    if rows is None:
+        rows = lake_context_rows(record, policy.context_radius_m)
+    if rows is None:
+        receipt.quality.append("Portable record without neighbour rows: no shading context")
+        return ContextSpec()
+    origin = receipt.identities["geometry_coordinate_transform"]["translation_origin_xy"]
+    footprints = [part.footprint for part in geometry.parts]
+    context, dropped = context_spec(
+        rows, origin_xy=origin, target_footprints=footprints,
+        min_height_m=policy.context_min_height_m, radius_m=policy.context_radius_m,
+    )
+    _field(receipt, "context_buildings", len(context.buildings), "reported_with_geometry_assumptions",
+           f"Lake components within {policy.context_radius_m:g} m as shading-only neighbours; dropped {dropped}")
+    return context
+
+
 def _delivery(record, policy, receipt):
     from epsm_core import DeliverySpec, HeatingDeliverySpec
     from epsm_data.templates import heating_delivery_template
@@ -786,8 +823,10 @@ class EPSMBuilding:
                 "renovation_state",
                 "component_states",
                 "component_sources",
+                "context_rows",
             }:
                 raise ValueError("Unknown model override")
+            context_rows = overrides.pop("context_rows", None)
             renovation_state = overrides.get("renovation_state")
             if renovation_state not in (None, "existing", "standard", "advanced"):
                 raise ValueError("renovation_state must be existing, standard or advanced")
@@ -1037,9 +1076,11 @@ class EPSMBuilding:
                     else f"{policy.name}/{policy.version}",
                 ),
             ]
+            context = _context(record, policy, receipt, geometry, context_rows)
             spec = BuildingSpec(
                 identifier=record.building_id,
                 geometry=geometry,
+                context=context,
                 load_reference_area_m2=area,
                 facade=facade,
                 envelope=fabric["envelope"].updated(
