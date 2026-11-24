@@ -24,7 +24,7 @@ from epsm_db.weather import WeatherReference
 @dataclass(frozen=True)
 class ModelPolicy:
     name: str = "ubem_v1"
-    version: str = "5"
+    version: str = "6"
     minimum_programme_blend_share: float = 0.05
     typical_floor_height_m: float = 3.0
     minimum_full_floor_height_m: float = 2.0
@@ -48,6 +48,10 @@ class ModelPolicy:
     # Version 5: heat-pump COP from Data's delivery template. "measured" selects
     # Data's observed stock operation for existing buildings; "sveby" is normal use.
     operating_standard: str = "sveby"
+    # Version 6: heat-pump COP by the EPC's pump type (ground, exhaust air, air-water,
+    # air-air) and construction era, from Data's heating delivery template. False keeps
+    # the field-average COP for every heat pump (version 5).
+    heat_pump_cop_by_type: bool = True
     wwr_by_type: dict = field(
         default_factory=lambda: {
             "single_family": 0.2,
@@ -696,9 +700,28 @@ def _operation(
     return use, air, source
 
 
-def _delivery(record, policy, receipt):
-    from epsm_core import DeliverySpec, HeatingDeliverySpec
+def _heat_pump_template(observed, policy, era, receipt):
+    """Data's heat-pump delivery template, by EPC pump type and era when policy and Data allow."""
     from epsm_data.templates import heating_delivery_template
+
+    pump_type = getattr(observed, "heat_pump_type", None) if policy.heat_pump_cop_by_type else None
+    if pump_type is None:
+        if policy.heat_pump_cop_by_type:
+            receipt.assumptions.append("Heat-pump type not reported by the EPC; field-average COP used")
+        return heating_delivery_template("heat_pump")
+    try:
+        template = heating_delivery_template("heat_pump", heat_pump_type=pump_type, era=era)
+    except TypeError:
+        receipt.quality.append(
+            "Installed epsm_data has no COP by heat-pump type; field-average COP used"
+        )
+        return heating_delivery_template("heat_pump")
+    receipt.identities["heat_pump_type"] = pump_type
+    return template
+
+
+def _delivery(record, policy, receipt, era=None):
+    from epsm_core import DeliverySpec, HeatingDeliverySpec
 
     observed = _observed_systems(record)
     carrier = observed.heating_carrier if observed else None
@@ -712,14 +735,14 @@ def _delivery(record, policy, receipt):
         "source": "ubem_v1: carrier indicated by raw EPC energy fields; effective efficiency/COP assumption",
     }
     if carrier == "heat_pump":
-        template = heating_delivery_template(carrier)
+        template = _heat_pump_template(observed, policy, era, receipt)
         options = dict(template.values["delivery"]["heating"])
         receipt.identities["heating_delivery_template"] = template.template_id
     if carrier == "fuel":
         options["efficiency"] = policy.fuel_efficiency
     receipt.assumptions.append(
         f"Heating carrier {carrier}; effective delivery parameters from "
-        + ("the catalogue's field-average template" if carrier == "heat_pump" else "policy")
+        + ("the catalogue's heat-pump template" if carrier == "heat_pump" else "policy")
         + ", not calibrated performance"
     )
     return DeliverySpec(heating=HeatingDeliverySpec(**options))
@@ -1056,7 +1079,7 @@ class EPSMBuilding:
                 airflow=airflow,
                 zone_uses=assignments,
                 unconditioned_exchange=exchanges,
-                delivery=_delivery(record, policy, receipt),
+                delivery=_delivery(record, policy, receipt, era=fabric["assignment"]["era"]),
                 provenance=ProvenanceSpec(records=tuple(sources)),
             )
             receipt.identities["physical_hash"] = spec.physical_hash()
