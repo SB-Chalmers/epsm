@@ -1,3 +1,18 @@
+# Unreleased — single-family slab edge and household electricity (24 November 2026)
+
+`ubem_v1` moves to policy version 7, which builds on version 6's storey check.
+
+- **Insulated slab edge beam.** An insulated single-family slab on grade with no basement gets a
+  vertical edge beam (Swedish kantelement practice; EPS-bygg *Grundboken* p. 69 gives typical
+  edge-beam ψ of 0.25–0.06 W/mK). It has 100 mm of the slab's own insulation, never thicker than
+  that insulation, outside the slab's structural layer, and goes 0.3 m below the slab. Before
+  this, Kiva left the slab edge bare, and the slab edge was a large thermal bridge.
+- **BEN småhus household electricity.** Single-family houses use 30 kWh/m² Atemp with 70 % usable
+  as heat (BEN, BFS 2016:12, table 2:1). The multi-family Sveby value was 21 kWh/m². The internal
+  gain rises from 14.7 to 21 kWh/m² a year, and the monthly shape is kept.
+- `ModelPolicy(single_family_slab_edge_insulation_m=0, single_family_household_electricity_kwh_m2=None)`
+  restores version 6.
+
 # Unreleased — single-family storey check (24 November 2026)
 
 `ubem_v1` moves to policy version 6. When a single-family house's storey count is

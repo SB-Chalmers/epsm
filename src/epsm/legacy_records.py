@@ -24,7 +24,7 @@ from epsm_db.weather import WeatherReference
 @dataclass(frozen=True)
 class ModelPolicy:
     name: str = "ubem_v1"
-    version: str = "6"
+    version: str = "7"
     minimum_programme_blend_share: float = 0.05
     typical_floor_height_m: float = 3.0
     minimum_full_floor_height_m: float = 2.0
@@ -58,6 +58,19 @@ class ModelPolicy:
     single_family_maximum_storeys: int = 3
     single_family_minimum_area_ratio: float = 0.6
     single_family_net_to_gross_area: float = 0.88
+    # Version 7: single-family slab edge and household electricity.
+    # Swedish slab-on-grade has an insulated edge beam (kantelement): EPS-bygg
+    # Grundboken p. 69, table 1 gives typical edge-beam psi 0.25-0.06 W/mK for
+    # 50-150 mm front insulation. Kiva otherwise leaves the slab edge bare. An
+    # insulated slab gets this much vertical edge insulation of the same material,
+    # down to the given depth below the slab. 0 restores version 6.
+    single_family_slab_edge_insulation_m: float = 0.10
+    single_family_slab_edge_depth_m: float = 0.3
+    # BEN (BFS 2016:12, table 2:1) normal use for småhus: household electricity
+    # 30 kWh/m2 Atemp, 70 % usable as heat in the heating season. The Sveby
+    # residential profile is multi-family (21 kWh/m2). None restores version 6.
+    single_family_household_electricity_kwh_m2: float | None = 30.0
+    household_electricity_heat_fraction: float = 0.70
     wwr_by_type: dict = field(
         default_factory=lambda: {
             "single_family": 0.2,
@@ -123,6 +136,17 @@ class ModelPolicy:
             raise ValueError("Single-family minimum area ratio must be between 0 and 1")
         if not 0 < self.single_family_net_to_gross_area <= 1:
             raise ValueError("Single-family net-to-gross area must be in (0,1]")
+        if not math.isfinite(self.single_family_slab_edge_insulation_m) or self.single_family_slab_edge_insulation_m < 0:
+            raise ValueError("Slab edge insulation must be finite and nonnegative")
+        if not math.isfinite(self.single_family_slab_edge_depth_m) or self.single_family_slab_edge_depth_m < 0:
+            raise ValueError("Slab edge depth must be finite and nonnegative")
+        if self.single_family_household_electricity_kwh_m2 is not None and not (
+            math.isfinite(self.single_family_household_electricity_kwh_m2)
+            and self.single_family_household_electricity_kwh_m2 >= 0
+        ):
+            raise ValueError("Household electricity must be finite and nonnegative")
+        if not 0 <= self.household_electricity_heat_fraction <= 1:
+            raise ValueError("Household electricity heat fraction must be in [0,1]")
 
 
 class ModelAssemblyError(ValueError):
@@ -616,6 +640,43 @@ def _geometry(record, policy, receipt, overrides):
     return geometry
 
 
+def _foundation(record, envelope, geometry, policy, receipt):
+    """Kiva foundation; single-family insulated slabs get an insulated edge beam (version 7)."""
+    from epsm_core import FoundationSpec
+    from epsm_core.specs.physics import ConstructionSpec
+
+    if (
+        record.type.value != "single_family"
+        or policy.single_family_slab_edge_insulation_m <= 0
+        or geometry.basement_depth_m
+    ):
+        return FoundationSpec()
+    layers = envelope.ground.layers
+    insulation = [
+        layer for layer in layers
+        if layer.material.conductivity_w_mk <= 0.06 and layer.thickness_m >= 0.05
+    ]
+    if not insulation:
+        receipt.assumptions.append(
+            "Slab without an insulation layer of at least 50 mm: no insulated edge beam assumed"
+        )
+        return FoundationSpec()
+    insulation = min(insulation, key=lambda layer: layer.material.conductivity_w_mk)
+    structure = max(layers, key=lambda layer: layer.material.conductivity_w_mk)
+    thickness = min(policy.single_family_slab_edge_insulation_m, insulation.thickness_m)
+    edge = ConstructionSpec(layers=(insulation.model_copy(update={"thickness_m": thickness}), structure))
+    receipt.assumptions.append(
+        f"Insulated slab edge beam: {thickness * 1000:.0f} mm of the slab insulation outside the slab's "
+        f"structural layer, {policy.single_family_slab_edge_depth_m} m below the slab "
+        "(Swedish kantelement practice, EPS-bygg Grundboken p. 69)"
+    )
+    return FoundationSpec(
+        footing_wall=edge,
+        wall_depth_below_slab_m=policy.single_family_slab_edge_depth_m,
+        source="ubem_v1 v7: Kiva defaults with an assumed insulated slab edge beam (EPS-bygg Grundboken p. 69)",
+    )
+
+
 def _ventilation_template(record, policy, receipt, ventilation, era, state, override):
     """Airflow-only system inputs: the catalogue template, or version 3's policy completion."""
     if not policy.catalogue_templates:
@@ -715,6 +776,28 @@ def _operation(
         receipt.assumptions.append(
             f"Residential DHW uses {dhw.profile_id}; standardized normal use, not measured consumption"
         )
+        if (
+            residential_type == "single_family"
+            and policy.single_family_household_electricity_kwh_m2 is not None
+            and use.equipment_gain_w_m2 > 0
+        ):
+            schedule = use.equipment_fraction
+            hours = (
+                sum(schedule.annual_values)
+                if schedule.annual_values is not None
+                else sum(schedule.values) / len(schedule.values) * 8760
+            )
+            current = use.equipment_gain_w_m2 * hours / 1000
+            target = (
+                policy.single_family_household_electricity_kwh_m2
+                * policy.household_electricity_heat_fraction
+            )
+            use = use.updated(equipment_gain_w_m2=use.equipment_gain_w_m2 * target / current)
+            receipt.assumptions.append(
+                f"Single-family household electricity {policy.single_family_household_electricity_kwh_m2:g} kWh/m2 "
+                f"with {policy.household_electricity_heat_fraction:.0%} usable as heat (BEN BFS 2016:12 table 2:1, småhus): "
+                f"internal gain {current:.1f} -> {target:.1f} kWh/m2 per year"
+            )
         flow = resolved.assumptions["airflow"]["mechanical_vent_l_s_m2"]
         fraction = ScheduleSpec.constant(1)
     elif name in {"office", "school"}:
@@ -1123,7 +1206,7 @@ class EPSMBuilding:
                 load_reference_area_m2=area,
                 facade=facade,
                 envelope=fabric["envelope"].updated(
-                    foundation=FoundationSpec(),
+                    foundation=_foundation(record, fabric["envelope"], geometry, policy, receipt),
                     ground_temperature=None,
                     basement_ceiling=(
                         fabric["envelope"].basement_ceiling or fabric["envelope"].ground
