@@ -24,7 +24,7 @@ from epsm_db.weather import WeatherReference
 @dataclass(frozen=True)
 class ModelPolicy:
     name: str = "ubem_v1"
-    version: str = "5"
+    version: str = "6"
     minimum_programme_blend_share: float = 0.05
     typical_floor_height_m: float = 3.0
     minimum_full_floor_height_m: float = 2.0
@@ -48,6 +48,16 @@ class ModelPolicy:
     # Version 5: heat-pump COP from Data's delivery template. "measured" selects
     # Data's observed stock operation for existing buildings; "sveby" is normal use.
     operating_standard: str = "sveby"
+    # Version 6: single-family storey check. LiDAR heights of houses built after
+    # their area was scanned can be tree canopy (unclassified points include
+    # vegetation), which height/typical-floor turns into 3-8 storeys. When the
+    # storey count comes from height, it is checked against the EPC Atemp, or the
+    # register living area, and replaced by the area-implied count if implausible.
+    # False restores version 5's height-only storey inference.
+    single_family_storey_check: bool = True
+    single_family_maximum_storeys: int = 3
+    single_family_minimum_area_ratio: float = 0.6
+    single_family_net_to_gross_area: float = 0.88
     wwr_by_type: dict = field(
         default_factory=lambda: {
             "single_family": 0.2,
@@ -103,6 +113,16 @@ class ModelPolicy:
             raise ValueError("Unsupported ventilation default")
         if self.operating_standard not in {"sveby", "measured"}:
             raise ValueError("operating_standard must be sveby or measured")
+        if (
+            isinstance(self.single_family_maximum_storeys, bool)
+            or not isinstance(self.single_family_maximum_storeys, int)
+            or self.single_family_maximum_storeys < 1
+        ):
+            raise ValueError("Single-family maximum storeys must be a positive integer")
+        if not 0 < self.single_family_minimum_area_ratio < 1:
+            raise ValueError("Single-family minimum area ratio must be between 0 and 1")
+        if not 0 < self.single_family_net_to_gross_area <= 1:
+            raise ValueError("Single-family net-to-gross area must be in (0,1]")
 
 
 class ModelAssemblyError(ValueError):
@@ -113,6 +133,35 @@ class ModelAssemblyError(ValueError):
 
 def _positive(value):
     return value is not None and math.isfinite(float(value)) and float(value) > 0
+
+
+def _register_living_area(record):
+    """Lantmäteriet register total living area (totalBoarea) in m2, or None."""
+    sources = [((record.facts.get("attributes") or {}).get("original_values") or {})]
+    sources += [(p or {}).get("original_values") or {} for p in record.facts.get("purposes") or ()]
+    for values in sources:
+        for key in ("Byggnad/Bostad/totalBoarea", "Bostad/totalBoarea"):
+            raw = values.get(key)
+            if isinstance(raw, list):
+                raw = raw[0] if raw else None
+            try:
+                area = float(raw)
+            except (TypeError, ValueError):
+                continue
+            if math.isfinite(area) and area > 0:
+                return area
+    return None
+
+
+def _storey_area_anchor(record, overrides):
+    """Floor area that bounds a single-family storey count: EPC Atemp, else register living area."""
+    atemp = record.atemp_m2
+    if _positive(atemp):
+        return float(atemp), "EPC Atemp"
+    living = _register_living_area(record)
+    if living is not None:
+        return living, "register living area (totalBoarea)"
+    return None, None
 
 
 # GIS-lake records (epsm_db schema 2) name status and height evidence differently
@@ -353,6 +402,16 @@ def _geometry(record, policy, receipt, overrides):
         "rotation_degrees": 0,
         "inverse": "source_xy = model_xy + translation_origin_xy",
     }
+    anchor_area, anchor_source = (None, None)
+    if policy.single_family_storey_check and record.type.value == "single_family":
+        anchor_area, anchor_source = _storey_area_anchor(record, overrides)
+        if anchor_area is not None:
+            reported_basement = overrides.get("basement_storeys", record.basement_storeys)
+            if reported_basement == 1 and anchor_source == "EPC Atemp":
+                # A conditioned basement is part of Atemp but not of the above-ground storeys.
+                anchor_area -= policy.single_family_net_to_gross_area * record.geometry.area
+            if anchor_area <= 0:
+                anchor_area = None
     for i, component in enumerate(record.components):
         component_area = component["geometry"].area
         if (
@@ -434,6 +493,27 @@ def _geometry(record, policy, receipt, overrides):
             receipt.assumptions.append(
                 f"Component {i}: {count} storeys inferred from existing height/type policy; raw reported count retained"
             )
+            if anchor_area is not None:
+                footprint = record.geometry.area
+                if (
+                    count > policy.single_family_maximum_storeys
+                    or anchor_area / (footprint * count) < policy.single_family_minimum_area_ratio
+                ):
+                    implied = min(
+                        policy.single_family_maximum_storeys,
+                        max(1, round(anchor_area / (policy.single_family_net_to_gross_area * footprint))),
+                    )
+                    receipt.assumptions.append(
+                        f"Component {i}: {count} storeys from {height:.2f} m height are implausible for a single-family house "
+                        f"with {anchor_source} {anchor_area:.0f} m2 on a {footprint:.0f} m2 footprint (likely vegetation in the LiDAR); "
+                        f"{implied} storeys at {policy.typical_floor_height_m} m used with a compact roof"
+                    )
+                    receipt.quality.append(
+                        f"Component {i}: single-family height {height:.2f} m replaced by {anchor_source}-implied storeys"
+                    )
+                    count = implied
+                    height = implied * policy.typical_floor_height_m
+                    pitched = False
         count = int(count)
         if (
             not policy.minimum_full_floor_height_m
