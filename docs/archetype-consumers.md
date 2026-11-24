@@ -77,6 +77,12 @@ calendars are explicit scenario assumptions; general archetype application does
 not generate holidays or calendars. Policy version 5 reads ventilation and heating
 carriers through `epsm_db.epc_systems` and takes the heat-pump seasonal COP from
 Data's `heating_delivery_template`, the Swedish field average of 2.75.
+Policy version 6 applies Sveby's window solar shading: by default the occupant
+factor for blinds and curtains (0.71 for housing and offices, 0.65 for schools),
+since fixed obstructions belong in geometry. `ModelPolicy(solar_shading="total")`
+uses Sveby's combined factor (0.50; schools 0.65), and `solar_shading=None` restores
+versions 1-5 (factor 1.0). `Building.apply_archetype(..., solar_shading=...)` takes
+the same choices with the same default, so both routes agree.
 
 Legacy overrides can supply `component_states` and `component_sources` together.
 The receipt keeps the complete archetype definition as well as the

@@ -48,17 +48,23 @@ class Building(CoreBuilding):
         return self._archetype_applications
 
     @logged_operation("building.archetype.apply")
-    def apply_archetype(self, archetype, *, mode="replace", calendar=None):
+    def apply_archetype(
+        self, archetype, *, mode="replace", calendar=None, solar_shading="behaviour"
+    ):
         """Apply a catalogue or authored definition to existing geometry in place.
 
         Replace supplied roles and sections, or fill missing assignments while
         retaining existing choices. Invalid supplied values raise before changes.
         Missing systems, calendars and reference bases remain explicit in the
         returned ArchetypeApplicationReport. Openings and geometry are preserved.
+        ``solar_shading`` is Sveby's window factor: ``"behaviour"`` (default; 0.71,
+        school 0.65), ``"total"`` (0.50, school 0.65), ``None`` (off) or a number.
         """
         from .archetypes import apply_archetype
 
-        return apply_archetype(self, archetype, mode=mode, calendar=calendar)
+        return apply_archetype(
+            self, archetype, mode=mode, calendar=calendar, solar_shading=solar_shading
+        )
 
     @property
     def results(self):
