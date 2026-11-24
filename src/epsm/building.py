@@ -59,6 +59,7 @@ class Building(CoreBuilding):
         returned ArchetypeApplicationReport. Openings and geometry are preserved.
         ``solar_shading`` is Sveby's window factor: ``"behaviour"`` (default; 0.71,
         school 0.65), ``"total"`` (0.50, school 0.65), ``None`` (off) or a number.
+        Multi-family archetypes get 1.0 for the named choices.
         """
         from .archetypes import apply_archetype
 

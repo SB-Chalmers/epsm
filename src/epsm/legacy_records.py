@@ -51,9 +51,10 @@ class ModelPolicy:
     # Data's observed stock operation for existing buildings; "sveby" is normal use.
     operating_standard: str = "sveby"
     # Version 6: Sveby window solar shading. "behaviour" (default) is the occupant
-    # factor (0.71 housing and office, 0.65 school), as fixed obstructions belong in
-    # geometry; "total" is Sveby's combined factor (0.50; school 0.65); None turns it
-    # off (1.0, versions 1-5); a number in (0, 1] is used as given.
+    # factor (0.71 single-family and office, 0.65 school), as fixed obstructions belong
+    # in geometry; "total" is Sveby's combined factor (0.50; school 0.65); None turns it
+    # off (1.0, versions 1-5); a number in (0, 1] is used as given. Multi-family is not
+    # applied (named choices give 1.0; see epsm._solar_shading.NOT_APPLIED).
     solar_shading: str | float | None = "behaviour"
     wwr_by_type: dict = field(
         default_factory=lambda: {
@@ -577,7 +578,7 @@ def _shading(record, policy, receipt):
     from epsm_data import select_operating_profile
 
     values = select_operating_profile(record.type.value).values
-    factor, text = solar_shading_factor(values, policy.solar_shading)
+    factor, text = solar_shading_factor(values, policy.solar_shading, record.type.value)
     if factor is None:
         factor, text = 1.0, f"No Sveby solar shading data for {record.type.value}; factor 1.0"
     _field(receipt, "solar_shading_factor", factor, "assumed", text)

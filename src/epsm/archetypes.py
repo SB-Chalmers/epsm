@@ -191,9 +191,9 @@ def apply_archetype(
     """Validate supplied definitions, then commit one atomic Core assignment.
 
     ``solar_shading`` sets the window solar factor from a Sveby profile: ``"behaviour"``
-    (default; 0.71 housing and office, 0.65 school) for models whose obstructions are
-    geometry, ``"total"`` (0.50; school 0.65), ``None`` for off (1.0), or a number in
-    (0, 1]. Authored ``building_assumptions`` facade values are kept as written.
+    (default; 0.71 single-family and office, 0.65 school) for models whose obstructions
+    are geometry, ``"total"`` (0.50; school 0.65), ``None`` for off (1.0), or a number in
+    (0, 1]. Multi-family archetypes get 1.0 for the named choices. Authored ``building_assumptions`` facade values are kept as written.
     """
     if not isinstance(archetype, Archetype):
         raise TypeError("archetype must be an EPSM Data Archetype")
@@ -252,7 +252,9 @@ def apply_archetype(
         if not (custom is not None and "facade" in custom) and sveby_shading_factors(
             profile.values
         ):
-            factor, text = solar_shading_factor(profile.values, solar_shading)
+            factor, text = solar_shading_factor(
+                profile.values, solar_shading, archetype.building_typology
+            )
             if factor is not None:
                 # Core maps Sveby profiles to the total factor (and offices and
                 # schools only with a calendar); EPSM records place obstructions in

@@ -78,7 +78,7 @@ def _record_route(policy=None, record=None):
 
 
 @pytest.mark.parametrize(
-    "choice, expected", [("behaviour", 0.71), ("total", 0.5), (None, 1.0), (0.9, 0.9)]
+    "choice, expected", [("behaviour", 1.0), ("total", 1.0), (None, 1.0), (0.9, 0.9)]
 )
 def test_record_route_sets_the_facade_factor(choice, expected):
     from epsm.legacy_records import ModelPolicy
@@ -89,14 +89,15 @@ def test_record_route_sets_the_facade_factor(choice, expected):
 
 
 def test_record_route_default_is_sveby_behaviour_even_with_version_3_facade():
+    from epsm_db.enums import BuildingType
+
     from epsm.legacy_records import ModelPolicy
 
-    built, _ = _record_route()
-    assert built.spec.facade.solar_shading_factor == 0.71
-    earlier, _ = _record_route(ModelPolicy(version="3", catalogue_templates=False))
+    sf = replace(_legacy_record(), type=BuildingType.RESIDENTIAL_SINGLE_FAMILY)
+    earlier, _ = _record_route(ModelPolicy(version="3", catalogue_templates=False), sf)
     assert earlier.spec.facade.solar_shading_factor == 0.71
     off, _ = _record_route(
-        ModelPolicy(version="3", catalogue_templates=False, solar_shading=None)
+        ModelPolicy(version="3", catalogue_templates=False, solar_shading=None), sf
     )
     assert off.spec.facade.solar_shading_factor == 1.0
 
@@ -119,7 +120,9 @@ def test_record_route_school_uses_the_school_factor():
         ("sf_se03", "behaviour", 0.71),
         ("sf_se03", "total", 0.5),
         ("sf_se03", None, 1.0),
-        ("mf_se02", "behaviour", 0.71),
+        ("mf_se02", "behaviour", 1.0),
+        ("mf_se02", "total", 1.0),
+        ("mf_se02", None, 1.0),
         ("office_se04", "behaviour", 0.71),
         ("office_se04", "total", 0.5),
         ("school_se04", "behaviour", 0.65),
@@ -185,3 +188,27 @@ def test_off_choice_does_not_touch_a_profile_without_sveby_shading():
         solar_shading=None,
     )
     assert b.facade.solar_shading_factor == before
+
+
+def test_multi_family_named_choices_are_not_applied_but_numbers_are():
+    values = _profile_values("multi_family")
+    for choice in ("behaviour", "total"):
+        factor, text = solar_shading_factor(values, choice, "multi_family")
+        assert factor == 1.0 and "not applied for multi-family" in text
+    assert solar_shading_factor(values, 0.8, "multi_family")[0] == 0.8
+    assert solar_shading_factor(values, "behaviour", "single_family")[0] == 0.71
+
+
+def test_record_route_explicit_number_still_applies_to_multi_family():
+    from epsm.legacy_records import ModelPolicy
+
+    built, _ = _record_route(ModelPolicy(solar_shading=0.8))
+    assert built.spec.facade.solar_shading_factor == 0.8
+
+
+def test_record_route_single_family_uses_the_behaviour_factor():
+    from epsm_db.enums import BuildingType
+
+    sf = replace(_legacy_record(), type=BuildingType.RESIDENTIAL_SINGLE_FAMILY)
+    built, _ = _record_route(record=sf)
+    assert built.spec.facade.solar_shading_factor == 0.71
