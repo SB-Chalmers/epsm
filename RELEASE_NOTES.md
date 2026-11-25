@@ -3,7 +3,7 @@
 A candidate for 0.8.0. `ubem_v1` moves from policy version 5 to version 11. Results
 calibrated against version 5 need rechecking. Each change has a `ModelPolicy` switch that
 restores the earlier behaviour. The candidate combination moves to Data 0.9.0rc1
-(`e344af1`) and Database 0.6.1 (`c4c0457`); the other packages are unchanged.
+(`e344af1`) and Database 0.6.1 (`ae7e38c`); the other packages are unchanged.
 
 ## Sveby window solar shading (version 6)
 

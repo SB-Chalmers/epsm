@@ -78,7 +78,7 @@ commits. See the [detailed guide](docs/guide.md#tested-package-combination) for 
 | `epsm` | 0.8.0rc1 | `self` |
 | `epsm_core` | 0.10.0 | `8a260726e354b049e7459aeb7c167aeca4e6ef5d` |
 | `epsm_data` | 0.9.0rc1 | `e344af1b979258f6fc2a4373de2ce4d84414e409` |
-| `epsm_db` | 0.6.1 | `c4c045717bbea9a9e55ebffc1062e204f62862e5` |
+| `epsm_db` | 0.6.1 | `ae7e38c99685ea765ec558bee593c9a062c6fae5` |
 | `epsm_lca` | 0.5.0 | `0c996ac87e6d818136f119e861b08ad9f048fafc` |
 | `epsm_rc` | 0.12.0 | `59102e13e3eeb3bd6ea461ceab6e8b492aeade99` |
 | `epsm_studies` | 0.5.1 | `2b4742938da12c9bb8b6519747ac2bd53eb4a770` |
