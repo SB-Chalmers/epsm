@@ -168,8 +168,12 @@ def test_authored_facade_values_are_kept():
     )
     b = reference()
     b.apply_archetype(
-        Archetype("research.custom", "Authored", source_references=("study:x",),
-                  operating_profile=profile)
+        Archetype(
+            "research.custom",
+            "Authored",
+            source_references=("study:x",),
+            operating_profile=profile,
+        )
     )
     assert b.facade.solar_shading_factor == 0.4
 
@@ -183,8 +187,12 @@ def test_off_choice_does_not_touch_a_profile_without_sveby_shading():
         ("study:programme",),
     )
     b.apply_archetype(
-        Archetype("research.custom", "Authored", source_references=("study:x",),
-                  operating_profile=profile),
+        Archetype(
+            "research.custom",
+            "Authored",
+            source_references=("study:x",),
+            operating_profile=profile,
+        ),
         solar_shading=None,
     )
     assert b.facade.solar_shading_factor == before

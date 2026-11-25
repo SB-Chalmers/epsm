@@ -11,35 +11,77 @@ db = pytest.importorskip("epsm_db")
 from epsm.legacy_records import ModelPolicy, _geometry  # noqa: E402
 
 
-def _record(*, height, roof="unclear", eave=None, ridge=None, kind="single_family",
-            atemp=None, living="150", storeys=None, size=12.0):
+def _record(
+    *,
+    height,
+    roof="unclear",
+    eave=None,
+    ridge=None,
+    kind="single_family",
+    atemp=None,
+    living="150",
+    storeys=None,
+    size=12.0,
+):
     footprint = box(0, 0, size, size)
     facts = {
         "geometry_valid": True,
         "object_status": "Gällande",
         "construction_year": 2023,
-        "attributes": {"original_values": {"Byggnad/Bostad/totalBoarea": [living]} if living else {}},
+        "attributes": {
+            "original_values": {"Byggnad/Bostad/totalBoarea": [living]}
+            if living
+            else {}
+        },
     }
     certificates = observations = subjects = ()
     if atemp is not None or storeys is not None:
-        certificates = ({"certificate_id": "epc", "certificate_date": date(2024, 5, 1),
-                         "subject_count": 1, "loaded_building_count": 1,
-                         "date_status": "verified", "matching_status": "fully_matched"},)
+        certificates = (
+            {
+                "certificate_id": "epc",
+                "certificate_date": date(2024, 5, 1),
+                "subject_count": 1,
+                "loaded_building_count": 1,
+                "date_status": "verified",
+                "matching_status": "fully_matched",
+            },
+        )
         subjects = ({"certificate_id": "epc"},)
         observations = tuple(
-            {"certificate_id": "epc", "source_field": name, "raw_values": [str(value)],
-             "normalized_value": {"value": value}, "value_status": "available"}
+            {
+                "certificate_id": "epc",
+                "source_field": name,
+                "raw_values": [str(value)],
+                "normalized_value": {"value": value},
+                "value_status": "available",
+            }
             for name, value in (("EgenAtemp", atemp), ("EgenAntalPlan", storeys))
             if value is not None
         )
     return db.BuildingRecord(
-        "test", "house", db.BuildingType(kind), footprint, facts,
+        "test",
+        "house",
+        db.BuildingType(kind),
+        footprint,
+        facts,
         components=({"component_id": 1, "geometry": footprint},),
-        heights=({"component_id": 1, "height_status": "determined", "roof_form": roof,
-                  "representative_height_m": height, "eave_height_m": eave, "ridge_height_m": ridge,
-                  "attributes": {"geometry_status": "consistent_source_component"}},),
-        certificates=certificates, subjects=subjects, observations=observations,
-        epc_results=({"certificate_id": "epc", "status": "matched"},) if certificates else (),
+        heights=(
+            {
+                "component_id": 1,
+                "height_status": "determined",
+                "roof_form": roof,
+                "representative_height_m": height,
+                "eave_height_m": eave,
+                "ridge_height_m": ridge,
+                "attributes": {"geometry_status": "consistent_source_component"},
+            },
+        ),
+        certificates=certificates,
+        subjects=subjects,
+        observations=observations,
+        epc_results=({"certificate_id": "epc", "status": "matched"},)
+        if certificates
+        else (),
     )
 
 
