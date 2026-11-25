@@ -18,6 +18,12 @@ from epsm_data import Archetype, archetype_to_dict
 
 from ._logging import context_logger
 from ._programme_airflow import measured_air_change
+from ._solar_shading import (
+    DEFAULT_SOLAR_SHADING,
+    solar_shading_factor,
+    sveby_shading_factors,
+    validate_solar_shading,
+)
 from .results import _FrozenJSON, encode
 
 logger = context_logger(__name__)
@@ -174,12 +180,26 @@ def _template_paths(values, hvac):
     return paths
 
 
-def apply_archetype(building, archetype, *, mode="replace", calendar=None):
-    """Validate supplied definitions, then commit one atomic Core assignment."""
+def apply_archetype(
+    building,
+    archetype,
+    *,
+    mode="replace",
+    calendar=None,
+    solar_shading=DEFAULT_SOLAR_SHADING,
+):
+    """Validate supplied definitions, then commit one atomic Core assignment.
+
+    ``solar_shading`` sets the window solar factor from a Sveby profile: ``"behaviour"``
+    (default; 0.71 single-family and office, 0.65 school) for models whose obstructions
+    are geometry, ``"total"`` (0.50; school 0.65), ``None`` for off (1.0), or a number in
+    (0, 1]. Multi-family archetypes get 1.0 for the named choices. Authored ``building_assumptions`` facade values are kept as written.
+    """
     if not isinstance(archetype, Archetype):
         raise TypeError("archetype must be an EPSM Data Archetype")
     if mode not in {"replace", "fill_missing"}:
         raise ValueError("mode must be 'replace' or 'fill_missing'")
+    validate_solar_shading(solar_shading)
     definition = archetype_to_dict(archetype)
     before = building.snapshot().sha256
     requirements, assumptions, unmatched, retained, records = [], [], [], [], []
@@ -228,6 +248,19 @@ def apply_archetype(building, archetype, *, mode="replace", calendar=None):
             )
             profile_airflow.pop("topology")
         facade = dict(values.get("facade", {}))
+        # Only Sveby-derived profiles carry shading data; authored facade values stay.
+        if not (custom is not None and "facade" in custom) and sveby_shading_factors(
+            profile.values
+        ):
+            factor, text = solar_shading_factor(
+                profile.values, solar_shading, archetype.building_typology
+            )
+            if factor is not None:
+                # Core maps Sveby profiles to the total factor (and offices and
+                # schools only with a calendar); EPSM records place obstructions in
+                # geometry, so the choice here replaces that default.
+                facade["solar_shading_factor"] = factor
+                assumptions.append(text)
         properties = {
             key: value
             for key, value in facade.items()

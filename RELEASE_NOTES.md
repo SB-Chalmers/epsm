@@ -1,6 +1,31 @@
-# Unreleased — single-family storey check (24 November 2026)
+# Unreleased — Sveby window solar shading on by default
 
-`ubem_v1` moves to policy version 6. When a single-family house's storey count is
+`ubem_v1` moves to policy version 6. Record-based models (`EPSMBuilding.from_record`)
+previously left the window solar factor at 1.0 for every type, while
+`apply_archetype` took Core's Sveby total factor (0.50 for housing; offices and schools
+only when a calendar was supplied). Both routes now apply Sveby's occupant factor for
+blinds and curtains by default: 0.71 for single-family houses and offices and 0.65 for
+schools. Multi-family is not applied (1.0) after the final calibration campaign; 1.0 is
+untested on fresh multi-family buildings.
+Fixed obstructions are meant to be modelled as geometry, so the 0.50 total is not the
+default. `ModelPolicy(solar_shading=...)` and `apply_archetype(..., solar_shading=...)`
+accept `"behaviour"` (default), `"total"` (0.50; schools 0.65), `None` (off, as before)
+or a number in (0, 1]. Authored `building_assumptions` facade values are kept as written.
+Solar gains through windows fall, so predicted heating rises; results calibrated
+against version 5 need rechecking.
+
+## Heat-pump COP by pump type
+
+`ubem_v1` moves to policy version 7. Heat-pump delivery passes the building's EPC
+heat-pump type (`epsm_db.epc_systems`) and era to Data's `heating_delivery_template`,
+so the seasonal COP follows the pump type when Data supports it (epsm_data PR #40:
+ground 2.75, exhaust air 2.4 before 2006 and 2.75 from 2006, air–water 2.4, air–air
+2.0). With Data 0.8.0 the field average 2.75 still applies. The receipt records
+`heat_pump_type`. SE.07 heat recovery 0.70 comes from Data alone, with no change here.
+
+## Single-family storey check
+
+`ubem_v1` moves to policy version 8. When a single-family house's storey count is
 inferred from its LiDAR height, rather than taken from valid EPC storeys, it is checked
 against the EPC Atemp, or the Lantmäteriet register living area (`totalBoarea`) when
 there is no EPC. With more than 3 storeys, or an area below 0.6 of footprint × storeys,
@@ -13,7 +38,7 @@ after their area was scanned, on wooded plots, got 7.5–24 m heights and 3–8 
 On the 897 single-component SF SE.07 houses of the cohort baseline, the median
 Atemp ÷ modelled floor area goes from 0.71 to 0.88. Houses below 0.6 fall from 44 % to
 1.7 %, and 381 houses change. Other eras change by 2.5–9 %.
-`ModelPolicy(single_family_storey_check=False)` restores version 5.
+`ModelPolicy(single_family_storey_check=False)` restores version 7.
 
 # Release 0.7.0 — measured stock operation (21 November 2026)
 
