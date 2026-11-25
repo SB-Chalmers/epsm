@@ -31,6 +31,7 @@ def _record_view(record):
 def building_from_record(building_type, record, **options):
     archetype = options.pop("archetype", None)
     calendar = options.pop("calendar", None)
+    solar_shading = options.pop("solar_shading", "behaviour")
     if calendar is not None and archetype is None:
         raise ValueError("calendar requires an explicitly selected archetype")
     record = _record_view(record)
@@ -87,7 +88,9 @@ def building_from_record(building_type, record, **options):
         if portable.get("format") == "epsm-record-1":
             building._source_record["portable_record"] = deepcopy(portable)
     if archetype is not None:
-        building.apply_archetype(archetype, calendar=calendar)
+        building.apply_archetype(
+            archetype, calendar=calendar, solar_shading=solar_shading
+        )
     return building
 
 

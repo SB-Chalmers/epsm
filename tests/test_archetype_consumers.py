@@ -97,7 +97,9 @@ def test_legacy_programme_uses_public_definition_conversion_with_same_outputs(
         infiltration={"envelope_infiltration_ach": 0.2},
         geometry=geometry,
         area=90,
-        policy=ModelPolicy(),
+        # The baselines pin the profile conversion; version 7's BEN småhus household
+        # electricity is a separate, tested rescaling.
+        policy=ModelPolicy(single_family_household_electricity_kwh_m2=None),
         receipt=Receipt("test"),
     )
     assert converted == source.split(" + ")

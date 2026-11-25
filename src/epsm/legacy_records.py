@@ -20,11 +20,13 @@ from epsm_db.records import (
 )
 from epsm_db.weather import WeatherReference
 
+from ._solar_shading import solar_shading_factor, validate_solar_shading
+
 
 @dataclass(frozen=True)
 class ModelPolicy:
     name: str = "ubem_v1"
-    version: str = "6"
+    version: str = "11"
     minimum_programme_blend_share: float = 0.05
     typical_floor_height_m: float = 3.0
     minimum_full_floor_height_m: float = 2.0
@@ -45,12 +47,51 @@ class ModelPolicy:
     # Version 4: catalogue ventilation templates and facade window ratios. False
     # restores version 3's type defaults below (one WWR and one FTX recovery).
     catalogue_templates: bool = True
-    # Version 5: heat-pump COP from Data's delivery template. "measured" selects
+    # Version 5: heat-pump COP from Data's delivery template. Version 7: the COP
+    # follows the EPC heat-pump type where Data supports it. "measured" selects
     # Data's observed stock operation for existing buildings; "sveby" is normal use.
     operating_standard: str = "sveby"
-    # Version 6: shading-only neighbours (lake components within this radius, at their
-    # representative height) for database-backed records or caller-supplied rows.
-    # None turns context off (versions 1-5).
+    # Version 6: Sveby window solar shading. "behaviour" (default) is the occupant
+    # factor (0.71 single-family and office, 0.65 school), as fixed obstructions belong
+    # in geometry; "total" is Sveby's combined factor (0.50; school 0.65); None turns it
+    # off (1.0, versions 1-5); a number in (0, 1] is used as given. Multi-family is not
+    # applied (named choices give 1.0; see epsm._solar_shading.NOT_APPLIED).
+    solar_shading: str | float | None = "behaviour"
+    # Version 8: single-family storey check. LiDAR heights of houses built after
+    # their area was scanned can be tree canopy (unclassified points include
+    # vegetation), which height/typical-floor turns into 3-8 storeys. When the
+    # storey count comes from height, it is checked against the EPC Atemp, or the
+    # register living area, and replaced by the area-implied count if implausible.
+    # False restores version 7's height-only storey inference.
+    single_family_storey_check: bool = True
+    single_family_maximum_storeys: int = 3
+    single_family_minimum_area_ratio: float = 0.6
+    single_family_net_to_gross_area: float = 0.88
+    # Version 9: single-family slab edge and household electricity.
+    # Swedish slab-on-grade has an insulated edge beam (kantelement): EPS-bygg
+    # Grundboken p. 69, table 1 gives typical edge-beam psi 0.25-0.06 W/mK for
+    # 50-150 mm front insulation. Kiva otherwise leaves the slab edge bare. An
+    # insulated slab gets this much vertical edge insulation of the same material,
+    # down to the given depth below the slab. 0 restores version 8.
+    single_family_slab_edge_insulation_m: float = 0.10
+    single_family_slab_edge_depth_m: float = 0.3
+    # BEN (BFS 2016:12, table 2:1) normal use for småhus: household electricity
+    # 30 kWh/m2 Atemp, 70 % usable as heat in the heating season. The Sveby
+    # residential profile is multi-family (21 kWh/m2). None restores version 8.
+    single_family_household_electricity_kwh_m2: float | None = 30.0
+    household_electricity_heat_fraction: float = 0.70
+    # Version 10: EPC ventilation with FTX among several ticked systems (for
+    # example F+FTX or FT+FTX) is modelled as FTX at the observed-FTX template.
+    # The EPC has no per-system shares, and a building with an FTX unit has heat
+    # recovery on at least part of its air; STIL2 (2005) and STIL3 (ER 2025:25)
+    # found no exhaust-only or natural-draught offices. Before version 10 such a
+    # certificate was "conflicting" and the catalogue's era default ran (S, F or
+    # FT without recovery in SE.01-SE.03). False restores version 9.
+    ventilation_conflict_ftx: bool = True
+    # Version 11: shading-only neighbours (lake components within this radius, at
+    # their representative height) for database-backed records or caller-supplied
+    # rows. None turns context off (versions 1-10). (Version 10's ventilation rule
+    # shipped without a version bump; 11 marks both.)
     context_radius_m: float | None = 100.0
     context_min_height_m: float = 2.0
     wwr_by_type: dict = field(
@@ -116,6 +157,28 @@ class ModelPolicy:
             raise ValueError("Unsupported ventilation default")
         if self.operating_standard not in {"sveby", "measured"}:
             raise ValueError("operating_standard must be sveby or measured")
+        validate_solar_shading(self.solar_shading)
+        if (
+            isinstance(self.single_family_maximum_storeys, bool)
+            or not isinstance(self.single_family_maximum_storeys, int)
+            or self.single_family_maximum_storeys < 1
+        ):
+            raise ValueError("Single-family maximum storeys must be a positive integer")
+        if not 0 < self.single_family_minimum_area_ratio < 1:
+            raise ValueError("Single-family minimum area ratio must be between 0 and 1")
+        if not 0 < self.single_family_net_to_gross_area <= 1:
+            raise ValueError("Single-family net-to-gross area must be in (0,1]")
+        if not math.isfinite(self.single_family_slab_edge_insulation_m) or self.single_family_slab_edge_insulation_m < 0:
+            raise ValueError("Slab edge insulation must be finite and nonnegative")
+        if not math.isfinite(self.single_family_slab_edge_depth_m) or self.single_family_slab_edge_depth_m < 0:
+            raise ValueError("Slab edge depth must be finite and nonnegative")
+        if self.single_family_household_electricity_kwh_m2 is not None and not (
+            math.isfinite(self.single_family_household_electricity_kwh_m2)
+            and self.single_family_household_electricity_kwh_m2 >= 0
+        ):
+            raise ValueError("Household electricity must be finite and nonnegative")
+        if not 0 <= self.household_electricity_heat_fraction <= 1:
+            raise ValueError("Household electricity heat fraction must be in [0,1]")
 
 
 class ModelAssemblyError(ValueError):
@@ -126,6 +189,35 @@ class ModelAssemblyError(ValueError):
 
 def _positive(value):
     return value is not None and math.isfinite(float(value)) and float(value) > 0
+
+
+def _register_living_area(record):
+    """Lantmäteriet register total living area (totalBoarea) in m2, or None."""
+    sources = [((record.facts.get("attributes") or {}).get("original_values") or {})]
+    sources += [(p or {}).get("original_values") or {} for p in record.facts.get("purposes") or ()]
+    for values in sources:
+        for key in ("Byggnad/Bostad/totalBoarea", "Bostad/totalBoarea"):
+            raw = values.get(key)
+            if isinstance(raw, list):
+                raw = raw[0] if raw else None
+            try:
+                area = float(raw)
+            except (TypeError, ValueError):
+                continue
+            if math.isfinite(area) and area > 0:
+                return area
+    return None
+
+
+def _storey_area_anchor(record, overrides):
+    """Floor area that bounds a single-family storey count: EPC Atemp, else register living area."""
+    atemp = record.atemp_m2
+    if _positive(atemp):
+        return float(atemp), "EPC Atemp"
+    living = _register_living_area(record)
+    if living is not None:
+        return living, "register living area (totalBoarea)"
+    return None, None
 
 
 # GIS-lake records (epsm_db schema 2) name status and height evidence differently
@@ -218,6 +310,18 @@ def _ventilation(record, policy, receipt, override):
         return override
     observed = _observed_systems(record)
     result = observed.ventilation if observed else None
+    if (
+        result is None
+        and policy.ventilation_conflict_ftx
+        and observed is not None
+        and observed.ventilation_status == "conflicting"
+        and "FTX" in observed.reported_ventilation
+    ):
+        result = "FTX"
+        receipt.assumptions.append(
+            "EPC ventilation " + "+".join(observed.reported_ventilation)
+            + " modelled as FTX: an FTX unit is present and the EPC gives no per-system shares (version 10)"
+        )
     if result:
         if result == "Fmed":
             # Exhaust with heat recovery, in practice an exhaust-air heat pump. With heat-pump
@@ -233,12 +337,15 @@ def _ventilation(record, policy, receipt, override):
         _field(receipt, "ventilation", result, "reported_raw_mapping")
     else:
         result = policy.ventilation_by_type[record.type.value]
+        status = observed.ventilation_status if observed else "unavailable"
         _field(
             receipt,
             "ventilation",
             result,
             "assumed",
-            f"Ventilation {observed.ventilation_status if observed else 'unavailable'}; type default {result}",
+            f"Ventilation {status}; type default {result}"
+            + ("; with catalogue templates the era's default template sets the airflow"
+               if policy.catalogue_templates else ""),
         )
     return result
 
@@ -366,6 +473,16 @@ def _geometry(record, policy, receipt, overrides):
         "rotation_degrees": 0,
         "inverse": "source_xy = model_xy + translation_origin_xy",
     }
+    anchor_area, anchor_source = (None, None)
+    if policy.single_family_storey_check and record.type.value == "single_family":
+        anchor_area, anchor_source = _storey_area_anchor(record, overrides)
+        if anchor_area is not None:
+            reported_basement = overrides.get("basement_storeys", record.basement_storeys)
+            if reported_basement == 1 and anchor_source == "EPC Atemp":
+                # A conditioned basement is part of Atemp but not of the above-ground storeys.
+                anchor_area -= policy.single_family_net_to_gross_area * record.geometry.area
+            if anchor_area <= 0:
+                anchor_area = None
     for i, component in enumerate(record.components):
         component_area = component["geometry"].area
         if (
@@ -447,6 +564,27 @@ def _geometry(record, policy, receipt, overrides):
             receipt.assumptions.append(
                 f"Component {i}: {count} storeys inferred from existing height/type policy; raw reported count retained"
             )
+            if anchor_area is not None:
+                footprint = record.geometry.area
+                if (
+                    count > policy.single_family_maximum_storeys
+                    or anchor_area / (footprint * count) < policy.single_family_minimum_area_ratio
+                ):
+                    implied = min(
+                        policy.single_family_maximum_storeys,
+                        max(1, round(anchor_area / (policy.single_family_net_to_gross_area * footprint))),
+                    )
+                    receipt.assumptions.append(
+                        f"Component {i}: {count} storeys from {height:.2f} m height are implausible for a single-family house "
+                        f"with {anchor_source} {anchor_area:.0f} m2 on a {footprint:.0f} m2 footprint (likely vegetation in the LiDAR); "
+                        f"{implied} storeys at {policy.typical_floor_height_m} m used with a compact roof"
+                    )
+                    receipt.quality.append(
+                        f"Component {i}: single-family height {height:.2f} m replaced by {anchor_source}-implied storeys"
+                    )
+                    count = implied
+                    height = implied * policy.typical_floor_height_m
+                    pitched = False
         count = int(count)
         if (
             not policy.minimum_full_floor_height_m
@@ -549,6 +687,43 @@ def _geometry(record, policy, receipt, overrides):
     return geometry
 
 
+def _foundation(record, envelope, geometry, policy, receipt):
+    """Kiva foundation; single-family insulated slabs get an insulated edge beam (version 7)."""
+    from epsm_core import FoundationSpec
+    from epsm_core.specs.physics import ConstructionSpec
+
+    if (
+        record.type.value != "single_family"
+        or policy.single_family_slab_edge_insulation_m <= 0
+        or geometry.basement_depth_m
+    ):
+        return FoundationSpec()
+    layers = envelope.ground.layers
+    insulation = [
+        layer for layer in layers
+        if layer.material.conductivity_w_mk <= 0.06 and layer.thickness_m >= 0.05
+    ]
+    if not insulation:
+        receipt.assumptions.append(
+            "Slab without an insulation layer of at least 50 mm: no insulated edge beam assumed"
+        )
+        return FoundationSpec()
+    insulation = min(insulation, key=lambda layer: layer.material.conductivity_w_mk)
+    structure = max(layers, key=lambda layer: layer.material.conductivity_w_mk)
+    thickness = min(policy.single_family_slab_edge_insulation_m, insulation.thickness_m)
+    edge = ConstructionSpec(layers=(insulation.model_copy(update={"thickness_m": thickness}), structure))
+    receipt.assumptions.append(
+        f"Insulated slab edge beam: {thickness * 1000:.0f} mm of the slab insulation outside the slab's "
+        f"structural layer, {policy.single_family_slab_edge_depth_m} m below the slab "
+        "(Swedish kantelement practice, EPS-bygg Grundboken p. 69)"
+    )
+    return FoundationSpec(
+        footing_wall=edge,
+        wall_depth_below_slab_m=policy.single_family_slab_edge_depth_m,
+        source="ubem_v1 v9: Kiva defaults with an assumed insulated slab edge beam (EPS-bygg Grundboken p. 69)",
+    )
+
+
 def _ventilation_template(record, policy, receipt, ventilation, era, state, override):
     """Airflow-only system inputs: the catalogue template, or version 3's policy completion."""
     if not policy.catalogue_templates:
@@ -577,13 +752,26 @@ def _compass_sector(azimuth_deg):
     return "N" if a >= 315 or a < 45 else "E" if a < 135 else "S" if a < 225 else "W"
 
 
+def _shading(record, policy, receipt):
+    """Window solar factor from the building type's Sveby profile and the policy choice."""
+    from epsm_data import select_operating_profile
+
+    values = select_operating_profile(record.type.value).values
+    factor, text = solar_shading_factor(values, policy.solar_shading, record.type.value)
+    if factor is None:
+        factor, text = 1.0, f"No Sveby solar shading data for {record.type.value}; factor 1.0"
+    _field(receipt, "solar_shading_factor", factor, "assumed", text)
+    return factor
+
+
 def _facade(record, geometry, glazing, policy, receipt, override):
     from epsm_core import FacadeOverride, FacadeSpec
 
+    shading = _shading(record, policy, receipt)
     if override is not None or not policy.catalogue_templates:
         wwr = override if override is not None else policy.wwr_by_type[record.type.value]
         _field(receipt, "wwr", wwr, "assumed", f"Type-policy WWR {wwr}; not measured glazing")
-        return FacadeSpec(default_wwr=wwr, glazing=glazing)
+        return FacadeSpec(default_wwr=wwr, glazing=glazing, solar_shading_factor=shading)
     from epsm_data.templates import facade_assumptions
 
     table = facade_assumptions(record.type.value)
@@ -602,7 +790,12 @@ def _facade(record, geometry, glazing, policy, receipt, override):
         + "N/E/S/W " + "/".join(str(by_orientation[k]) for k in "NESW")
         + "; not measured glazing",
     )
-    return FacadeSpec(default_wwr=table["default_wwr"], glazing=glazing, overrides=overrides)
+    return FacadeSpec(
+        default_wwr=table["default_wwr"],
+        glazing=glazing,
+        overrides=overrides,
+        solar_shading_factor=shading,
+    )
 
 
 def _operation(
@@ -648,6 +841,28 @@ def _operation(
         receipt.assumptions.append(
             f"Residential DHW uses {dhw.profile_id}; standardized normal use, not measured consumption"
         )
+        if (
+            residential_type == "single_family"
+            and policy.single_family_household_electricity_kwh_m2 is not None
+            and use.equipment_gain_w_m2 > 0
+        ):
+            schedule = use.equipment_fraction
+            hours = (
+                sum(schedule.annual_values)
+                if schedule.annual_values is not None
+                else sum(schedule.values) / len(schedule.values) * 8760
+            )
+            current = use.equipment_gain_w_m2 * hours / 1000
+            target = (
+                policy.single_family_household_electricity_kwh_m2
+                * policy.household_electricity_heat_fraction
+            )
+            use = use.updated(equipment_gain_w_m2=use.equipment_gain_w_m2 * target / current)
+            receipt.assumptions.append(
+                f"Single-family household electricity {policy.single_family_household_electricity_kwh_m2:g} kWh/m2 "
+                f"with {policy.household_electricity_heat_fraction:.0%} usable as heat (BEN BFS 2016:12 table 2:1, småhus): "
+                f"internal gain {current:.1f} -> {target:.1f} kWh/m2 per year"
+            )
         flow = resolved.assumptions["airflow"]["mechanical_vent_l_s_m2"]
         fraction = ScheduleSpec.constant(1)
     elif name in {"office", "school"}:
@@ -733,9 +948,26 @@ def _context(record, policy, receipt, geometry, rows):
     return context
 
 
-def _delivery(record, policy, receipt):
-    from epsm_core import DeliverySpec, HeatingDeliverySpec
+def _heat_pump_template(observed, era, receipt):
+    """Data's heat-pump template, by the EPC pump type where Data supports it."""
+    import inspect
+
     from epsm_data.templates import heating_delivery_template
+
+    pump = getattr(observed, "heat_pump_type", None)
+    typed = "heat_pump_type" in inspect.signature(heating_delivery_template).parameters
+    if pump and typed:
+        template = heating_delivery_template("heat_pump", heat_pump_type=pump, era=era)
+    else:
+        template = heating_delivery_template("heat_pump")
+    receipt.identities["heating_delivery_template"] = template.template_id
+    if pump:
+        receipt.identities["heat_pump_type"] = pump
+    return template
+
+
+def _delivery(record, policy, receipt, era=None):
+    from epsm_core import DeliverySpec, HeatingDeliverySpec
 
     observed = _observed_systems(record)
     carrier = observed.heating_carrier if observed else None
@@ -749,14 +981,13 @@ def _delivery(record, policy, receipt):
         "source": "ubem_v1: carrier indicated by raw EPC energy fields; effective efficiency/COP assumption",
     }
     if carrier == "heat_pump":
-        template = heating_delivery_template(carrier)
+        template = _heat_pump_template(observed, era, receipt)
         options = dict(template.values["delivery"]["heating"])
-        receipt.identities["heating_delivery_template"] = template.template_id
     if carrier == "fuel":
         options["efficiency"] = policy.fuel_efficiency
     receipt.assumptions.append(
         f"Heating carrier {carrier}; effective delivery parameters from "
-        + ("the catalogue's field-average template" if carrier == "heat_pump" else "policy")
+        + ("the catalogue's heat-pump template" if carrier == "heat_pump" else "policy")
         + ", not calibrated performance"
     )
     return DeliverySpec(heating=HeatingDeliverySpec(**options))
@@ -1069,6 +1300,11 @@ class EPSMBuilding:
                     source="Matrix infiltration handoff and declared ventilation completion",
                 ),
                 SourceRecord(
+                    field_path="facade.solar_shading_factor",
+                    status="assumed",
+                    source=f"epsm_data Sveby operating profile ({policy.solar_shading!r}); {policy.name}/{policy.version}",
+                ),
+                SourceRecord(
                     field_path="facade.default_wwr",
                     status="assumed",
                     source=f"epsm_data facade_assumptions; {policy.name}/{policy.version}"
@@ -1084,7 +1320,7 @@ class EPSMBuilding:
                 load_reference_area_m2=area,
                 facade=facade,
                 envelope=fabric["envelope"].updated(
-                    foundation=FoundationSpec(),
+                    foundation=_foundation(record, fabric["envelope"], geometry, policy, receipt),
                     ground_temperature=None,
                     basement_ceiling=(
                         fabric["envelope"].basement_ceiling or fabric["envelope"].ground
@@ -1097,7 +1333,7 @@ class EPSMBuilding:
                 airflow=airflow,
                 zone_uses=assignments,
                 unconditioned_exchange=exchanges,
-                delivery=_delivery(record, policy, receipt),
+                delivery=_delivery(record, policy, receipt, fabric["assignment"]["era"]),
                 provenance=ProvenanceSpec(records=tuple(sources)),
             )
             receipt.identities["physical_hash"] = spec.physical_hash()

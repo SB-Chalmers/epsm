@@ -83,4 +83,4 @@ def test_policy_rejects_bad_radius(radius):
 
 
 def test_policy_version_six_has_context_on_by_default():
-    assert ModelPolicy().version == "6" and ModelPolicy().context_radius_m == 100.0
+    assert ModelPolicy().version == "11" and ModelPolicy().context_radius_m == 100.0
