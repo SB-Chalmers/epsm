@@ -20,11 +20,13 @@ from epsm_db.records import (
 )
 from epsm_db.weather import WeatherReference
 
+from ._solar_shading import solar_shading_factor, validate_solar_shading
+
 
 @dataclass(frozen=True)
 class ModelPolicy:
     name: str = "ubem_v1"
-    version: str = "6"
+    version: str = "7"
     minimum_programme_blend_share: float = 0.05
     typical_floor_height_m: float = 3.0
     minimum_full_floor_height_m: float = 2.0
@@ -45,10 +47,16 @@ class ModelPolicy:
     # Version 4: catalogue ventilation templates and facade window ratios. False
     # restores version 3's type defaults below (one WWR and one FTX recovery).
     catalogue_templates: bool = True
-    # Version 5: heat-pump COP from Data's delivery template. Version 6: the COP
+    # Version 5: heat-pump COP from Data's delivery template. Version 7: the COP
     # follows the EPC heat-pump type where Data supports it. "measured" selects
     # Data's observed stock operation for existing buildings; "sveby" is normal use.
     operating_standard: str = "sveby"
+    # Version 6: Sveby window solar shading. "behaviour" (default) is the occupant
+    # factor (0.71 single-family and office, 0.65 school), as fixed obstructions belong
+    # in geometry; "total" is Sveby's combined factor (0.50; school 0.65); None turns it
+    # off (1.0, versions 1-5); a number in (0, 1] is used as given. Multi-family is not
+    # applied (named choices give 1.0; see epsm._solar_shading.NOT_APPLIED).
+    solar_shading: str | float | None = "behaviour"
     wwr_by_type: dict = field(
         default_factory=lambda: {
             "single_family": 0.2,
@@ -104,6 +112,7 @@ class ModelPolicy:
             raise ValueError("Unsupported ventilation default")
         if self.operating_standard not in {"sveby", "measured"}:
             raise ValueError("operating_standard must be sveby or measured")
+        validate_solar_shading(self.solar_shading)
 
 
 class ModelAssemblyError(ValueError):
@@ -565,13 +574,26 @@ def _compass_sector(azimuth_deg):
     return "N" if a >= 315 or a < 45 else "E" if a < 135 else "S" if a < 225 else "W"
 
 
+def _shading(record, policy, receipt):
+    """Window solar factor from the building type's Sveby profile and the policy choice."""
+    from epsm_data import select_operating_profile
+
+    values = select_operating_profile(record.type.value).values
+    factor, text = solar_shading_factor(values, policy.solar_shading, record.type.value)
+    if factor is None:
+        factor, text = 1.0, f"No Sveby solar shading data for {record.type.value}; factor 1.0"
+    _field(receipt, "solar_shading_factor", factor, "assumed", text)
+    return factor
+
+
 def _facade(record, geometry, glazing, policy, receipt, override):
     from epsm_core import FacadeOverride, FacadeSpec
 
+    shading = _shading(record, policy, receipt)
     if override is not None or not policy.catalogue_templates:
         wwr = override if override is not None else policy.wwr_by_type[record.type.value]
         _field(receipt, "wwr", wwr, "assumed", f"Type-policy WWR {wwr}; not measured glazing")
-        return FacadeSpec(default_wwr=wwr, glazing=glazing)
+        return FacadeSpec(default_wwr=wwr, glazing=glazing, solar_shading_factor=shading)
     from epsm_data.templates import facade_assumptions
 
     table = facade_assumptions(record.type.value)
@@ -590,7 +612,12 @@ def _facade(record, geometry, glazing, policy, receipt, override):
         + "N/E/S/W " + "/".join(str(by_orientation[k]) for k in "NESW")
         + "; not measured glazing",
     )
-    return FacadeSpec(default_wwr=table["default_wwr"], glazing=glazing, overrides=overrides)
+    return FacadeSpec(
+        default_wwr=table["default_wwr"],
+        glazing=glazing,
+        overrides=overrides,
+        solar_shading_factor=shading,
+    )
 
 
 def _operation(
@@ -1045,6 +1072,11 @@ class EPSMBuilding:
                     field_path="airflow",
                     status="assumed",
                     source="Matrix infiltration handoff and declared ventilation completion",
+                ),
+                SourceRecord(
+                    field_path="facade.solar_shading_factor",
+                    status="assumed",
+                    source=f"epsm_data Sveby operating profile ({policy.solar_shading!r}); {policy.name}/{policy.version}",
                 ),
                 SourceRecord(
                     field_path="facade.default_wwr",

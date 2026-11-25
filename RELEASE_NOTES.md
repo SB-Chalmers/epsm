@@ -1,6 +1,22 @@
-# Unreleased
+# Unreleased — Sveby window solar shading on by default
 
-`ubem_v1` moves to policy version 6. Heat-pump delivery passes the building's EPC
+`ubem_v1` moves to policy version 6. Record-based models (`EPSMBuilding.from_record`)
+previously left the window solar factor at 1.0 for every type, while
+`apply_archetype` took Core's Sveby total factor (0.50 for housing; offices and schools
+only when a calendar was supplied). Both routes now apply Sveby's occupant factor for
+blinds and curtains by default: 0.71 for single-family houses and offices and 0.65 for
+schools. Multi-family is not applied (1.0) after the final calibration campaign; 1.0 is
+untested on fresh multi-family buildings.
+Fixed obstructions are meant to be modelled as geometry, so the 0.50 total is not the
+default. `ModelPolicy(solar_shading=...)` and `apply_archetype(..., solar_shading=...)`
+accept `"behaviour"` (default), `"total"` (0.50; schools 0.65), `None` (off, as before)
+or a number in (0, 1]. Authored `building_assumptions` facade values are kept as written.
+Solar gains through windows fall, so predicted heating rises; results calibrated
+against version 5 need rechecking.
+
+## Heat-pump COP by pump type
+
+`ubem_v1` moves to policy version 7. Heat-pump delivery passes the building's EPC
 heat-pump type (`epsm_db.epc_systems`) and era to Data's `heating_delivery_template`,
 so the seasonal COP follows the pump type when Data supports it (epsm_data PR #40:
 ground 2.75, exhaust air 2.4 before 2006 and 2.75 from 2006, air–water 2.4, air–air
