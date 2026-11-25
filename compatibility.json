@@ -6,13 +6,13 @@
   ],
   "packages": {
     "epsm": {
-      "version": "0.7.0",
+      "version": "0.8.0rc1",
       "revision": "self",
       "role": "scientific"
     },
     "epsm_data": {
-      "version": "0.8.0",
-      "revision": "bfcdb4d32ffa25c1b11a15b72534565146c1e085",
+      "version": "0.9.0rc1",
+      "revision": "e344af1b979258f6fc2a4373de2ce4d84414e409",
       "role": "scientific"
     },
     "epsm_core": {
@@ -31,8 +31,8 @@
       "role": "scientific"
     },
     "epsm_db": {
-      "version": "0.6.0",
-      "revision": "121ac59e528a0eb9adc3f54382d8eaea1251a0bb",
+      "version": "0.6.1",
+      "revision": "c4c045717bbea9a9e55ebffc1062e204f62862e5",
       "role": "scientific"
     },
     "epsm_workflows": {
