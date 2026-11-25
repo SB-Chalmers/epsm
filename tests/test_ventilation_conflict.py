@@ -10,7 +10,13 @@ from epsm_db.epc_systems import observed_systems_from_raw  # noqa: E402
 
 import epsm.legacy_records as lr  # noqa: E402
 
-FIELDS = {"S": "VentTypSjalvdrag", "F": "VentTypF", "Fmed": "VentTypFmed", "FT": "VentTypFT", "FTX": "VentTypFTX"}
+FIELDS = {
+    "S": "VentTypSjalvdrag",
+    "F": "VentTypF",
+    "Fmed": "VentTypFmed",
+    "FT": "VentTypFT",
+    "FTX": "VentTypFTX",
+}
 
 
 def _observed(*ticked):
@@ -20,13 +26,17 @@ def _observed(*ticked):
 
 def _ventilation(monkeypatch, kind, *ticked, policy=None):
     monkeypatch.setattr(lr, "_observed_systems", lambda record: _observed(*ticked))
-    record = db.BuildingRecord("test", "b", db.BuildingType(kind), box(0, 0, 10, 10), {})
+    record = db.BuildingRecord(
+        "test", "b", db.BuildingType(kind), box(0, 0, 10, 10), {}
+    )
     receipt = db.Receipt("test")
     return lr._ventilation(record, policy or lr.ModelPolicy(), receipt, None), receipt
 
 
 @pytest.mark.parametrize("kind", ["office", "school", "multi_family"])
-@pytest.mark.parametrize("ticked", [("F", "FTX"), ("FT", "FTX"), ("F", "FT", "FTX"), ("S", "FTX")])
+@pytest.mark.parametrize(
+    "ticked", [("F", "FTX"), ("FT", "FTX"), ("F", "FT", "FTX"), ("S", "FTX")]
+)
 def test_ftx_among_several_systems_is_modelled_as_ftx(monkeypatch, kind, ticked):
     result, receipt = _ventilation(monkeypatch, kind, *ticked)
     assert result == "FTX"
@@ -49,6 +59,11 @@ def test_single_system_is_unchanged(monkeypatch):
 
 
 def test_disabled_restores_version_9(monkeypatch):
-    result, receipt = _ventilation(monkeypatch, "office", "F", "FTX",
-                                   policy=lr.ModelPolicy(ventilation_conflict_ftx=False))
+    result, receipt = _ventilation(
+        monkeypatch,
+        "office",
+        "F",
+        "FTX",
+        policy=lr.ModelPolicy(ventilation_conflict_ftx=False),
+    )
     assert receipt.fields["ventilation"]["model_state"] == "assumed"
