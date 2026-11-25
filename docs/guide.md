@@ -45,6 +45,41 @@ ground transfer with a conductance multiplier. It reports these choices in
 explicitly supported approximation is selected. EnergyPlus has its own settings
 and requires a supported executable installed separately.
 
+## Storeys from stored heights (record route)
+
+`EPSMBuilding.from_record` uses the EPC storey count (`EgenAntalPlan`) when it gives a
+floor height of 2–5 m. Otherwise it infers storeys from the LiDAR body height (the eave
+for a supported pitched roof, else the representative height): `round(height / 3.0 m)`,
+at least 1.
+
+**Known issue with recent single-family heights.** The LiDAR extractor treats
+unclassified points, trees included, as roof. A house built after its area was scanned,
+on a plot that was wooded then, gets the tree-canopy height (7.5–24 m), and the inference
+above turns a bungalow into a 3–8 storey tower. In the lake, 23–35 % of småhus built
+2022–2026 have a body height of 7.5 m or more, against about 1.5 % of older houses. In
+the single-family SE.07 validation cohort, 301 of 897 houses were affected, and the
+median EPC Atemp ÷ modelled floor area was 0.69 (about 0.8 in older eras). See epsm_db
+`docs/gis_first_lake.md`, "Known issue: heights of houses built after the LiDAR scan",
+and its `height_plausibility` record findings.
+
+**Fallback, policy version 8 (`ModelPolicy.single_family_storey_check`, on by default).**
+For single-family houses whose storeys come from height (not from a valid EPC count):
+
+- **Area anchor:** the EPC Atemp, or the Lantmäteriet register living area (`totalBoarea`)
+  when there is no single-building EPC. With a reported conditioned basement, 0.88 ×
+  footprint is taken off Atemp first.
+- **Check:** if the count is more than 3, or the anchor is below 0.6 × footprint × storeys,
+  the count is replaced by clamp(round(anchor ÷ (0.88 × footprint)), 1, 3).
+- **Height:** the body height becomes storeys × 3.0 m with a compact roof, because the
+  stored height is not trusted.
+- **Receipt:** it records the original height, the anchor and the replacement, as an
+  assumption and a quality note.
+
+In SE.07 this changes 381 of 897 houses and moves the median Atemp ÷ modelled area from
+0.71 to 0.88. Older eras change by 2.5–9 % of houses. Other building types, explicit
+`storeys` overrides and valid EPC storey counts are not affected.
+`ModelPolicy(single_family_storey_check=False)` restores the height-only inference.
+
 ## Install and examples
 
 Python 3.11+. The coordinated packages live in private repositories; install
