@@ -20,11 +20,13 @@ from epsm_db.records import (
 )
 from epsm_db.weather import WeatherReference
 
+from ._solar_shading import solar_shading_factor, validate_solar_shading
+
 
 @dataclass(frozen=True)
 class ModelPolicy:
     name: str = "ubem_v1"
-    version: str = "7"
+    version: str = "9"
     minimum_programme_blend_share: float = 0.05
     typical_floor_height_m: float = 3.0
     minimum_full_floor_height_m: float = 2.0
@@ -45,30 +47,37 @@ class ModelPolicy:
     # Version 4: catalogue ventilation templates and facade window ratios. False
     # restores version 3's type defaults below (one WWR and one FTX recovery).
     catalogue_templates: bool = True
-    # Version 5: heat-pump COP from Data's delivery template. "measured" selects
+    # Version 5: heat-pump COP from Data's delivery template. Version 7: the COP
+    # follows the EPC heat-pump type where Data supports it. "measured" selects
     # Data's observed stock operation for existing buildings; "sveby" is normal use.
     operating_standard: str = "sveby"
-    # Version 6: single-family storey check. LiDAR heights of houses built after
+    # Version 6: Sveby window solar shading. "behaviour" (default) is the occupant
+    # factor (0.71 single-family and office, 0.65 school), as fixed obstructions belong
+    # in geometry; "total" is Sveby's combined factor (0.50; school 0.65); None turns it
+    # off (1.0, versions 1-5); a number in (0, 1] is used as given. Multi-family is not
+    # applied (named choices give 1.0; see epsm._solar_shading.NOT_APPLIED).
+    solar_shading: str | float | None = "behaviour"
+    # Version 8: single-family storey check. LiDAR heights of houses built after
     # their area was scanned can be tree canopy (unclassified points include
     # vegetation), which height/typical-floor turns into 3-8 storeys. When the
     # storey count comes from height, it is checked against the EPC Atemp, or the
     # register living area, and replaced by the area-implied count if implausible.
-    # False restores version 5's height-only storey inference.
+    # False restores version 7's height-only storey inference.
     single_family_storey_check: bool = True
     single_family_maximum_storeys: int = 3
     single_family_minimum_area_ratio: float = 0.6
     single_family_net_to_gross_area: float = 0.88
-    # Version 7: single-family slab edge and household electricity.
+    # Version 9: single-family slab edge and household electricity.
     # Swedish slab-on-grade has an insulated edge beam (kantelement): EPS-bygg
     # Grundboken p. 69, table 1 gives typical edge-beam psi 0.25-0.06 W/mK for
     # 50-150 mm front insulation. Kiva otherwise leaves the slab edge bare. An
     # insulated slab gets this much vertical edge insulation of the same material,
-    # down to the given depth below the slab. 0 restores version 6.
+    # down to the given depth below the slab. 0 restores version 8.
     single_family_slab_edge_insulation_m: float = 0.10
     single_family_slab_edge_depth_m: float = 0.3
     # BEN (BFS 2016:12, table 2:1) normal use for småhus: household electricity
     # 30 kWh/m2 Atemp, 70 % usable as heat in the heating season. The Sveby
-    # residential profile is multi-family (21 kWh/m2). None restores version 6.
+    # residential profile is multi-family (21 kWh/m2). None restores version 8.
     single_family_household_electricity_kwh_m2: float | None = 30.0
     household_electricity_heat_fraction: float = 0.70
     wwr_by_type: dict = field(
@@ -126,6 +135,7 @@ class ModelPolicy:
             raise ValueError("Unsupported ventilation default")
         if self.operating_standard not in {"sveby", "measured"}:
             raise ValueError("operating_standard must be sveby or measured")
+        validate_solar_shading(self.solar_shading)
         if (
             isinstance(self.single_family_maximum_storeys, bool)
             or not isinstance(self.single_family_maximum_storeys, int)
@@ -673,7 +683,7 @@ def _foundation(record, envelope, geometry, policy, receipt):
     return FoundationSpec(
         footing_wall=edge,
         wall_depth_below_slab_m=policy.single_family_slab_edge_depth_m,
-        source="ubem_v1 v7: Kiva defaults with an assumed insulated slab edge beam (EPS-bygg Grundboken p. 69)",
+        source="ubem_v1 v9: Kiva defaults with an assumed insulated slab edge beam (EPS-bygg Grundboken p. 69)",
     )
 
 
@@ -705,13 +715,26 @@ def _compass_sector(azimuth_deg):
     return "N" if a >= 315 or a < 45 else "E" if a < 135 else "S" if a < 225 else "W"
 
 
+def _shading(record, policy, receipt):
+    """Window solar factor from the building type's Sveby profile and the policy choice."""
+    from epsm_data import select_operating_profile
+
+    values = select_operating_profile(record.type.value).values
+    factor, text = solar_shading_factor(values, policy.solar_shading, record.type.value)
+    if factor is None:
+        factor, text = 1.0, f"No Sveby solar shading data for {record.type.value}; factor 1.0"
+    _field(receipt, "solar_shading_factor", factor, "assumed", text)
+    return factor
+
+
 def _facade(record, geometry, glazing, policy, receipt, override):
     from epsm_core import FacadeOverride, FacadeSpec
 
+    shading = _shading(record, policy, receipt)
     if override is not None or not policy.catalogue_templates:
         wwr = override if override is not None else policy.wwr_by_type[record.type.value]
         _field(receipt, "wwr", wwr, "assumed", f"Type-policy WWR {wwr}; not measured glazing")
-        return FacadeSpec(default_wwr=wwr, glazing=glazing)
+        return FacadeSpec(default_wwr=wwr, glazing=glazing, solar_shading_factor=shading)
     from epsm_data.templates import facade_assumptions
 
     table = facade_assumptions(record.type.value)
@@ -730,7 +753,12 @@ def _facade(record, geometry, glazing, policy, receipt, override):
         + "N/E/S/W " + "/".join(str(by_orientation[k]) for k in "NESW")
         + "; not measured glazing",
     )
-    return FacadeSpec(default_wwr=table["default_wwr"], glazing=glazing, overrides=overrides)
+    return FacadeSpec(
+        default_wwr=table["default_wwr"],
+        glazing=glazing,
+        overrides=overrides,
+        solar_shading_factor=shading,
+    )
 
 
 def _operation(
@@ -859,9 +887,26 @@ def _operation(
     return use, air, source
 
 
-def _delivery(record, policy, receipt):
-    from epsm_core import DeliverySpec, HeatingDeliverySpec
+def _heat_pump_template(observed, era, receipt):
+    """Data's heat-pump template, by the EPC pump type where Data supports it."""
+    import inspect
+
     from epsm_data.templates import heating_delivery_template
+
+    pump = getattr(observed, "heat_pump_type", None)
+    typed = "heat_pump_type" in inspect.signature(heating_delivery_template).parameters
+    if pump and typed:
+        template = heating_delivery_template("heat_pump", heat_pump_type=pump, era=era)
+    else:
+        template = heating_delivery_template("heat_pump")
+    receipt.identities["heating_delivery_template"] = template.template_id
+    if pump:
+        receipt.identities["heat_pump_type"] = pump
+    return template
+
+
+def _delivery(record, policy, receipt, era=None):
+    from epsm_core import DeliverySpec, HeatingDeliverySpec
 
     observed = _observed_systems(record)
     carrier = observed.heating_carrier if observed else None
@@ -875,14 +920,13 @@ def _delivery(record, policy, receipt):
         "source": "ubem_v1: carrier indicated by raw EPC energy fields; effective efficiency/COP assumption",
     }
     if carrier == "heat_pump":
-        template = heating_delivery_template(carrier)
+        template = _heat_pump_template(observed, era, receipt)
         options = dict(template.values["delivery"]["heating"])
-        receipt.identities["heating_delivery_template"] = template.template_id
     if carrier == "fuel":
         options["efficiency"] = policy.fuel_efficiency
     receipt.assumptions.append(
         f"Heating carrier {carrier}; effective delivery parameters from "
-        + ("the catalogue's field-average template" if carrier == "heat_pump" else "policy")
+        + ("the catalogue's heat-pump template" if carrier == "heat_pump" else "policy")
         + ", not calibrated performance"
     )
     return DeliverySpec(heating=HeatingDeliverySpec(**options))
@@ -1193,6 +1237,11 @@ class EPSMBuilding:
                     source="Matrix infiltration handoff and declared ventilation completion",
                 ),
                 SourceRecord(
+                    field_path="facade.solar_shading_factor",
+                    status="assumed",
+                    source=f"epsm_data Sveby operating profile ({policy.solar_shading!r}); {policy.name}/{policy.version}",
+                ),
+                SourceRecord(
                     field_path="facade.default_wwr",
                     status="assumed",
                     source=f"epsm_data facade_assumptions; {policy.name}/{policy.version}"
@@ -1219,7 +1268,7 @@ class EPSMBuilding:
                 airflow=airflow,
                 zone_uses=assignments,
                 unconditioned_exchange=exchanges,
-                delivery=_delivery(record, policy, receipt),
+                delivery=_delivery(record, policy, receipt, fabric["assignment"]["era"]),
                 provenance=ProvenanceSpec(records=tuple(sources)),
             )
             receipt.identities["physical_hash"] = spec.physical_hash()
