@@ -1,61 +1,71 @@
-# Unreleased — Sveby window solar shading on by default
+# Release candidate 0.8.0rc1 — Sveby shading, neighbours and type checks (25 November 2026)
 
-`ubem_v1` moves to policy version 6. Record-based models (`EPSMBuilding.from_record`)
-previously left the window solar factor at 1.0 for every type, while
-`apply_archetype` took Core's Sveby total factor (0.50 for housing; offices and schools
-only when a calendar was supplied). Both routes now apply Sveby's occupant factor for
-blinds and curtains by default: 0.71 for single-family houses and offices and 0.65 for
-schools. Multi-family is not applied (1.0) after the final calibration campaign. A
-pre-registered held-out test on 2,920 unseen multi-family buildings (SE.01–SE.06, with lake
-neighbours) confirmed 1.0 over 0.71: match 70.4 % → 73.6 % (198 gained, 105 lost, exact
-McNemar p = 1e-7; SE.01 69.0 % → 73.1 %). 1.0 is a tested model choice, not a sourced value.
-Fixed obstructions are meant to be modelled as geometry, so the 0.50 total is not the
-default. `ModelPolicy(solar_shading=...)` and `apply_archetype(..., solar_shading=...)`
-accept `"behaviour"` (default), `"total"` (0.50; schools 0.65), `None` (off, as before)
-or a number in (0, 1]. Authored `building_assumptions` facade values are kept as written.
-Solar gains through windows fall, so predicted heating rises; results calibrated
-against version 5 need rechecking.
+A candidate for 0.8.0. `ubem_v1` moves from policy version 5 to version 11. Results
+calibrated against version 5 need rechecking. Each change has a `ModelPolicy` switch that
+restores the earlier behaviour. The candidate combination moves to Data 0.9.0rc1
+(`e344af1`) and Database 0.6.1 (`c4c0457`); the other packages are unchanged.
 
-## Heat-pump COP by pump type
+## Sveby window solar shading (version 6)
 
-`ubem_v1` moves to policy version 7. Heat-pump delivery passes the building's EPC
-heat-pump type (`epsm_db.epc_systems`) and era to Data's `heating_delivery_template`,
-so the seasonal COP follows the pump type when Data supports it (epsm_data PR #40:
-ground 2.75, exhaust air 2.4 before 2006 and 2.75 from 2006, air–water 2.4, air–air
-2.0). With Data 0.8.0 the field average 2.75 still applies. The receipt records
-`heat_pump_type`. SE.07 heat recovery 0.70 comes from Data alone, with no change here.
+Record-based models (`EPSMBuilding.from_record`) previously left the window solar factor
+at 1.0 for every type, while `apply_archetype` took Core's Sveby total factor (0.50 for
+housing; offices and schools only when a calendar was supplied). Both routes now apply
+Sveby's occupant factor for blinds and curtains by default: 0.71 for single-family houses
+and offices and 0.65 for schools. Multi-family is not applied (1.0). This is a tested model
+choice from a held-out comparison, not a sourced value (Sveby gives 0.71). Fixed
+obstructions are modelled as geometry, so the 0.50 total is not the default.
+`ModelPolicy(solar_shading=...)` and `apply_archetype(..., solar_shading=...)` accept
+`"behaviour"` (default), `"total"` (0.50; schools 0.65), `None` (off, as before) or a number
+in (0, 1]. Authored `building_assumptions` facade values are kept as written.
 
-## Single-family storey check
+## Heat-pump COP by pump type (version 7)
 
-`ubem_v1` moves to policy version 8. When a single-family house's storey count is
-inferred from its LiDAR height, rather than taken from valid EPC storeys, it is checked
-against the EPC Atemp, or the Lantmäteriet register living area (`totalBoarea`) when
-there is no EPC. With more than 3 storeys, or an area below 0.6 of footprint × storeys,
-the house gets clamp(round(area / (0.88 × footprint)), 1, 3) storeys at the typical floor
-height with a compact roof, and the receipt says so. A conditioned basement's share is
-taken off Atemp first.
+Heat-pump delivery passes the building's EPC heat-pump type (`epsm_db.epc_systems`) and
+era to Data's `heating_delivery_template`, so the seasonal COP follows the pump type when
+Data supports it (Data 0.9.0rc1: ground 2.75, exhaust air 2.4 before 2006 and 2.75 from
+2006, 3.0 from 2022, air–water 2.4, air–air 2.0). With Data 0.8.0 the field average 2.75
+still applies. The receipt records `heat_pump_type`.
 
-The cause is tree canopy. Unclassified LiDAR points include vegetation, so houses built
-after their area was scanned, on wooded plots, got 7.5–24 m heights and 3–8 storeys.
-On the 897 single-component SF SE.07 houses of the cohort baseline, the median
-Atemp ÷ modelled floor area goes from 0.71 to 0.88. Houses below 0.6 fall from 44 % to
-1.7 %, and 381 houses change. Other eras change by 2.5–9 %.
-`ModelPolicy(single_family_storey_check=False)` restores version 7.
+## Single-family storey check (version 8)
 
-## Single-family slab edge and household electricity
+When a single-family house's storey count is inferred from its LiDAR height, rather than
+taken from valid EPC storeys, it is checked against the EPC Atemp, or the Lantmäteriet
+register living area (`totalBoarea`) when there is no EPC. With more than 3 storeys, or an
+area below 0.6 of footprint × storeys, the house gets clamp(round(area / (0.88 ×
+footprint)), 1, 3) storeys at the typical floor height with a compact roof, and the
+receipt says so. A conditioned basement's share is taken off Atemp first. The cause is
+tree canopy: unclassified LiDAR points include vegetation, so houses built after their
+area was scanned, on wooded plots, got 3–8 storeys. `single_family_storey_check=False`
+restores version 7.
 
-`ubem_v1` moves to policy version 9, which builds on version 8's storey check.
+## Single-family slab edge and household electricity (version 9)
 
-- **Insulated slab edge beam.** An insulated single-family slab on grade with no basement gets a
-  vertical edge beam (Swedish kantelement practice; EPS-bygg *Grundboken* p. 69 gives typical
-  edge-beam ψ of 0.25–0.06 W/mK). It has 100 mm of the slab's own insulation, never thicker than
-  that insulation, outside the slab's structural layer, and goes 0.3 m below the slab. Before
-  this, Kiva left the slab edge bare, and the slab edge was a large thermal bridge.
-- **BEN småhus household electricity.** Single-family houses use 30 kWh/m² Atemp with 70 % usable
-  as heat (BEN, BFS 2016:12, table 2:1). The multi-family Sveby value was 21 kWh/m². The internal
-  gain rises from 14.7 to 21 kWh/m² a year, and the monthly shape is kept.
-- `ModelPolicy(single_family_slab_edge_insulation_m=0, single_family_household_electricity_kwh_m2=None)`
+- **Insulated slab edge beam.** An insulated single-family slab on grade with no basement
+  gets a vertical edge beam (Swedish kantelement practice; EPS-bygg *Grundboken* p. 69
+  gives typical edge-beam ψ of 0.25–0.06 W/mK): 100 mm of the slab's own insulation, never
+  thicker than that insulation, 0.3 m below the slab. Before this, Kiva left the slab edge
+  bare.
+- **BEN småhus household electricity.** Single-family houses use 30 kWh/m² Atemp with 70 %
+  usable as heat (BEN, BFS 2016:12, table 2:1), instead of the multi-family Sveby value of
+  21 kWh/m².
+- `single_family_slab_edge_insulation_m=0, single_family_household_electricity_kwh_m2=None`
   restores version 8.
+
+## FTX among several ventilation systems (version 10)
+
+An EPC that ticks FTX together with other systems (for example F+FTX or FT+FTX) is modelled
+as FTX at the observed-FTX template. The EPC has no per-system shares, and a building with
+an FTX unit recovers heat on at least part of its air; STIL2 (2005) and STIL3 (ER 2025:25)
+found no exhaust-only or natural-draught offices. Before, such a certificate was
+"conflicting" and the era default ran. `ventilation_conflict_ftx=False` restores version 9.
+
+## Shading-only neighbours (version 11)
+
+Database-backed records get the lake's building components within 100 m as shading-only
+neighbours, at their representative height, with overlaps resolved tallest first and
+checked against the prepared footprint. Callers can pass their own rows
+(`context_rows=...`); a portable record without rows gets no context and the receipt says
+so. `context_radius_m=None` turns it off.
 
 # Release 0.7.0 — measured stock operation (21 November 2026)
 
