@@ -1,4 +1,4 @@
-# Release candidate 0.8.0rc1 — Sveby shading, neighbours and type checks (25 November 2026)
+# Release candidate 0.8.0rc1 — Sveby shading, neighbours, SE.06 later builds and type checks (25 November 2026)
 
 A candidate for 0.8.0. `ubem_v1` moves from policy version 5 to version 12. Results
 calibrated against version 5 need rechecking. Each change has a `ModelPolicy` switch that
@@ -84,10 +84,8 @@ the change comes from the catalogue's authored values, not a measured survey of 
 Caller-chosen `component_states` win. `single_family_se06_later_build=False` restores
 version 11.
 
-A pre-registered test on 500 fresh SF SE.06 houses never used before (lake revision 13345,
-policy v10 base, lake neighbours, EnergyPlus 24.2) gave 42.5 % → 63.0 % match within ±20 %
-(114 gained, 13 lost, exact McNemar p = 3e-21). Skill over within-cohort permuted chance rose
-from 5.1 to 15.3 points, so most of the gain is real and not only a wider target.
+A pre-registered test on fresh single-family SE.06 houses supported the change; the figures
+are kept with the study, not in these notes.
 
 # Release 0.7.0 — measured stock operation (21 November 2026)
 
