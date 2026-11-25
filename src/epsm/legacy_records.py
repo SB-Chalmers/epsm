@@ -26,7 +26,7 @@ from ._solar_shading import solar_shading_factor, validate_solar_shading
 @dataclass(frozen=True)
 class ModelPolicy:
     name: str = "ubem_v1"
-    version: str = "11"
+    version: str = "12"
     minimum_programme_blend_share: float = 0.05
     typical_floor_height_m: float = 3.0
     minimum_full_floor_height_m: float = 2.0
@@ -94,6 +94,21 @@ class ModelPolicy:
     # shipped without a version bump; 11 marks both.)
     context_radius_m: float | None = 100.0
     context_min_height_m: float = 2.0
+    # Version 12: single-family SE.06 later-build envelope. SE.06 spans 2006-2021,
+    # but Swedish energy rules tightened inside it: from 1 Feb 2009 (BBR 16, BFS
+    # 2008:20) electrically heated new buildings, which includes heat-pump småhus,
+    # had a separate, lower limit (95/75/55 kWh/m2 in zones I-III against
+    # 150/130/110), and from 2012 (BBR 19, BFS 2011:6) the other limit fell to
+    # 130/110/90 with Um 0.50 -> 0.40 W/m2K (Boverket konsekvensutredningar
+    # BFS 2011:6 and BFS 2015:3). Houses built under those rules get the SE.06
+    # advanced constructions, windows and airtightness (the SE.07 values) in their
+    # existing state; ventilation stays as observed. The size of the envelope
+    # change is the catalogue's authored values, not a measured as-built survey.
+    # Tested on fresh houses (epsm_studies sf-fix-2026-11-25). False restores
+    # version 11.
+    single_family_se06_later_build: bool = True
+    single_family_later_build_electric_year: int = 2009
+    single_family_later_build_any_year: int = 2012
     wwr_by_type: dict = field(
         default_factory=lambda: {
             "single_family": 0.2,
@@ -966,6 +981,48 @@ def _heat_pump_template(observed, era, receipt):
     return template
 
 
+LATER_BUILD_ROLES = ("wall", "roof", "ground", "basement_wall", "intermediate_floor", "window", "airtightness")
+
+
+def _single_family_later_build(record, policy, year, renovation_state, overrides, receipt):
+    """Policy version 12: component states for an SE.06 house built under the 2009/2012 energy rules.
+
+    Returns (component_states, component_sources), or None when the rule does not apply.
+    Applies only to single-family SE.06 in the existing state with no caller-chosen components.
+    """
+    from epsm_data.classification import era_for_year
+
+    if (
+        not policy.single_family_se06_later_build
+        or record.type != BuildingType.RESIDENTIAL_SINGLE_FAMILY
+        or renovation_state != "existing"
+        or era_for_year(year) != "SE.06"
+        or overrides.get("component_states")
+    ):
+        return None
+    observed = _observed_systems(record)
+    carrier = observed.heating_carrier if observed else None
+    electric = carrier in ("heat_pump", "electric_direct")
+    if not (
+        (electric and year >= policy.single_family_later_build_electric_year)
+        or year >= policy.single_family_later_build_any_year
+    ):
+        return None
+    rule = (
+        "BBR 16 (BFS 2008:20) limit for electrically heated buildings from 2009"
+        if electric and year < policy.single_family_later_build_any_year
+        else "BBR 19 (BFS 2011:6) limits from 2012"
+    )
+    source = f"Policy version 12: built {year} under {rule}; SE.06 advanced catalogue values as the later-build representative"
+    receipt.assumptions.append(
+        f"Single-family SE.06 later-build envelope (policy version 12): built {year}, carrier {carrier}; "
+        "advanced constructions, windows and airtightness with the observed ventilation. "
+        "This is the as-built representative for houses under the tighter rules, not a renovation."
+    )
+    receipt.identities["single_family_later_build"] = {"year": year, "carrier": carrier, "rule": rule}
+    return ({role: "advanced" for role in LATER_BUILD_ROLES}, {role: source for role in LATER_BUILD_ROLES})
+
+
 def _delivery(record, policy, receipt, era=None):
     from epsm_core import DeliverySpec, HeatingDeliverySpec
 
@@ -1114,14 +1171,19 @@ class EPSMBuilding:
             receipt.assumptions.append(
                 f"Catalogue climate classification {zone}; default is an explicit classification assumption, not geographic inference"
             )
+            component_states = overrides.get("component_states")
+            component_sources = overrides.get("component_sources")
+            later = _single_family_later_build(record, policy, int(year), renovation_state, overrides, receipt)
+            if later is not None:
+                component_states, component_sources = later
             fabric = resolve_building_archetype(
                 category=record.type.value,
                 construction_year=int(year),
                 climate_zone=zone,
                 ventilation=ventilation,
                 default_state=renovation_state,
-                component_states=overrides.get("component_states"),
-                component_sources=overrides.get("component_sources"),
+                component_states=component_states,
+                component_sources=component_sources,
                 tabula_reference_area_m2=area,
                 conditioned_volume_m3=geometry.conditioned_volume_m3,
                 operating_standard=policy.operating_standard,
