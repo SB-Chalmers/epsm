@@ -1,6 +1,6 @@
 # Release candidate 0.8.0rc1 — Sveby shading, neighbours, SE.06 later builds and type checks (25 November 2026)
 
-A candidate for 0.8.0. `ubem_v1` moves from policy version 5 to version 12. Results
+A candidate for 0.8.0. `ubem_v1` moves from policy version 5 to version 13. Results
 calibrated against version 5 need rechecking. Each change has a `ModelPolicy` switch that
 restores the earlier behaviour. The candidate combination moves to Data 0.9.0rc1
 (`e344af1`) and Database 0.6.1 (`ae7e38c`); the other packages are unchanged.
@@ -86,6 +86,21 @@ version 11.
 
 A pre-registered test on fresh single-family SE.06 houses supported the change; the figures
 are kept with the study, not in these notes.
+
+## School SE.06 earlier-build envelope (version 13)
+
+School SE.06 covers 2006–2021. BBR 19 (BFS 2011:6), in force from 2012, lowered the limit for
+non-electric lokaler from 100 to 80 kWh/m² in zone III and Um from 0.70 to 0.60 W/m²K. Schools
+built before 2012 measure clearly more heat per m² than later ones, while the model used one
+envelope for all. A school SE.06 in the existing state built before 2012 now gets the school
+SE.05 existing wall, roof and window (whole catalogue constructions). Its era, ventilation,
+airtightness and operation stay SE.06. The receipt records `school_earlier_build`, and the
+archetype assignment names the donor. The size of the change comes from the catalogue's SE.05
+values, not a measured survey. Caller-chosen `component_states` turn it off for that building.
+`school_se06_earlier_build=False` restores version 12.
+
+A pre-registered test on school SE.06 supported the change; the figures are kept with the
+study, not in these notes.
 
 # Release 0.7.0 — measured stock operation (21 November 2026)
 

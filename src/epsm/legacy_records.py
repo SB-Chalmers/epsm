@@ -26,7 +26,7 @@ from ._solar_shading import solar_shading_factor, validate_solar_shading
 @dataclass(frozen=True)
 class ModelPolicy:
     name: str = "ubem_v1"
-    version: str = "12"
+    version: str = "13"
     minimum_programme_blend_share: float = 0.05
     typical_floor_height_m: float = 3.0
     minimum_full_floor_height_m: float = 2.0
@@ -109,6 +109,18 @@ class ModelPolicy:
     single_family_se06_later_build: bool = True
     single_family_later_build_electric_year: int = 2009
     single_family_later_build_any_year: int = 2012
+    # Version 13: school SE.06 earlier-build envelope. School SE.06 spans
+    # 2006-2021; BBR 19 (BFS 2011:6), in force from 2012, lowered the limit for
+    # non-electric lokaler from 100 to 80 kWh/m2 in zone III and Um from 0.70 to
+    # 0.60 W/m2K (Boverket konsekvensutredning BFS 2011:6). Schools built before
+    # 2012 get the school SE.05 existing wall, roof and window in their existing
+    # state; the era, ventilation, airtightness and operation stay SE.06. The size
+    # of the change is the catalogue's SE.05 values, not a measured survey.
+    # Tested on school SE.06 (epsm_studies cohort-dives-2026-11-25). False
+    # restores version 12.
+    school_se06_earlier_build: bool = True
+    school_earlier_build_before_year: int = 2012
+    school_earlier_build_donor_year: int = 2005
     wwr_by_type: dict = field(
         default_factory=lambda: {
             "single_family": 0.2,
@@ -1023,6 +1035,35 @@ def _single_family_later_build(record, policy, year, renovation_state, overrides
     return ({role: "advanced" for role in LATER_BUILD_ROLES}, {role: source for role in LATER_BUILD_ROLES})
 
 
+def _school_earlier_build(record, policy, year, renovation_state, overrides, receipt):
+    """Policy version 13: True for a school SE.06 built before the BBR 19 limits of 2012.
+
+    Applies only to the existing state with no caller-chosen components.
+    """
+    from epsm_data.classification import era_for_year
+
+    if (
+        not policy.school_se06_earlier_build
+        or record.type != BuildingType.SCHOOL
+        or renovation_state != "existing"
+        or era_for_year(year) != "SE.06"
+        or year >= policy.school_earlier_build_before_year
+        or overrides.get("component_states")
+    ):
+        return False
+    receipt.assumptions.append(
+        f"School SE.06 earlier-build envelope (policy version 13): built {year}, before the BBR 19 "
+        f"(BFS 2011:6) limits of {policy.school_earlier_build_before_year}; the school SE.05 existing wall, "
+        "roof and window with SE.06 ventilation, airtightness and operation"
+    )
+    receipt.identities["school_earlier_build"] = {
+        "year": year,
+        "before_year": policy.school_earlier_build_before_year,
+        "donor_year": policy.school_earlier_build_donor_year,
+    }
+    return True
+
+
 def _delivery(record, policy, receipt, era=None):
     from epsm_core import DeliverySpec, HeatingDeliverySpec
 
@@ -1188,6 +1229,32 @@ class EPSMBuilding:
                 conditioned_volume_m3=geometry.conditioned_volume_m3,
                 operating_standard=policy.operating_standard,
             )
+            if _school_earlier_build(record, policy, int(year), renovation_state, overrides, receipt):
+                donor = resolve_building_archetype(
+                    category=record.type.value,
+                    construction_year=policy.school_earlier_build_donor_year,
+                    climate_zone=zone,
+                    ventilation=ventilation,
+                    default_state="existing",
+                    tabula_reference_area_m2=area,
+                    conditioned_volume_m3=geometry.conditioned_volume_m3,
+                    operating_standard=policy.operating_standard,
+                )
+                fabric = dict(
+                    fabric,
+                    envelope=fabric["envelope"].updated(
+                        wall=donor["envelope"].wall, top=donor["envelope"].top
+                    ),
+                    glazing=donor["glazing"],
+                    assignment=dict(
+                        fabric["assignment"],
+                        earlier_build_donor={
+                            "archetype_id": donor["assignment"]["archetype_id"],
+                            "era": donor["assignment"]["era"],
+                            "roles": ["wall", "top", "window"],
+                        },
+                    ),
+                )
             airflow_template = _ventilation_template(
                 record,
                 policy,
