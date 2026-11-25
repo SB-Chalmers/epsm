@@ -57,6 +57,28 @@ Atemp ÷ modelled floor area goes from 0.71 to 0.88. Houses below 0.6 fall from 
 - `ModelPolicy(single_family_slab_edge_insulation_m=0, single_family_household_electricity_kwh_m2=None)`
   restores version 8.
 
+## Single-family SE.06 later-build envelope
+
+`ubem_v1` moves to policy version 11. SE.06 covers houses built 2006–2021, but the energy
+rules tightened inside that span. From 1 February 2009 (BBR 16, BFS 2008:20) electrically
+heated new buildings, heat-pump småhus included, had their own lower limit (95/75/55 kWh/m²
+in zones I–III, against 150/130/110), and from 2012 (BBR 19, BFS 2011:6) the other limit fell
+to 130/110/90 with Um 0.50 → 0.40 W/m²K. Measured heat-pump heating halves across the era
+(about 43 kWh/m² for houses built 2006–08, 21 for 2017–21), while the model's heat demand was
+flat. A single-family SE.06 house in the existing state that is heat pump or direct electric
+and built 2009 or later, or built 2012 or later with any carrier, now gets the SE.06 advanced
+constructions, windows and airtightness (the SE.07 values) through `component_states`. Its
+observed ventilation is kept. The receipt names the rule, and the archetype assignment records
+each component's source. This is an as-built representative, not a renovation. The size of
+the change comes from the catalogue's authored values, not a measured survey of these houses.
+Caller-chosen `component_states` win. `single_family_se06_later_build=False` restores
+version 10.
+
+A pre-registered test on 500 fresh SF SE.06 houses never used before (lake revision 13345,
+policy v10 base, lake neighbours, EnergyPlus 24.2) gave 42.5 % → 63.0 % match within ±20 %
+(114 gained, 13 lost, exact McNemar p = 3e-21). Skill over within-cohort permuted chance rose
+from 5.1 to 15.3 points, so most of the gain is real and not only a wider target.
+
 # Release 0.7.0 — measured stock operation (21 November 2026)
 
 Sveby normal use stays the default. `ModelPolicy(operating_standard="measured")` and
