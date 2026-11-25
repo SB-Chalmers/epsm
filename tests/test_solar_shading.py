@@ -54,7 +54,7 @@ def test_policy_defaults_to_behaviour_and_validates():
 
     policy = ModelPolicy()
     assert policy.solar_shading == "behaviour"
-    assert policy.version == "7"
+    assert policy.version == "8"
     assert ModelPolicy(solar_shading=None).solar_shading is None
     with pytest.raises(ValueError):
         ModelPolicy(solar_shading="all")

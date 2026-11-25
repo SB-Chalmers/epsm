@@ -23,6 +23,23 @@ ground 2.75, exhaust air 2.4 before 2006 and 2.75 from 2006, air–water 2.4, ai
 2.0). With Data 0.8.0 the field average 2.75 still applies. The receipt records
 `heat_pump_type`. SE.07 heat recovery 0.70 comes from Data alone, with no change here.
 
+## Single-family storey check
+
+`ubem_v1` moves to policy version 8. When a single-family house's storey count is
+inferred from its LiDAR height, rather than taken from valid EPC storeys, it is checked
+against the EPC Atemp, or the Lantmäteriet register living area (`totalBoarea`) when
+there is no EPC. With more than 3 storeys, or an area below 0.6 of footprint × storeys,
+the house gets clamp(round(area / (0.88 × footprint)), 1, 3) storeys at the typical floor
+height with a compact roof, and the receipt says so. A conditioned basement's share is
+taken off Atemp first.
+
+The cause is tree canopy. Unclassified LiDAR points include vegetation, so houses built
+after their area was scanned, on wooded plots, got 7.5–24 m heights and 3–8 storeys.
+On the 897 single-component SF SE.07 houses of the cohort baseline, the median
+Atemp ÷ modelled floor area goes from 0.71 to 0.88. Houses below 0.6 fall from 44 % to
+1.7 %, and 381 houses change. Other eras change by 2.5–9 %.
+`ModelPolicy(single_family_storey_check=False)` restores version 7.
+
 # Release 0.7.0 — measured stock operation (21 November 2026)
 
 Sveby normal use stays the default. `ModelPolicy(operating_standard="measured")` and
