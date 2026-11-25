@@ -1,3 +1,12 @@
+# Unreleased
+
+`ubem_v1` moves to policy version 6. Heat-pump delivery passes the building's EPC
+heat-pump type (`epsm_db.epc_systems`) and era to Data's `heating_delivery_template`,
+so the seasonal COP follows the pump type when Data supports it (epsm_data PR #40:
+ground 2.75, exhaust air 2.4 before 2006 and 2.75 from 2006, air–water 2.4, air–air
+2.0). With Data 0.8.0 the field average 2.75 still applies. The receipt records
+`heat_pump_type`. SE.07 heat recovery 0.70 comes from Data alone, with no change here.
+
 # Release 0.7.0 — measured stock operation (21 November 2026)
 
 Sveby normal use stays the default. `ModelPolicy(operating_standard="measured")` and

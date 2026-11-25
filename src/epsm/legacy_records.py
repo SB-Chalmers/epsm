@@ -24,7 +24,7 @@ from epsm_db.weather import WeatherReference
 @dataclass(frozen=True)
 class ModelPolicy:
     name: str = "ubem_v1"
-    version: str = "5"
+    version: str = "6"
     minimum_programme_blend_share: float = 0.05
     typical_floor_height_m: float = 3.0
     minimum_full_floor_height_m: float = 2.0
@@ -45,7 +45,8 @@ class ModelPolicy:
     # Version 4: catalogue ventilation templates and facade window ratios. False
     # restores version 3's type defaults below (one WWR and one FTX recovery).
     catalogue_templates: bool = True
-    # Version 5: heat-pump COP from Data's delivery template. "measured" selects
+    # Version 5: heat-pump COP from Data's delivery template. Version 6: the COP
+    # follows the EPC heat-pump type where Data supports it. "measured" selects
     # Data's observed stock operation for existing buildings; "sveby" is normal use.
     operating_standard: str = "sveby"
     wwr_by_type: dict = field(
@@ -696,9 +697,26 @@ def _operation(
     return use, air, source
 
 
-def _delivery(record, policy, receipt):
-    from epsm_core import DeliverySpec, HeatingDeliverySpec
+def _heat_pump_template(observed, era, receipt):
+    """Data's heat-pump template, by the EPC pump type where Data supports it."""
+    import inspect
+
     from epsm_data.templates import heating_delivery_template
+
+    pump = getattr(observed, "heat_pump_type", None)
+    typed = "heat_pump_type" in inspect.signature(heating_delivery_template).parameters
+    if pump and typed:
+        template = heating_delivery_template("heat_pump", heat_pump_type=pump, era=era)
+    else:
+        template = heating_delivery_template("heat_pump")
+    receipt.identities["heating_delivery_template"] = template.template_id
+    if pump:
+        receipt.identities["heat_pump_type"] = pump
+    return template
+
+
+def _delivery(record, policy, receipt, era=None):
+    from epsm_core import DeliverySpec, HeatingDeliverySpec
 
     observed = _observed_systems(record)
     carrier = observed.heating_carrier if observed else None
@@ -712,14 +730,13 @@ def _delivery(record, policy, receipt):
         "source": "ubem_v1: carrier indicated by raw EPC energy fields; effective efficiency/COP assumption",
     }
     if carrier == "heat_pump":
-        template = heating_delivery_template(carrier)
+        template = _heat_pump_template(observed, era, receipt)
         options = dict(template.values["delivery"]["heating"])
-        receipt.identities["heating_delivery_template"] = template.template_id
     if carrier == "fuel":
         options["efficiency"] = policy.fuel_efficiency
     receipt.assumptions.append(
         f"Heating carrier {carrier}; effective delivery parameters from "
-        + ("the catalogue's field-average template" if carrier == "heat_pump" else "policy")
+        + ("the catalogue's heat-pump template" if carrier == "heat_pump" else "policy")
         + ", not calibrated performance"
     )
     return DeliverySpec(heating=HeatingDeliverySpec(**options))
@@ -1056,7 +1073,7 @@ class EPSMBuilding:
                 airflow=airflow,
                 zone_uses=assignments,
                 unconditioned_exchange=exchanges,
-                delivery=_delivery(record, policy, receipt),
+                delivery=_delivery(record, policy, receipt, fabric["assignment"]["era"]),
                 provenance=ProvenanceSpec(records=tuple(sources)),
             )
             receipt.identities["physical_hash"] = spec.physical_hash()

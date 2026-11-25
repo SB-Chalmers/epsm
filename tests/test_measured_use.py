@@ -86,10 +86,11 @@ def test_a_mixed_building_nets_only_the_use_with_a_total():
     assert office.natural_exchange_ach == pytest.approx(1.6 * 180 * 3.6 / 600)
 
 
-def systems(carriers):
+def systems(carriers, heat_pump_type=None):
     return SimpleNamespace(
         heating_carrier=carriers[0] if len(carriers) == 1 else None,
         heating_carriers=carriers,
+        heat_pump_type=heat_pump_type,
     )
 
 
@@ -111,6 +112,28 @@ def test_delivery_takes_the_heat_pump_cop_from_data(monkeypatch, carrier, cop):
         assert receipt.identities["heating_delivery_template"] == (
             "epsm.heating.heat_pump_field_average"
         )
+
+
+def test_delivery_cop_follows_the_epc_pump_type_where_data_supports_it(monkeypatch):
+    import inspect
+
+    from epsm_data.templates import heating_delivery_template
+
+    monkeypatch.setattr(
+        "epsm.legacy_records._observed_systems",
+        lambda record: systems(["heat_pump"], "exhaust_air"),
+    )
+    receipt = Receipt("test")
+    heating = _delivery(None, ModelPolicy(), receipt, "SE.04").heating
+    assert receipt.identities["heat_pump_type"] == "exhaust_air"
+    if "heat_pump_type" in inspect.signature(heating_delivery_template).parameters:
+        assert set(heating.heat_pump_cop.hourly(2023)) == {2.4}
+        assert (
+            receipt.identities["heating_delivery_template"]
+            == "epsm.heating.heat_pump_exhaust_air"
+        )
+    else:  # Data before the pump-type split: field average
+        assert set(heating.heat_pump_cop.hourly(2023)) == {2.75}
 
 
 @pytest.mark.parametrize("observed", [None, systems(["heat_pump", "fuel"])])
