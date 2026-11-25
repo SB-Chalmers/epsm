@@ -80,6 +80,14 @@ class ModelPolicy:
     # residential profile is multi-family (21 kWh/m2). None restores version 8.
     single_family_household_electricity_kwh_m2: float | None = 30.0
     household_electricity_heat_fraction: float = 0.70
+    # Version 10: EPC ventilation with FTX among several ticked systems (for
+    # example F+FTX or FT+FTX) is modelled as FTX at the observed-FTX template.
+    # The EPC has no per-system shares, and a building with an FTX unit has heat
+    # recovery on at least part of its air; STIL2 (2005) and STIL3 (ER 2025:25)
+    # found no exhaust-only or natural-draught offices. Before version 10 such a
+    # certificate was "conflicting" and the catalogue's era default ran (S, F or
+    # FT without recovery in SE.01-SE.03). False restores version 9.
+    ventilation_conflict_ftx: bool = True
     wwr_by_type: dict = field(
         default_factory=lambda: {
             "single_family": 0.2,
@@ -288,6 +296,18 @@ def _ventilation(record, policy, receipt, override):
         return override
     observed = _observed_systems(record)
     result = observed.ventilation if observed else None
+    if (
+        result is None
+        and policy.ventilation_conflict_ftx
+        and observed is not None
+        and observed.ventilation_status == "conflicting"
+        and "FTX" in observed.reported_ventilation
+    ):
+        result = "FTX"
+        receipt.assumptions.append(
+            "EPC ventilation " + "+".join(observed.reported_ventilation)
+            + " modelled as FTX: an FTX unit is present and the EPC gives no per-system shares (version 10)"
+        )
     if result:
         if result == "Fmed":
             # Exhaust with heat recovery, in practice an exhaust-air heat pump. With heat-pump
@@ -303,12 +323,15 @@ def _ventilation(record, policy, receipt, override):
         _field(receipt, "ventilation", result, "reported_raw_mapping")
     else:
         result = policy.ventilation_by_type[record.type.value]
+        status = observed.ventilation_status if observed else "unavailable"
         _field(
             receipt,
             "ventilation",
             result,
             "assumed",
-            f"Ventilation {observed.ventilation_status if observed else 'unavailable'}; type default {result}",
+            f"Ventilation {status}; type default {result}"
+            + ("; with catalogue templates the era's default template sets the airflow"
+               if policy.catalogue_templates else ""),
         )
     return result
 
