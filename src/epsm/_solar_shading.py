@@ -18,12 +18,14 @@ DEFAULT_SOLAR_SHADING = "behaviour"
 
 # Building types for which the named Sveby factors resolve to 1.0 (off). An explicit
 # number still applies. Multi-family: not applied after the final calibration campaign
-# (2026-11-24), where 0.71 lowered the multi-family match; 1.0 is the value the earlier
-# validation used and is untested on fresh buildings.
+# (2026-11-24), where 0.71 lowered the multi-family match. A pre-registered held-out test
+# (2026-11-25, 2,920 unseen multi-family buildings, SE.01-SE.06, lake neighbours on) confirmed
+# 1.0 over 0.71: match 70.4 % -> 73.6 %, exact McNemar p = 1e-7. 1.0 is a tested model
+# choice, not a sourced value (Sveby's occupant factor is 0.71).
 NOT_APPLIED = {
     "multi_family": (
         "Sveby solar shading not applied for multi-family (factor 1.0) after the "
-        "final calibration campaign; untested at 1.0 on fresh buildings"
+        "final calibration campaign; confirmed at 1.0 on 2,920 held-out buildings (match 70.4 -> 73.6 %)"
     ),
 }
 

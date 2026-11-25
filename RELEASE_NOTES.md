@@ -5,8 +5,10 @@ previously left the window solar factor at 1.0 for every type, while
 `apply_archetype` took Core's Sveby total factor (0.50 for housing; offices and schools
 only when a calendar was supplied). Both routes now apply Sveby's occupant factor for
 blinds and curtains by default: 0.71 for single-family houses and offices and 0.65 for
-schools. Multi-family is not applied (1.0) after the final calibration campaign; 1.0 is
-untested on fresh multi-family buildings.
+schools. Multi-family is not applied (1.0) after the final calibration campaign. A
+pre-registered held-out test on 2,920 unseen multi-family buildings (SE.01–SE.06, with lake
+neighbours) confirmed 1.0 over 0.71: match 70.4 % → 73.6 % (198 gained, 105 lost, exact
+McNemar p = 1e-7; SE.01 69.0 % → 73.1 %). 1.0 is a tested model choice, not a sourced value.
 Fixed obstructions are meant to be modelled as geometry, so the 0.50 total is not the
 default. `ModelPolicy(solar_shading=...)` and `apply_archetype(..., solar_shading=...)`
 accept `"behaviour"` (default), `"total"` (0.50; schools 0.65), `None` (off, as before)
