@@ -1,6 +1,6 @@
 # Release candidate 0.8.0rc1 — Sveby shading, neighbours and type checks (25 November 2026)
 
-A candidate for 0.8.0. `ubem_v1` moves from policy version 5 to version 11. Results
+A candidate for 0.8.0. `ubem_v1` moves from policy version 5 to version 12. Results
 calibrated against version 5 need rechecking. Each change has a `ModelPolicy` switch that
 restores the earlier behaviour. The candidate combination moves to Data 0.9.0rc1
 (`e344af1`) and Database 0.6.1 (`ae7e38c`); the other packages are unchanged.
@@ -66,6 +66,28 @@ neighbours, at their representative height, with overlaps resolved tallest first
 checked against the prepared footprint. Callers can pass their own rows
 (`context_rows=...`); a portable record without rows gets no context and the receipt says
 so. `context_radius_m=None` turns it off.
+
+## Single-family SE.06 later-build envelope (version 12)
+
+SE.06 covers houses built 2006–2021, but the energy
+rules tightened inside that span. From 1 February 2009 (BBR 16, BFS 2008:20) electrically
+heated new buildings, heat-pump småhus included, had their own lower limit (95/75/55 kWh/m²
+in zones I–III, against 150/130/110), and from 2012 (BBR 19, BFS 2011:6) the other limit fell
+to 130/110/90 with Um 0.50 → 0.40 W/m²K. Measured heat-pump heating halves across the era
+(about 43 kWh/m² for houses built 2006–08, 21 for 2017–21), while the model's heat demand was
+flat. A single-family SE.06 house in the existing state that is heat pump or direct electric
+and built 2009 or later, or built 2012 or later with any carrier, now gets the SE.06 advanced
+constructions, windows and airtightness (the SE.07 values) through `component_states`. Its
+observed ventilation is kept. The receipt names the rule, and the archetype assignment records
+each component's source. This is an as-built representative, not a renovation. The size of
+the change comes from the catalogue's authored values, not a measured survey of these houses.
+Caller-chosen `component_states` win. `single_family_se06_later_build=False` restores
+version 11.
+
+A pre-registered test on 500 fresh SF SE.06 houses never used before (lake revision 13345,
+policy v10 base, lake neighbours, EnergyPlus 24.2) gave 42.5 % → 63.0 % match within ±20 %
+(114 gained, 13 lost, exact McNemar p = 3e-21). Skill over within-cohort permuted chance rose
+from 5.1 to 15.3 points, so most of the gain is real and not only a wider target.
 
 # Release 0.7.0 — measured stock operation (21 November 2026)
 
