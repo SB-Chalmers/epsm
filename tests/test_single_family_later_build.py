@@ -89,4 +89,4 @@ def test_disabled_restores_version_11(monkeypatch):
 
 
 def test_policy_version():
-    assert lr.ModelPolicy().version == "12"
+    assert lr.ModelPolicy().version == "13"
