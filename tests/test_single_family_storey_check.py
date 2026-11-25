@@ -97,4 +97,4 @@ def test_policy_bounds_are_validated():
         ModelPolicy(single_family_minimum_area_ratio=1.5)
     with pytest.raises(ValueError):
         ModelPolicy(single_family_maximum_storeys=0)
-    assert ModelPolicy().version == "9"
+    assert ModelPolicy().version == "11"
