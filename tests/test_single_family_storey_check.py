@@ -1,4 +1,4 @@
-"""Single-family storey check against EPC Atemp or register living area (policy version 6)."""
+"""Single-family storey check against EPC Atemp or register living area."""
 
 from datetime import date
 

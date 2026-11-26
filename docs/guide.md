@@ -62,7 +62,7 @@ median EPC Atemp ÷ modelled floor area was 0.69 (about 0.8 in older eras). See 
 `docs/gis_first_lake.md`, "Known issue: heights of houses built after the LiDAR scan",
 and its `height_plausibility` record findings.
 
-**Fallback, policy version 8 (`ModelPolicy.single_family_storey_check`, on by default).**
+**Fallback storey check (`ModelPolicy.single_family_storey_check`, on by default).**
 For single-family houses whose storeys come from height (not from a valid EPC count):
 
 - **Area anchor:** the EPC Atemp, or the Lantmäteriet register living area (`totalBoarea`)

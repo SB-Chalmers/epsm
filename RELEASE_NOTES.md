@@ -1,11 +1,11 @@
 # Release candidate 0.8.0rc1 — Sveby shading, neighbours, SE.06 later builds and type checks (25 November 2026)
 
-A candidate for 0.8.0. `ubem_v1` moves from policy version 5 to version 13. Results
-calibrated against version 5 need rechecking. Each change has a `ModelPolicy` switch that
+A candidate for 0.8.0. The default `ubem_v1` model policy gains the eight changes below.
+Results calibrated against 0.7.0 need rechecking. Each change has a `ModelPolicy` switch that
 restores the earlier behaviour. The candidate combination moves to Data 0.9.0rc1
 (`fc78281`) and Database 0.6.1 (`ae7e38c`); the other packages are unchanged.
 
-## Sveby window solar shading (version 6)
+## Sveby window solar shading
 
 Record-based models (`EPSMBuilding.from_record`) previously left the window solar factor
 at 1.0 for every type, while `apply_archetype` took Core's Sveby total factor (0.50 for
@@ -18,7 +18,7 @@ obstructions are modelled as geometry, so the 0.50 total is not the default.
 `"behaviour"` (default), `"total"` (0.50; schools 0.65), `None` (off, as before) or a number
 in (0, 1]. Authored `building_assumptions` facade values are kept as written.
 
-## Heat-pump COP by pump type (version 7)
+## Heat-pump COP by pump type
 
 Heat-pump delivery passes the building's EPC heat-pump type (`epsm_db.epc_systems`) and
 era to Data's `heating_delivery_template`, so the seasonal COP follows the pump type when
@@ -26,7 +26,7 @@ Data supports it (Data 0.9.0rc1: ground 2.75, exhaust air 2.4 before 2006 and 2.
 2006, 3.0 from 2022, air–water 2.4, air–air 2.0). With Data 0.8.0 the field average 2.75
 still applies. The receipt records `heat_pump_type`.
 
-## Single-family storey check (version 8)
+## Single-family storey check
 
 When a single-family house's storey count is inferred from its LiDAR height, rather than
 taken from valid EPC storeys, it is checked against the EPC Atemp, or the Lantmäteriet
@@ -36,9 +36,9 @@ footprint)), 1, 3) storeys at the typical floor height with a compact roof, and 
 receipt says so. A conditioned basement's share is taken off Atemp first. The cause is
 tree canopy: unclassified LiDAR points include vegetation, so houses built after their
 area was scanned, on wooded plots, got 3–8 storeys. `single_family_storey_check=False`
-restores version 7.
+restores the earlier behaviour.
 
-## Single-family slab edge and household electricity (version 9)
+## Single-family slab edge and household electricity
 
 - **Insulated slab edge beam.** An insulated single-family slab on grade with no basement
   gets a vertical edge beam (Swedish kantelement practice; EPS-bygg *Grundboken* p. 69
@@ -49,17 +49,17 @@ restores version 7.
   usable as heat (BEN, BFS 2016:12, table 2:1), instead of the multi-family Sveby value of
   21 kWh/m².
 - `single_family_slab_edge_insulation_m=0, single_family_household_electricity_kwh_m2=None`
-  restores version 8.
+  restores the earlier behaviour.
 
-## FTX among several ventilation systems (version 10)
+## FTX among several ventilation systems
 
 An EPC that ticks FTX together with other systems (for example F+FTX or FT+FTX) is modelled
 as FTX at the observed-FTX template. The EPC has no per-system shares, and a building with
 an FTX unit recovers heat on at least part of its air; STIL2 (2005) and STIL3 (ER 2025:25)
 found no exhaust-only or natural-draught offices. Before, such a certificate was
-"conflicting" and the era default ran. `ventilation_conflict_ftx=False` restores version 9.
+"conflicting" and the era default ran. `ventilation_conflict_ftx=False` restores the earlier behaviour.
 
-## Shading-only neighbours (version 11)
+## Shading-only neighbours
 
 Database-backed records get the lake's building components within 100 m as shading-only
 neighbours, at their representative height, with overlaps resolved tallest first and
@@ -67,7 +67,7 @@ checked against the prepared footprint. Callers can pass their own rows
 (`context_rows=...`); a portable record without rows gets no context and the receipt says
 so. `context_radius_m=None` turns it off.
 
-## Single-family SE.06 later-build envelope (version 12)
+## Single-family SE.06 later-build envelope
 
 SE.06 covers houses built 2006–2021, but the energy
 rules tightened inside that span. From 1 February 2009 (BBR 16, BFS 2008:20) electrically
@@ -81,13 +81,12 @@ constructions, windows and airtightness (the SE.07 values) through `component_st
 observed ventilation is kept. The receipt names the rule, and the archetype assignment records
 each component's source. This is an as-built representative, not a renovation. The size of
 the change comes from the catalogue's authored values, not a measured survey of these houses.
-Caller-chosen `component_states` win. `single_family_se06_later_build=False` restores
-version 11.
+Caller-chosen `component_states` win. `single_family_se06_later_build=False` restores the earlier behaviour.
 
 A pre-registered test on fresh single-family SE.06 houses supported the change; the figures
 are kept with the study, not in these notes.
 
-## School SE.06 earlier-build envelope (version 13)
+## School SE.06 earlier-build envelope
 
 School SE.06 covers 2006–2021. BBR 19 (BFS 2011:6), in force from 2012, lowered the limit for
 non-electric lokaler from 100 to 80 kWh/m² in zone III and Um from 0.70 to 0.60 W/m²K. Schools
@@ -97,7 +96,7 @@ SE.05 existing wall, roof and window (whole catalogue constructions). Its era, v
 airtightness and operation stay SE.06. The receipt records `school_earlier_build`, and the
 archetype assignment names the donor. The size of the change comes from the catalogue's SE.05
 values, not a measured survey. Caller-chosen `component_states` turn it off for that building.
-`school_se06_earlier_build=False` restores version 12.
+`school_se06_earlier_build=False` restores the earlier behaviour.
 
 A pre-registered test on school SE.06 supported the change; the figures are kept with the
 study, not in these notes.
@@ -110,7 +109,7 @@ observed stock operation: the multifamily setpoint by era, a self-draught total 
 change net of the building's infiltration, and office flow and hours. Uses with no
 adopted value keep normal use and say so.
 
-`ubem_v1` moves to policy version 5. Heat-pump delivery takes the seasonal COP from
+In the default `ubem_v1` policy, heat-pump delivery takes the seasonal COP from
 Data's `heating_delivery_template`, so modelled heat-pump electricity rises by about
 9 % (COP 2.75 against 3.0), and `ModelPolicy.heat_pump_cop` is removed. Ventilation and
 heating carriers are read through `epsm_db.epc_systems`; on 94,189 certificates from

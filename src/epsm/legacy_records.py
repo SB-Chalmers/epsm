@@ -44,57 +44,56 @@ class ModelPolicy:
     fuel_efficiency: float = 0.9
     calendar_year: int = 2023
     catalogue_climate_zone: str = "SE.Zone3"
-    # Version 4: catalogue ventilation templates and facade window ratios. False
-    # restores version 3's type defaults below (one WWR and one FTX recovery).
+    # catalogue ventilation templates and facade window ratios. False
+    # restores the earlier type defaults below (one WWR and one FTX recovery).
     catalogue_templates: bool = True
-    # Version 5: heat-pump COP from Data's delivery template. Version 7: the COP
+    # heat-pump COP from Data's delivery template. Version 7: the COP
     # follows the EPC heat-pump type where Data supports it. "measured" selects
     # Data's observed stock operation for existing buildings; "sveby" is normal use.
     operating_standard: str = "sveby"
-    # Version 6: Sveby window solar shading. "behaviour" (default) is the occupant
+    # Sveby window solar shading. "behaviour" (default) is the occupant
     # factor (0.71 single-family and office, 0.65 school), as fixed obstructions belong
     # in geometry; "total" is Sveby's combined factor (0.50; school 0.65); None turns it
-    # off (1.0, versions 1-5); a number in (0, 1] is used as given. Multi-family is not
+    # off (1.0, as in 0.7.0 and earlier); a number in (0, 1] is used as given. Multi-family is not
     # applied (named choices give 1.0; see epsm._solar_shading.NOT_APPLIED).
     solar_shading: str | float | None = "behaviour"
-    # Version 8: single-family storey check. LiDAR heights of houses built after
+    # single-family storey check. LiDAR heights of houses built after
     # their area was scanned can be tree canopy (unclassified points include
     # vegetation), which height/typical-floor turns into 3-8 storeys. When the
     # storey count comes from height, it is checked against the EPC Atemp, or the
     # register living area, and replaced by the area-implied count if implausible.
-    # False restores version 7's height-only storey inference.
+    # False restores the earlier height-only storey inference.
     single_family_storey_check: bool = True
     single_family_maximum_storeys: int = 3
     single_family_minimum_area_ratio: float = 0.6
     single_family_net_to_gross_area: float = 0.88
-    # Version 9: single-family slab edge and household electricity.
+    # single-family slab edge and household electricity.
     # Swedish slab-on-grade has an insulated edge beam (kantelement): EPS-bygg
     # Grundboken p. 69, table 1 gives typical edge-beam psi 0.25-0.06 W/mK for
     # 50-150 mm front insulation. Kiva otherwise leaves the slab edge bare. An
     # insulated slab gets this much vertical edge insulation of the same material,
-    # down to the given depth below the slab. 0 restores version 8.
+    # down to the given depth below the slab. 0 restores the earlier behaviour.
     single_family_slab_edge_insulation_m: float = 0.10
     single_family_slab_edge_depth_m: float = 0.3
     # BEN (BFS 2016:12, table 2:1) normal use for småhus: household electricity
     # 30 kWh/m2 Atemp, 70 % usable as heat in the heating season. The Sveby
-    # residential profile is multi-family (21 kWh/m2). None restores version 8.
+    # residential profile is multi-family (21 kWh/m2). None restores the earlier behaviour.
     single_family_household_electricity_kwh_m2: float | None = 30.0
     household_electricity_heat_fraction: float = 0.70
-    # Version 10: EPC ventilation with FTX among several ticked systems (for
+    # EPC ventilation with FTX among several ticked systems (for
     # example F+FTX or FT+FTX) is modelled as FTX at the observed-FTX template.
     # The EPC has no per-system shares, and a building with an FTX unit has heat
     # recovery on at least part of its air; STIL2 (2005) and STIL3 (ER 2025:25)
-    # found no exhaust-only or natural-draught offices. Before version 10 such a
+    # found no exhaust-only or natural-draught offices. Before this rule such a
     # certificate was "conflicting" and the catalogue's era default ran (S, F or
-    # FT without recovery in SE.01-SE.03). False restores version 9.
+    # FT without recovery in SE.01-SE.03). False restores the earlier behaviour.
     ventilation_conflict_ftx: bool = True
-    # Version 11: shading-only neighbours (lake components within this radius, at
+    # shading-only neighbours (lake components within this radius, at
     # their representative height) for database-backed records or caller-supplied
-    # rows. None turns context off (versions 1-10). (Version 10's ventilation rule
-    # shipped without a version bump; 11 marks both.)
+    # rows. None turns context off, as before.
     context_radius_m: float | None = 100.0
     context_min_height_m: float = 2.0
-    # Version 12: single-family SE.06 later-build envelope. SE.06 spans 2006-2021,
+    # single-family SE.06 later-build envelope. SE.06 spans 2006-2021,
     # but Swedish energy rules tightened inside it: from 1 Feb 2009 (BBR 16, BFS
     # 2008:20) electrically heated new buildings, which includes heat-pump småhus,
     # had a separate, lower limit (95/75/55 kWh/m2 in zones I-III against
@@ -104,12 +103,12 @@ class ModelPolicy:
     # advanced constructions, windows and airtightness (the SE.07 values) in their
     # existing state; ventilation stays as observed. The size of the envelope
     # change is the catalogue's authored values, not a measured as-built survey.
-    # Tested on fresh houses (epsm_studies sf-fix-2026-11-25). False restores
-    # version 11.
+    # Tested on fresh houses (epsm_studies sf-fix-2026-11-25). False restores the
+    # earlier behaviour.
     single_family_se06_later_build: bool = True
     single_family_later_build_electric_year: int = 2009
     single_family_later_build_any_year: int = 2012
-    # Version 13: school SE.06 earlier-build envelope. School SE.06 spans
+    # school SE.06 earlier-build envelope. School SE.06 spans
     # 2006-2021; BBR 19 (BFS 2011:6), in force from 2012, lowered the limit for
     # non-electric lokaler from 100 to 80 kWh/m2 in zone III and Um from 0.70 to
     # 0.60 W/m2K (Boverket konsekvensutredning BFS 2011:6). Schools built before
@@ -117,7 +116,7 @@ class ModelPolicy:
     # state; the era, ventilation, airtightness and operation stay SE.06. The size
     # of the change is the catalogue's SE.05 values, not a measured survey.
     # Tested on school SE.06 (epsm_studies cohort-dives-2026-11-25). False
-    # restores version 12.
+    # restores the earlier behaviour.
     school_se06_earlier_build: bool = True
     school_earlier_build_before_year: int = 2012
     school_earlier_build_donor_year: int = 2005
@@ -747,7 +746,7 @@ def _foundation(record, envelope, geometry, policy, receipt):
     return FoundationSpec(
         footing_wall=edge,
         wall_depth_below_slab_m=policy.single_family_slab_edge_depth_m,
-        source="ubem_v1 v9: Kiva defaults with an assumed insulated slab edge beam (EPS-bygg Grundboken p. 69)",
+        source="ubem_v1: Kiva defaults with an assumed insulated slab edge beam (EPS-bygg Grundboken p. 69)",
     )
 
 
@@ -997,7 +996,7 @@ LATER_BUILD_ROLES = ("wall", "roof", "ground", "basement_wall", "intermediate_fl
 
 
 def _single_family_later_build(record, policy, year, renovation_state, overrides, receipt):
-    """Policy version 12: component states for an SE.06 house built under the 2009/2012 energy rules.
+    """Component states for an SE.06 house built under the 2009/2012 energy rules.
 
     Returns (component_states, component_sources), or None when the rule does not apply.
     Applies only to single-family SE.06 in the existing state with no caller-chosen components.
@@ -1025,9 +1024,9 @@ def _single_family_later_build(record, policy, year, renovation_state, overrides
         if electric and year < policy.single_family_later_build_any_year
         else "BBR 19 (BFS 2011:6) limits from 2012"
     )
-    source = f"Policy version 12: built {year} under {rule}; SE.06 advanced catalogue values as the later-build representative"
+    source = f"Single-family later-build rule: built {year} under {rule}; SE.06 advanced catalogue values as the later-build representative"
     receipt.assumptions.append(
-        f"Single-family SE.06 later-build envelope (policy version 12): built {year}, carrier {carrier}; "
+        f"Single-family SE.06 later-build envelope: built {year}, carrier {carrier}; "
         "advanced constructions, windows and airtightness with the observed ventilation. "
         "This is the as-built representative for houses under the tighter rules, not a renovation."
     )
@@ -1036,7 +1035,7 @@ def _single_family_later_build(record, policy, year, renovation_state, overrides
 
 
 def _school_earlier_build(record, policy, year, renovation_state, overrides, receipt):
-    """Policy version 13: True for a school SE.06 built before the BBR 19 limits of 2012.
+    """True for a school SE.06 built before the BBR 19 limits of 2012.
 
     Applies only to the existing state with no caller-chosen components.
     """
@@ -1052,7 +1051,7 @@ def _school_earlier_build(record, policy, year, renovation_state, overrides, rec
     ):
         return False
     receipt.assumptions.append(
-        f"School SE.06 earlier-build envelope (policy version 13): built {year}, before the BBR 19 "
+        f"School SE.06 earlier-build envelope: built {year}, before the BBR 19 "
         f"(BFS 2011:6) limits of {policy.school_earlier_build_before_year}; the school SE.05 existing wall, "
         "roof and window with SE.06 ventilation, airtightness and operation"
     )

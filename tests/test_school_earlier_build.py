@@ -1,4 +1,4 @@
-"""Policy version 13: school SE.06 earlier-build envelope (before the BBR 19 limits of 2012)."""
+"""School SE.06 earlier-build envelope (before the BBR 19 limits of 2012)."""
 
 import pytest
 from shapely.geometry import box
@@ -29,7 +29,7 @@ def test_before_2012(year):
         "before_year": 2012,
         "donor_year": 2005,
     }
-    assert any("version 13" in a for a in receipt.assumptions)
+    assert any("School SE.06 earlier-build envelope" in a for a in receipt.assumptions)
 
 
 @pytest.mark.parametrize("year", [2012, 2015, 2021])

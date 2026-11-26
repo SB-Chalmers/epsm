@@ -1,4 +1,4 @@
-"""Policy version 7: single-family slab edge beam and BEN småhus household electricity."""
+"""Single-family slab edge beam and BEN småhus household electricity."""
 
 import pytest
 from shapely.geometry import box
