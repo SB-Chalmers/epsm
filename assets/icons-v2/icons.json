@@ -1,0 +1,13 @@
+[
+  {"name":"epsm","label":"EPSM","role":"The integrated platform","metaphor":"E building section","shapes":"<path d=\"M15 4h14v4H15zM15 14h11v4H15zM15 24h14v4H15z\"/>"},
+  {"name":"epsm_core","label":"Core","role":"Physical building model","metaphor":"Solid building cell","shapes":"<path d=\"M16 9h13v14H16z\"/>"},
+  {"name":"epsm_data","label":"Data","role":"Materials & constructions","metaphor":"Layered construction plates","shapes":"<path d=\"m15 9 7-5 7 5-7 5-7-5Zm0 7 7 5 7-5v4l-7 5-7-5Zm0 8 7 5 7-5v4l-7 5-7-5Z\" transform=\"translate(0 -1) scale(1 .9)\"/>"},
+  {"name":"epsm_db","label":"Database","role":"Building evidence & records","metaphor":"Stored building records","shapes":"<path fill-rule=\"evenodd\" d=\"M15 7c0-4 14-4 14 0v18c0 4-14 4-14 0V7Zm2.5 0c1 1.5 8 1.5 9 0-1-1.5-8-1.5-9 0ZM15 12v2.5c4 2.5 10 2.5 14 0V12c-4 2.5-10 2.5-14 0Zm0 7v2.5c4 2.5 10 2.5 14 0V19c-4 2.5-10 2.5-14 0Z\"/>"},
+  {"name":"epsm_rc","label":"RC","role":"Thermal energy simulation","metaphor":"Energy through the section","shapes":"<path d=\"m23 3-9 15h7l-1 11 10-16h-7l2-10Z\"/>"},
+  {"name":"epsm_lca","label":"LCA","role":"Climate impact assessment","metaphor":"Living building cell","shapes":"<path d=\"M28 5C17 5 13 12 17 20c6 2 12-4 11-15Z\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"3\"/><path d=\"m16 27 8-14\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"3\"/>"},
+  {"name":"epsm_workflows","label":"Workflows","role":"Execution & optimisation","metaphor":"Connected building paths","shapes":"<path d=\"M15 14h5v4h-5zM25 4h5v5h-5zM25 23h5v5h-5z\"/><path d=\"M19 16h3V6.5h3m-3 9.5v9.5h3\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2.5\"/>"},
+  {"name":"epsm_studies","label":"Studies","role":"Research & comparison","metaphor":"Comparative building measures","shapes":"<path d=\"M15 20h3v8h-3zM21 12h3v16h-3zM27 4h3v24h-3z\"/>"},
+  {"name":"epsm_development","label":"Development","role":"Engineering handbook & tools","metaphor":"Open construction brackets","shapes":"<path d=\"m20 9-5 7 5 7m5-14 5 7-5 7\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"3\"/>"},
+  {"name":"epsm_studio","label":"Studio","role":"Application & workspace","metaphor":"Section as a workspace","shapes":"<path fill-rule=\"evenodd\" d=\"M15 5h15v22H15V5Zm3 3v3h9V8h-9Zm0 6v10h3V14h-3Zm6 0v10h3V14h-3Z\"/>"},
+  {"name":"epsm_viewer","label":"Viewer","role":"3D display & inspection","metaphor":"View into the building","shapes":"<path d=\"M14 16q8-13 16 0-8 13-16 0Z\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2.5\"/><circle cx=\"22\" cy=\"16\" r=\"2.5\"/>"}
+]
