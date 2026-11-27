@@ -1521,8 +1521,11 @@ class EPSMBuilding:
         return tuple(buildings), tuple(receipts)
 
     def simulate(self, directory, *, energyplus=None, **kwargs):
+        """Run EnergyPlus. Core's context-shadow retry is on unless the caller turns it off;
+        it acts only after a shadow-capacity rejection and records any approximation."""
         from epsm_core import EnergyPlusRunner
 
+        kwargs.setdefault("recover_context_shadows", True)
         return EnergyPlusRunner(energyplus).run(self.spec, directory, **kwargs)
 
     def write(self, path):

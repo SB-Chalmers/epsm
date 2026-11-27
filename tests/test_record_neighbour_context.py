@@ -162,3 +162,28 @@ def test_clipped_neighbour_has_no_short_edges():
     pts = list(clipped.exterior.coords)
     assert all(math.dist(a, b) >= MIN_EDGE_M for a, b in zip(pts, pts[1:]))
     assert clipped.intersection(target).area <= 1e-9
+
+
+def test_simulate_turns_on_context_shadow_retry(monkeypatch):
+    """EPSMBuilding.simulate asks Core for the context-shadow retry unless told otherwise."""
+    import epsm_core
+
+    from epsm.legacy_records import EPSMBuilding
+
+    seen = {}
+
+    class Runner:
+        def __init__(self, energyplus=None):
+            pass
+
+        def run(self, spec, directory, **kwargs):
+            seen.update(kwargs)
+            return "ok"
+
+    monkeypatch.setattr(epsm_core, "EnergyPlusRunner", Runner)
+    building = object.__new__(EPSMBuilding)
+    building.__dict__["spec"] = None
+    assert EPSMBuilding.simulate(building, "run") == "ok"
+    assert seen["recover_context_shadows"] is True
+    EPSMBuilding.simulate(building, "run", recover_context_shadows=False)
+    assert seen["recover_context_shadows"] is False
