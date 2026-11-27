@@ -144,3 +144,21 @@ def test_cleaned_neighbour_never_overlaps_target():
     for building in spec.buildings:
         for fp in building.footprints:
             assert Polygon(fp.exterior).intersection(tp).area <= 1e-9
+
+
+def test_clipped_neighbour_has_no_short_edges():
+    """After the extra clip, no two consecutive context vertices are closer than MIN_EDGE_M."""
+    import math
+
+    from shapely.geometry import Polygon
+
+    from epsm._context import MIN_EDGE_M, _clip
+
+    target = Polygon([(0, 0), (10, 0), (10, 10), (0, 10)])
+    # The clearance cut leaves a 4 mm step next to the target corner.
+    neighbour = Polygon([(10.05, -1.0), (15.0, -1.0), (15.0, 11.0), (10.104, 11.0), (10.104, 10.104), (10.1, 10.1), (10.05, 5.0)])
+    clipped = _clip(neighbour, target)
+    assert clipped is not None
+    pts = list(clipped.exterior.coords)
+    assert all(math.dist(a, b) >= MIN_EDGE_M for a, b in zip(pts, pts[1:]))
+    assert clipped.intersection(target).area <= 1e-9
