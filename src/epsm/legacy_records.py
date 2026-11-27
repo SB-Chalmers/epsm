@@ -120,6 +120,12 @@ class ModelPolicy:
     school_se06_earlier_build: bool = True
     school_earlier_build_before_year: int = 2012
     school_earlier_build_donor_year: int = 2005
+    # Footprint preparation. "conservative" is Core's default GeometryPolicy. "coarse"
+    # smooths outlines at 0.15 m and removes edges under 0.05 m, within doubled area and
+    # displacement limits. It is meant as a second attempt after EnergyPlus rejects the
+    # first model's geometry (very small attic walls or an open attic shell); see
+    # epsm_core issues 92 and 93.
+    footprint_preparation: str = "conservative"
     wwr_by_type: dict = field(
         default_factory=lambda: {
             "single_family": 0.2,
@@ -468,6 +474,26 @@ def _resolve_component_overlaps(parts, policy, receipt):
     return tuple(resolved)
 
 
+COARSE_FOOTPRINT = dict(
+    simplification_m=0.15,
+    max_displacement_m=0.3,
+    max_area_fraction=0.01,
+    max_perimeter_fraction=0.02,
+    max_symmetric_difference_fraction=0.01,
+    min_edge_m=0.05,
+)
+
+
+def _footprint_policy(policy):
+    from epsm_core.preparation import GeometryPolicy
+
+    if policy.footprint_preparation == "conservative":
+        return GeometryPolicy()
+    if policy.footprint_preparation == "coarse":
+        return GeometryPolicy(**COARSE_FOOTPRINT)
+    raise ValueError("footprint_preparation must be 'conservative' or 'coarse'")
+
+
 def _geometry(record, policy, receipt, overrides):
     from epsm_core import (
         BuildingPart,
@@ -618,7 +644,7 @@ def _geometry(record, policy, receipt, overrides):
             <= policy.maximum_full_floor_height_m
         ):
             raise ValueError("No reasonable full-floor geometry under this policy")
-        prepared = prepare_geometry(component["geometry"])
+        prepared = prepare_geometry(component["geometry"], _footprint_policy(policy))
         if prepared.status != "accepted":
             raise ValueError(f"Footprint preparation {prepared.status}: {prepared.reasons}")
         polygon = prepared.cleaned_geometry
@@ -1521,8 +1547,11 @@ class EPSMBuilding:
         return tuple(buildings), tuple(receipts)
 
     def simulate(self, directory, *, energyplus=None, **kwargs):
+        """Run EnergyPlus. Core's context-shadow retry is on unless the caller turns it off;
+        it only acts after a shadow-capacity rejection and records any approximation."""
         from epsm_core import EnergyPlusRunner
 
+        kwargs.setdefault("recover_context_shadows", True)
         return EnergyPlusRunner(energyplus).run(self.spec, directory, **kwargs)
 
     def write(self, path):
