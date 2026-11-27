@@ -127,3 +127,20 @@ def test_policy_rejects_bad_radius(radius):
 
 def test_policy_version_six_has_context_on_by_default():
     assert ModelPolicy().version == "13" and ModelPolicy().context_radius_m == 100.0
+
+
+def test_cleaned_neighbour_never_overlaps_target():
+    """A lake neighbour (relative coordinates) whose cleaned outline crept 0.002 m2 over a school."""
+    from shapely.geometry import Polygon
+
+    from epsm._context import context_spec
+    from epsm_core.specs.geometry import Footprint
+
+    target = Footprint(exterior=((-28.031, -0.996), (21.234, -20.487), (29.363, 0.271), (-22.72, 20.831)))
+    rows = [{"id": "n1", "height_m": 12.14, "geometry": 'MULTIPOLYGON (((-61.260 10.234, -43.518 67.449, -18.151 62.229, -18.220 61.957, -12.661 60.550, -17.269 42.345, -22.720 20.831, -28.031 -0.996, -61.260 10.234)))'}]
+    spec, _ = context_spec(rows, origin_xy=(0.0, 0.0), target_footprints=[target], min_height_m=2.0, radius_m=100.0)
+    assert spec.buildings
+    tp = Polygon(target.exterior)
+    for building in spec.buildings:
+        for fp in building.footprints:
+            assert Polygon(fp.exterior).intersection(tp).area <= 1e-9
