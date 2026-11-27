@@ -87,10 +87,26 @@ def _clip(polygon, target):
     pieces = [p for p in getattr(clipped, "geoms", [clipped]) if p.geom_type == "Polygon"]
     if not pieces:
         return None
-    best = max(pieces, key=lambda p: p.area)
-    if best.area <= MIN_PART_AREA_M2 or best.intersection(target).area > CORE_OVERLAP_M2:
+    best = _drop_short_edges(max(pieces, key=lambda p: p.area))
+    if best is None or best.area <= MIN_PART_AREA_M2 or best.intersection(target).area > CORE_OVERLAP_M2:
         return None
     return best
+
+
+def _drop_short_edges(polygon):
+    """``polygon`` without vertices closer than ``MIN_EDGE_M`` to the previous one; no simplifying."""
+    from shapely.geometry import Polygon
+
+    points = []
+    for point in list(polygon.exterior.coords)[:-1]:
+        if not points or math.dist(point, points[-1]) >= MIN_EDGE_M:
+            points.append(point)
+    while len(points) > 3 and math.dist(points[0], points[-1]) < MIN_EDGE_M:
+        points.pop()
+    if len(points) < 3:
+        return None
+    cleaned = Polygon(points).buffer(0)
+    return cleaned if cleaned.geom_type == "Polygon" else None
 
 
 def context_spec(rows, *, origin_xy, target_footprints, min_height_m, radius_m):
