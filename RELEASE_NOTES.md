@@ -1,6 +1,6 @@
 # Release candidate 0.8.0rc1 — Sveby shading, neighbours, SE.06 later builds and type checks (25 November 2026)
 
-A candidate for 0.8.0. The default `ubem_v1` model policy gains the eight changes below.
+A candidate for 0.8.0. The default `ubem_v1` model policy gains the nine changes below.
 Results calibrated against 0.7.0 need rechecking. Each change has a `ModelPolicy` switch that
 restores the earlier behaviour. The candidate combination moves to Data 0.9.0rc1
 (`fc78281`) and Database 0.6.1 (`ae7e38c`); the other packages are unchanged.
@@ -100,6 +100,16 @@ values, not a measured survey. Caller-chosen `component_states` turn it off for 
 
 A pre-registered test on school SE.06 supported the change; the figures are kept with the
 study, not in these notes.
+
+## Office SE.06 earlier-build envelope
+
+The BBR 19 limit (BFS 2011:6) behind the school rule above applies to every
+non-residential building, offices included. An office SE.06 in the existing state built
+before 2012 now gets the office SE.05 existing wall, roof and window, with SE.06
+ventilation, airtightness and operation. The receipt records `office_earlier_build`.
+`office_se06_earlier_build=False` restores the earlier behaviour. It was checked on every
+stored office SE.06 building, so it is calibrated rather than validated on held-out
+buildings; the figures are kept with the study.
 
 # Release 0.7.0 — measured stock operation (21 November 2026)
 

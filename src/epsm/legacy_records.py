@@ -118,6 +118,12 @@ class ModelPolicy:
     # Tested on school SE.06 (epsm_studies cohort-dives-2026-11-25). False
     # restores the earlier behaviour.
     school_se06_earlier_build: bool = True
+    # Office SE.06 earlier-build envelope: the same BBR 19 limit for lokaler applies to
+    # offices, so offices built before 2012 get the office SE.05 existing wall, roof and
+    # window in their existing state, as for schools. On every stored office SE.06
+    # building (in-sample, epsm_studies final-release-run-2026-11-26) the +-20 % match rose
+    # from 44.6 to 58.9 %. False restores the earlier behaviour.
+    office_se06_earlier_build: bool = True
     school_earlier_build_before_year: int = 2012
     school_earlier_build_donor_year: int = 2005
     wwr_by_type: dict = field(
@@ -1035,27 +1041,31 @@ def _single_family_later_build(record, policy, year, renovation_state, overrides
 
 
 def _school_earlier_build(record, policy, year, renovation_state, overrides, receipt):
-    """True for a school SE.06 built before the BBR 19 limits of 2012.
+    """True for a school or office SE.06 built before the BBR 19 limits of 2012.
 
     Applies only to the existing state with no caller-chosen components.
     """
     from epsm_data.classification import era_for_year
 
+    enabled = {
+        BuildingType.SCHOOL: policy.school_se06_earlier_build,
+        BuildingType.OFFICE: policy.office_se06_earlier_build,
+    }
     if (
-        not policy.school_se06_earlier_build
-        or record.type != BuildingType.SCHOOL
+        not enabled.get(record.type, False)
         or renovation_state != "existing"
         or era_for_year(year) != "SE.06"
         or year >= policy.school_earlier_build_before_year
         or overrides.get("component_states")
     ):
         return False
+    kind = "School" if record.type == BuildingType.SCHOOL else "Office"
     receipt.assumptions.append(
-        f"School SE.06 earlier-build envelope: built {year}, before the BBR 19 "
-        f"(BFS 2011:6) limits of {policy.school_earlier_build_before_year}; the school SE.05 existing wall, "
+        f"{kind} SE.06 earlier-build envelope: built {year}, before the BBR 19 "
+        f"(BFS 2011:6) limits of {policy.school_earlier_build_before_year}; the {kind.lower()} SE.05 existing wall, "
         "roof and window with SE.06 ventilation, airtightness and operation"
     )
-    receipt.identities["school_earlier_build"] = {
+    receipt.identities[f"{kind.lower()}_earlier_build"] = {
         "year": year,
         "before_year": policy.school_earlier_build_before_year,
         "donor_year": policy.school_earlier_build_donor_year,
