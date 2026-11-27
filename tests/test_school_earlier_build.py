@@ -1,4 +1,4 @@
-"""School SE.06 earlier-build envelope (before the BBR 19 limits of 2012)."""
+"""School and office SE.06 earlier-build envelope (before the BBR 19 limits of 2012)."""
 
 import pytest
 from shapely.geometry import box
@@ -44,11 +44,6 @@ def test_other_eras_unchanged(year):
     assert _call(year)[0] is False
 
 
-@pytest.mark.parametrize("kind", ["single_family", "multi_family", "office"])
-def test_only_schools(kind):
-    assert _call(2008, kind=kind)[0] is False
-
-
 @pytest.mark.parametrize("state", ["standard", "advanced"])
 def test_only_existing_state(state):
     assert _call(2008, state=state)[0] is False
@@ -70,3 +65,22 @@ def test_disabled_restores_version_12():
 
 def test_policy_version():
     assert lr.ModelPolicy().version == "13"
+
+
+@pytest.mark.parametrize("year", [2006, 2011])
+def test_office_before_2012_uses_office_se05(year):
+    out, receipt = _call(year, kind="office")
+    assert out is True
+    assert receipt.identities["office_earlier_build"]["year"] == year
+    assert any("Office SE.06 earlier-build envelope" in a for a in receipt.assumptions)
+
+
+def test_office_switch_off_restores_earlier_behaviour():
+    out, receipt = _call(2008, kind="office", policy=lr.ModelPolicy(office_se06_earlier_build=False))
+    assert out is False
+    assert "office_earlier_build" not in receipt.identities
+
+
+@pytest.mark.parametrize("kind", ["multi_family", "single_family"])
+def test_housing_unchanged(kind):
+    assert _call(2008, kind=kind)[0] is False
