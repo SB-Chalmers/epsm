@@ -29,6 +29,7 @@ CLEARANCE_M = 0.1
 MIN_EDGE_M = 0.1
 MIN_PART_AREA_M2 = 1.0
 TARGET_OVERLAP_M2 = 1e-6
+CORE_OVERLAP_M2 = 1e-9  # below EPSM Core's 1e-8 m2 tolerance for context against the target
 
 _SQL = """SELECT component_external_id AS id, representative_height_m AS height_m, ST_AsText(geom) AS wkt
           FROM gis.components
@@ -80,6 +81,18 @@ def _clean(polygon):
     return cleaned if cleaned.geom_type == "Polygon" and cleaned.area > MIN_PART_AREA_M2 else None
 
 
+def _clip(polygon, target):
+    """``polygon`` less the target and its clearance, or None when no usable polygon is left."""
+    clipped = polygon.difference(target.buffer(CLEARANCE_M)).buffer(0)
+    pieces = [p for p in getattr(clipped, "geoms", [clipped]) if p.geom_type == "Polygon"]
+    if not pieces:
+        return None
+    best = max(pieces, key=lambda p: p.area)
+    if best.area <= MIN_PART_AREA_M2 or best.intersection(target).area > CORE_OVERLAP_M2:
+        return None
+    return best
+
+
 def context_spec(rows, *, origin_xy, target_footprints, min_height_m, radius_m):
     """``(ContextSpec, dropped counts)`` for rows in EPSG:3006 around a target.
 
@@ -110,6 +123,9 @@ def context_spec(rows, *, origin_xy, target_footprints, min_height_m, radius_m):
             remainder = part.simplify(SIMPLIFY_M).difference(placed.buffer(CLEARANCE_M)).buffer(0)
             for piece in getattr(remainder, "geoms", [remainder]):
                 cleaned = _clean(piece) if piece.geom_type == "Polygon" else None
+                if cleaned is not None and cleaned.intersection(target).area > CORE_OVERLAP_M2:
+                    # Simplifying can move a vertex back over the target; clip once more, unsimplified.
+                    cleaned = _clip(cleaned, target)
                 if cleaned is not None and not any(cleaned.intersection(s).area > 1e-9 for s in shapes):
                     kept.append(cleaned)
         if not kept:
