@@ -1,4 +1,4 @@
-"""Policy version 12: single-family SE.06 later-build envelope (2009/2012 energy rules)."""
+"""Single-family SE.06 later-build envelope (2009/2012 energy rules)."""
 
 from types import SimpleNamespace
 
@@ -41,7 +41,7 @@ def test_electric_from_2009(monkeypatch, carrier, year):
     assert set(states) == set(lr.LATER_BUILD_ROLES)
     assert set(states.values()) == {"advanced"}
     assert set(sources) == set(states) and all(
-        "version 12" in s for s in sources.values()
+        "later-build rule" in s for s in sources.values()
     )
     assert receipt.identities["single_family_later_build"]["carrier"] == carrier
     assert any("not a renovation" in a for a in receipt.assumptions)

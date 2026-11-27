@@ -74,10 +74,10 @@ use Core's public converter. Residential BEN selection, labelled generic
 fallbacks, normal/leap-year schedules, assumed office/school calendars and
 reference-area conversions retain their prior physical values. These policy
 calendars are explicit scenario assumptions; general archetype application does
-not generate holidays or calendars. Policy version 5 reads ventilation and heating
+not generate holidays or calendars. The default policy reads ventilation and heating
 carriers through `epsm_db.epc_systems` and takes the heat-pump seasonal COP from
 Data's `heating_delivery_template`, the Swedish field average of 2.75.
-Policy version 6 applies Sveby's window solar shading: by default the occupant
+It also applies Sveby's window solar shading: by default the occupant
 factor for blinds and curtains (0.71 for single-family houses and offices, 0.65 for
 schools; not applied, 1.0, for multi-family),
 since fixed obstructions belong in geometry. `ModelPolicy(solar_shading="total")`

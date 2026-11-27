@@ -4,8 +4,8 @@ Sveby gives two window solar factors. ``behaviour`` is the occupant part (blinds
 curtains, 0.71 for single-family houses and offices, 0.65 for schools). ``total`` also
 covers fixed obstructions (0.50 for houses and offices; Sveby gives schools one factor,
 so school stays 0.65). Multi-family is not applied: named choices give 1.0 there. Use ``behaviour`` when obstructions are modelled as geometry and
-``total`` when they are not. ``None`` turns the factor off (1.0), as in EPSM runs
-before policy version 6. A number in (0, 1] is used as given.
+``total`` when they are not. ``None`` turns the factor off (1.0), as in EPSM
+0.7.0 and earlier. A number in (0, 1] is used as given.
 """
 
 from __future__ import annotations

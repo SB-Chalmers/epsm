@@ -1,4 +1,4 @@
-"""Shading-only neighbour context on the record route (policy version 6), synthetic inputs only."""
+"""Shading-only neighbour context on the record route, synthetic inputs only."""
 
 from importlib.resources import files
 

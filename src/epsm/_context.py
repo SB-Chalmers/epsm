@@ -1,4 +1,4 @@
-"""Shading-only neighbour context for the record route (policy version 6).
+"""Shading-only neighbour context for the record route.
 
 Neighbours are lake building components within ``radius_m`` of the target footprint,
 each extruded to its representative height. They only cast shadows: no thermal

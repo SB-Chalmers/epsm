@@ -1,4 +1,4 @@
-"""Policy version 10: EPC ventilation with FTX among several ticked systems is modelled as FTX."""
+"""EPC ventilation with FTX among several ticked systems is modelled as FTX."""
 
 import pytest
 from shapely.geometry import box
