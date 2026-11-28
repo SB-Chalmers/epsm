@@ -1,9 +1,22 @@
-# Release candidate 0.8.0rc1 — Sveby shading, neighbours, SE.06 later builds and type checks (25 November 2026)
+# Release candidate 0.8.0rc2 — Sveby shading, neighbours, SE.06 builds, type checks and fewer rejected runs (27 November 2026)
 
-A candidate for 0.8.0. The default `ubem_v1` model policy gains the nine changes below.
-Results calibrated against 0.7.0 need rechecking. Each change has a `ModelPolicy` switch that
-restores the earlier behaviour. The candidate combination moves to Data 0.9.0rc1
-(`fc78281`) and Database 0.6.1 (`ae7e38c`); the other packages are unchanged.
+A candidate for 0.8.0. It replaces 0.8.0rc1, which was never published. The default
+`ubem_v1` model policy gains the nine changes below. Results calibrated against 0.7.0 need
+rechecking. Each change has a `ModelPolicy` switch that restores the earlier behaviour.
+The candidate combination moves to Core 0.10.3 (`180f87f`), Data 0.9.0rc2 (`571f1e2`) and
+Database 0.6.1 (`ae7e38c`); the other packages are unchanged.
+
+## Fewer rejected runs
+
+- Neighbours placed by EPSM no longer creep back over the target after their outline is
+  cleaned, and short edges left by that clip are removed. Core used to reject these
+  models with "Context building … overlaps target geometry" or near-coincident vertices.
+- `EPSMBuilding.simulate` turns on Core's context-shadow retry
+  (`recover_context_shadows=True`) unless the caller turns it off. It acts only after a
+  shadow-capacity rejection and records any approximation; with Core 0.10.3 its last step
+  drops neighbours lower than 5° above the horizon.
+- Receipts, docs and comments describe each change in plain words instead of internal
+  version numbers.
 
 ## Sveby window solar shading
 

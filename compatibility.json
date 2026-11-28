@@ -6,18 +6,18 @@
   ],
   "packages": {
     "epsm": {
-      "version": "0.8.0rc1",
+      "version": "0.8.0rc2",
       "revision": "self",
       "role": "scientific"
     },
     "epsm_data": {
-      "version": "0.9.0rc1",
-      "revision": "fc782815d4031364e392d9874d5ed892f4be1221",
+      "version": "0.9.0rc2",
+      "revision": "571f1e24259acdafb1476c792e860903ebcc2a83",
       "role": "scientific"
     },
     "epsm_core": {
-      "version": "0.10.0",
-      "revision": "8a260726e354b049e7459aeb7c167aeca4e6ef5d",
+      "version": "0.10.3",
+      "revision": "180f87f9cc726033fda54d8715d1a307dc59708d",
       "role": "scientific"
     },
     "epsm_rc": {
