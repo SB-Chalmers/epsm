@@ -3,7 +3,7 @@
 A candidate for 0.8.0. It replaces 0.8.0rc1, which was never published. The default
 `ubem_v1` model policy gains the nine changes below. Results calibrated against 0.7.0 need
 rechecking. Each change has a `ModelPolicy` switch that restores the earlier behaviour.
-The candidate combination moves to Core 0.10.3 (`180f87f`), Data 0.9.0rc2 (`c573895`) and
+The candidate combination moves to Core 0.10.3 (`180f87f`), Data 0.9.0rc2 (`571f1e2`) and
 Database 0.6.1 (`ae7e38c`); the other packages are unchanged.
 
 ## Fewer rejected runs
